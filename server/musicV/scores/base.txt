@@ -1,0 +1,6 @@
+INS 1 1 ;
+OSC P5 P6 B2 FS P30 ;
+OUT B2 B1 ;
+END ;
+NOT 0 1 440 0.05 0.15 ;
+TER 2 ;

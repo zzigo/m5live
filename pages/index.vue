@@ -1,0 +1,412 @@
+<template>
+  <div class="app-container">
+    <div class="settings">
+      <button
+        @click="toggleShowCode"
+        class="icon-button"
+        :title="showCode ? 'Hide Code' : 'Show Code'"
+      >
+        <svg v-if="showCode" class="icon" viewBox="0 0 24 24">
+          <path
+            fill="currentColor"
+            d="M12,9A3,3 0 0,1 15,12A3,3 0 0,1 12,15A3,3 0 0,1 9,12A3,3 0 0,1 12,9M12,4.5C17,4.5 21.27,7.61 23,12C21.27,16.39 17,19.5 12,19.5C7,19.5 2.73,16.39 1,12C2.73,7.61 7,4.5 12,4.5M3.18,12C4.83,15.36 8.24,17.5 12,17.5C15.76,17.5 19.17,15.36 20.82,12C19.17,8.64 15.76,6.5 12,6.5C8.24,6.5 4.83,8.64 3.18,12Z"
+          />
+        </svg>
+        <svg v-else class="icon" viewBox="0 0 24 24">
+          <path
+            fill="currentColor"
+            d="M11.83,9L15,12.16C15,12.11 15,12.05 15,12A3,3 0 0,0 12,9C11.94,9 11.89,9 11.83,9M7.53,9.8L9.08,11.35C9.03,11.56 9,11.77 9,12A3,3 0 0,0 12,15C12.22,15 12.44,14.97 12.65,14.92L14.2,16.47C13.53,16.8 12.79,17 12,17A5,5 0 0,1 7,12C7,11.21 7.2,10.47 7.53,9.8M2,4.27L4.28,6.55L4.73,7C3.08,8.3 1.78,10 1,12C2.73,16.39 7,19.5 12,19.5C13.55,19.5 15.03,19.2 16.38,18.66L16.81,19.08L19.73,22L21,20.73L3.27,3M12,7A5,5 0 0,1 17,12C17,12.64 16.87,13.26 16.64,13.82L19.57,16.75C21.07,15.5 22.27,13.86 23,12C21.27,7.61 17,4.5 12,4.5C10.6,4.5 9.26,4.75 8,5.2L10.17,7.35C10.74,7.13 11.35,7 12,7Z"
+          />
+        </svg>
+      </button>
+      <button
+        @click="handleMobileEvaluate"
+        class="icon-button"
+        title="Evaluate selected text or all if no selection"
+      >
+        <svg class="icon" viewBox="0 0 24 24">
+          <path fill="currentColor" d="M8,5.14V19.14L19,12.14L8,5.14Z" />
+        </svg>
+      </button>
+      <button
+        @click="handleClear"
+        class="icon-button"
+        title="Clear Editor (Ctrl+H)"
+      >
+        <svg class="icon" viewBox="0 0 24 24">
+          <path
+            fill="currentColor"
+            d="M9,3V4H4V6H5V19A2,2 0 0,0 7,21H17A2,2 0 0,0 19,19V6H20V4H15V3H9M7,6H17V19H7V6M9,8V17H11V8H9M13,8V17H15V8H13Z"
+          />
+        </svg>
+      </button>
+      <button
+        @click="handleRandomPrompt"
+        class="icon-button"
+        title="Random Prompt"
+      >
+        <svg class="icon" viewBox="0 0 24 24">
+          <path
+            fill="currentColor"
+            d="M14.83,13.41L13.42,14.82L16.55,17.95L14.5,20H20V14.5L17.96,16.54L14.83,13.41M14.5,4L16.54,6.04L4,18.59L5.41,20L17.96,7.46L20,9.5V4M10.59,9.17L5.41,4L4,5.41L9.17,10.58L10.59,9.17Z"
+          />
+        </svg>
+      </button>
+      <button @click="showHelp = true" class="icon-button" title="Help">
+        <svg class="icon" viewBox="0 0 24 24">
+          <path
+            fill="currentColor"
+            d="M11,18H13V16H11V18M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,6A4,4 0 0,0 8,10H10A2,2 0 0,1 12,8A2,2 0 0,1 14,10C14,12 11,11.75 11,15H13C13,12.75 16,12.5 16,10A4,4 0 0,0 12,6Z"
+          />
+        </svg>
+      </button>
+      <button @click="toggleTestEditor" class="icon-button" title="Go to test">
+        <svg class="icon" viewBox="0 0 24 24">
+          <path
+            fill="currentColor"
+            d="M3 17.25V21H6.75V17.25H3M3 3V13.5H6.75V3H3M8.25 17.25V21H12V17.25H8.25M8.25 3V13.5H12V3H8.25M13.5 17.25V21H17.25V17.25H13.5M13.5 3V13.5H17.25V3H13.5M18.75 17.25V21H22.5V17.25H18.75M18.75 3V13.5H22.5V3H18.75Z"
+          />
+        </svg>
+      </button>
+    </div>
+    <div class="editor-wrapper" v-if="!showTestEditor">
+      <AceEditor ref="editorRef" @evaluate="handleEvaluate" />
+    </div>
+    <div v-if="showTestEditor" class="editor-wrapper">
+      <MusicVTest />
+    </div>
+    <Transition
+      enter-active-class="fadeIn"
+      leave-active-class="fadeOut"
+      :duration="3000"
+      mode="out-in"
+    >
+      <div v-if="plotImage" class="plot-display" :key="transitionKey">
+        <img
+          :src="`data:image/png;base64,${plotImage}`"
+          alt="Plot"
+          @click="showLightbox = true"
+          class="plot-image"
+        />
+      </div>
+    </Transition>
+    <Transition
+      enter-active-class="fadeIn"
+      leave-active-class="fadeOut"
+      :duration="300"
+    >
+      <div v-if="showLightbox" class="lightbox" @click="showLightbox = false">
+        <button class="close-button" @click.stop="showLightbox = false">
+          <svg class="icon" viewBox="0 0 24 24">
+            <path
+              fill="currentColor"
+              d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"
+            />
+          </svg>
+        </button>
+        <img
+          :src="`data:image/png;base64,${plotImage}`"
+          alt="Plot"
+          class="lightbox-image"
+          @click.stop
+        />
+      </div>
+    </Transition>
+    <div class="footer">
+      <div v-if="loading" class="loading">
+        Processing... {{ Math.round(progress) }}%
+      </div>
+      <button
+        v-if="isMobileOrTablet"
+        @click="handleMobileEvaluate"
+        class="mobile-evaluate-btn"
+        title="Alt+Enter"
+      >
+        Evaluate
+      </button>
+    </div>
+    <div v-if="error" class="error">{{ error }}</div>
+    <HelpModal v-model="showHelp" />
+  </div>
+</template>
+
+<script setup>
+import { ref, onMounted, onUnmounted } from "vue";
+import { useRuntimeConfig } from "#app";
+import AceEditor from "~/components/AceEditor.vue";
+import HelpModal from "~/components/HelpModal.vue";
+import MusicVTest from "~/components/MusicVTest.vue";
+import { useRandomPrompt } from "~/composables/useRandomPrompt";
+import { useFavicon } from "~/composables/useFavicon";
+
+// State variables
+const { startProcessing, completeProcessing } = useFavicon();
+const editorRef = ref(null);
+const loading = ref(false);
+const progress = ref(0);
+const error = ref(null);
+const plotImage = ref(null);
+const showCode = ref(true);
+const showHelp = ref(false);
+const showTestEditor = ref(false);
+const transitionKey = ref(0);
+const isMobileOrTablet = ref(false);
+const showLightbox = ref(false);
+
+const checkDevice = () => {
+  isMobileOrTablet.value =
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+      navigator.userAgent
+    );
+};
+
+const handleEscapeKey = (e) => {
+  if (e.key === "Escape" && showLightbox.value) {
+    showLightbox.value = false;
+  }
+};
+
+onMounted(() => {
+  checkDevice();
+  window.addEventListener("resize", checkDevice);
+  window.addEventListener("keydown", handleEscapeKey);
+});
+
+onUnmounted(() => {
+  window.removeEventListener("resize", checkDevice);
+  window.removeEventListener("keydown", handleEscapeKey);
+});
+
+const handleClear = () => {
+  if (editorRef.value) {
+    editorRef.value.clearEditor();
+  }
+};
+
+const toggleShowCode = () => {
+  showCode.value = !showCode.value;
+};
+
+const handleRandomPrompt = async () => {
+  if (editorRef.value) {
+    const { getRandomPrompt } = useRandomPrompt();
+    const prompt = await getRandomPrompt();
+    editorRef.value.clearEditor();
+    editorRef.value.addToEditor(prompt);
+    // Add random prompt to command history
+    editorRef.value.addToHistory(prompt);
+  }
+};
+
+const handleMobileEvaluate = () => {
+  if (editorRef.value) {
+    const editor = editorRef.value.aceEditor();
+    if (editor) {
+      const selectedText = editor.getSelectedText();
+      const textToEvaluate = selectedText || editor.getValue();
+      if (textToEvaluate.trim()) {
+        startProcessing();
+        handleEvaluate(textToEvaluate);
+      } else {
+        error.value = "Please enter some text to evaluate.";
+      }
+    }
+  }
+};
+
+// Progress simulation
+let progressInterval;
+const startProgress = () => {
+  progress.value = 0;
+  progressInterval = setInterval(() => {
+    if (progress.value < 90) {
+      progress.value += Math.random() * 15;
+      if (progress.value > 90) progress.value = 90;
+    }
+  }, 1200);
+};
+
+const completeProgress = () => {
+  clearInterval(progressInterval);
+  progress.value = 100;
+  setTimeout(() => {
+    progress.value = 0;
+  }, 500);
+};
+
+// Runtime configuration
+const config = useRuntimeConfig();
+const apiBase = ref(config.public.apiBase || "https://soog.onrender.com/api");
+
+// Handle evaluation of selected text
+const handleEvaluate = async (selectedText) => {
+  if (!selectedText || !selectedText.trim()) {
+    error.value = "Please select some text to evaluate.";
+    return;
+  }
+  
+  // Add your evaluation logic here
+  try {
+    loading.value = true;
+    startProgress();
+    
+    // For now, just log the selected text
+    console.log("Evaluating:", selectedText);
+    
+    // Simulate processing
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    completeProgress();
+    loading.value = false;
+    completeProcessing();
+  } catch (err) {
+    error.value = err.message || "An error occurred during evaluation.";
+    loading.value = false;
+    completeProgress();
+    completeProcessing();
+  }
+};
+
+const toggleTestEditor = () => {
+  navigateTo('/musicv-test');
+};
+</script>
+
+<style scoped>
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  position: relative;
+}
+
+.settings {
+  position: fixed;
+  top: 10px;
+  right: 20px;
+  z-index: 100;
+  display: flex;
+  gap: 8px;
+}
+
+.icon-button {
+  background: transparent;
+  border: none;
+  color: white;
+  padding: 8px;
+  cursor: pointer;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s;
+}
+
+.icon-button:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.icon {
+  width: 24px;
+  height: 24px;
+}
+
+.plot-image {
+  cursor: pointer;
+  transition: transform 0.3s;
+}
+
+.plot-image:hover {
+  transform: scale(1.02);
+}
+
+.lightbox {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.lightbox-image {
+  max-width: 80vw;
+  max-height: 80vh;
+  object-fit: contain;
+}
+
+.close-button {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: transparent;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s;
+}
+
+.close-button:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.footer {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 1rem;
+  gap: 1rem;
+  background: black !important;
+  z-index: 1000;
+}
+
+.loading {
+  margin-right: auto;
+}
+
+.mobile-evaluate-btn {
+  background: #4caf50;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.3s;
+}
+
+.mobile-evaluate-btn:hover {
+  background: #45a049;
+}
+
+.mobile-evaluate-btn:active {
+  background: #3d8b40;
+  transform: translateY(1px);
+}
+
+.error {
+  position: fixed;
+  bottom: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ff5252;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 4px;
+  z-index: 1000;
+}
+</style>

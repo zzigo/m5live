@@ -1,0 +1,29 @@
+{
+  "name": "nuxt-app",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "start": "node .output/server/index.mjs",
+    "deploy": "gh-pages -d .output/public --dotfiles"
+  },
+  "dependencies": {
+    "@vite-pwa/nuxt": "^0.5.0",
+    "ace-builds": "^1.37.4",
+    "h3": "^1.9.0",
+    "nuxt": "^3.15.1",
+    "vue": "latest",
+    "vue-ace-editor": "^1.0.3",
+    "vue-router": "latest"
+  },
+  "devDependencies": {
+    "@nuxt/types": "latest",
+    "@types/node": "latest",
+    "gh-pages": "^6.3.0",
+    "typescript": "latest"
+  }
+}
