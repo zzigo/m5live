@@ -223,7 +223,6 @@ function stopDrag() {
 }
 
 onMounted(async () => {
-  // Wait longer to ensure AceEditor is fully initialized
   await new Promise(resolve => setTimeout(resolve, 100));
   await nextTick();
   
@@ -232,7 +231,6 @@ onMounted(async () => {
     if (aceEditorInstance) {
       aceEditorInstance.setValue(defaultScore.trim(), -1);
       aceEditorInstance.gotoLine(1, 0);
-      // Ensure overwrite mode is off by default
       aceEditorInstance.setOverwrite(false);
       console.log('Default score set in editor:', defaultScore.trim());
     } else {
@@ -246,7 +244,6 @@ onMounted(async () => {
     const terminalInstance = (consoleEditorRef.value as any).terminalInstance?.();
     if (terminalInstance) {
       clearConsole();
-      // Fix line height issue
       terminalInstance.renderer.setStyle('line-height', '1.2');
     } else {
       console.error('Console editor instance not available');
@@ -288,7 +285,30 @@ async function evaluateSelection() {
     
     if (consoleEditorRef.value) {
       (consoleEditorRef.value as any).addTerminalOutput(musicV.getConsoleOutput(), 'info');
-      (consoleEditorRef.value as any).addTerminalOutput('Generating audio samples...', 'info');
+    }
+    
+    // Play real-time audio first, before generating WAV, to preserve events
+    try {
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioContext.state === 'suspended') await audioContext.resume();
+      
+      await musicV.initAudio();
+      await musicV.play();
+      
+      if (consoleEditorRef.value) {
+        (consoleEditorRef.value as any).addTerminalOutput('Real-time audio playback initialized.', 'success');
+      }
+    } catch (audioError) {
+      console.error('Error initializing real-time audio:', audioError);
+      if (consoleEditorRef.value) {
+        (consoleEditorRef.value as any).addTerminalOutput(`Note: Real-time audio failed.`, 'warning');
+        (consoleEditorRef.value as any).addTerminalOutput(`Error: ${(audioError as Error).message}`, 'error');
+      }
+    }
+    
+    // Generate WAV file after real-time playback
+    if (consoleEditorRef.value) {
+      (consoleEditorRef.value as any).addTerminalOutput('Generating audio samples for WAV...', 'info');
     }
     
     const audioBuffer = await musicV.generateSound(10);
@@ -322,24 +342,6 @@ async function evaluateSelection() {
     }
     
     await playAudio();
-    
-    try {
-      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-      if (audioContext.state === 'suspended') await audioContext.resume();
-      
-      await musicV.initAudio();
-      await musicV.play();
-      
-      if (consoleEditorRef.value) {
-        (consoleEditorRef.value as any).addTerminalOutput('Real-time audio playback initialized.', 'success');
-      }
-    } catch (audioError) {
-      console.error('Error initializing real-time audio:', audioError);
-      if (consoleEditorRef.value) {
-        (consoleEditorRef.value as any).addTerminalOutput(`Note: Real-time audio failed. Using pre-rendered audio.`, 'warning');
-        (consoleEditorRef.value as any).addTerminalOutput(`Error: ${(audioError as Error).message}`, 'error');
-      }
-    }
     
     functionTables.value = musicV.getFunctionTables();
     functionTables.value.forEach(table => visualizeFunctionTable(table.functionNum, table.data));
@@ -661,7 +663,6 @@ function drawOscilloscope(table: {functionNum: number, data: number[]}) {
   border-radius: 2px;
 }
 
-/* Fix console line overlap */
 :deep(.ace_editor.terminal .ace_line) {
   line-height: 1.2 !important;
   height: auto !important;

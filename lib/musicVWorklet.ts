@@ -49,7 +49,7 @@ class MusicVProcessor extends AudioWorkletProcessor {
     for (let i = 0; i < output.length; i++) {
       const time = this.currentTime + i / this.sampleRate;
       output[i] = this.generateSample(time);
-      if (Math.random() < 0.01) { // Occasional logging
+      if (time < 0.01 || Math.random() < 0.01) { // Log occasionally
         console.log('[Worklet] Output sample at', time.toFixed(2) + 's:', output[i].toFixed(4));
       }
     }
@@ -99,7 +99,7 @@ class MusicVProcessor extends AudioWorkletProcessor {
               const functionData = this.functions.get(unit.params.functionNum) || this.functions.get(2)!;
               const value = functionData[index];
               const outputBlock = blocks.get(unit.params.outputBlock) || new Float32Array(1);
-              outputBlock[0] = value * note.amplitude;
+              outputBlock[0] = value * note.amplitude * 10; // Match MusicV.ts boost
               blocks.set(unit.params.outputBlock, outputBlock);
             } else if (unit.type === 'OUT') {
               const inputBlock = blocks.get(unit.params.inputBlock) || new Float32Array(1);
