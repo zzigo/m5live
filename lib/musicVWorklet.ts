@@ -5,8 +5,9 @@ class MusicVProcessor extends AudioWorkletProcessor {
   private activeNotes: Map<number, any> = new Map();
   private instruments: Map<number, any> = new Map();
   private functions: Map<number, Float32Array> = new Map();
+  private masterGain: number = 0.1; // Master volume control (adjustable)
 
-  constructor() {
+constructor() {
     super();
     console.log('[Worklet] Processor constructed');
     this.port.onmessage = (event) => {
@@ -37,7 +38,7 @@ class MusicVProcessor extends AudioWorkletProcessor {
     };
   }
 
-  process(inputs: Float32Array[][], outputs: Float32Array[][], parameters: Record<string, Float32Array>): boolean {
+process(inputs: Float32Array[][], outputs: Float32Array[][], parameters: Record<string, Float32Array>): boolean {
     const output = outputs[0][0];
     if (!output) return true;
 
@@ -46,11 +47,12 @@ class MusicVProcessor extends AudioWorkletProcessor {
       this.processEvent(event);
     }
 
-    for (let i = 0; i < output.length; i++) {
+for (let i = 0; i < output.length; i++) {
       const time = this.currentTime + i / this.sampleRate;
-      output[i] = this.generateSample(time);
-      if (time < 0.01 || Math.random() < 0.01) { // Log occasionally
-        console.log('[Worklet] Output sample at', time.toFixed(2) + 's:', output[i].toFixed(4));
+      const rawSample = this.generateSample(time);
+      output[i] = rawSample * this.masterGain;
+      if (time < 0.01 || Math.random() < 0.01) {
+        console.log('[Worklet] Output sample at', time.toFixed(2) + 's:', 'raw=', rawSample.toFixed(4), 'gain=', this.masterGain, 'final=', output[i].toFixed(4));
       }
     }
 
@@ -99,7 +101,7 @@ class MusicVProcessor extends AudioWorkletProcessor {
               const functionData = this.functions.get(unit.params.functionNum) || this.functions.get(2)!;
               const value = functionData[index];
               const outputBlock = blocks.get(unit.params.outputBlock) || new Float32Array(1);
-              outputBlock[0] = value * note.amplitude * 10; // Match MusicV.ts boost
+              outputBlock[0] = value * note.amplitude; // Removed * 10
               blocks.set(unit.params.outputBlock, outputBlock);
             } else if (unit.type === 'OUT') {
               const inputBlock = blocks.get(unit.params.inputBlock) || new Float32Array(1);

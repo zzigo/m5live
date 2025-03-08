@@ -124,7 +124,7 @@ onMounted(() => {
   const fontFaceStyle = document.createElement('style');
   fontFaceStyle.textContent = `
     @font-face {
-      font-family: 'Glass TTY VT220';
+      font-family: 'Web437_IBM_MDA';
       src: url('/fonts/Glass_TTY_VT220.ttf') format('truetype');
       font-weight: normal;
       font-style: normal;
@@ -175,7 +175,7 @@ function initializeEditor() {
     readOnly: props.mode === 'terminal',
     showGutter: props.mode === 'editor',
     wrap: true,
-    fontFamily: "'Glass TTY VT220', 'Courier New', 'Courier', monospace"
+    fontFamily: "'Web437_IBM_MDA', 'Courier New', 'Courier', monospace"
   })
   
   // Apply custom styling for terminal mode
@@ -188,7 +188,7 @@ function initializeEditor() {
       .ace_editor.terminal .ace_content {
         background-color: #000000 !important;
         color: #ffb000 !important;
-        font-family: 'Glass TTY VT220', 'Courier New', 'Courier', monospace !important;
+        font-family: 'Web437_IBM_MDA', 'Courier New', 'Courier', monospace !important;
         font-size: 18px !important;
       }
       .ace_editor.terminal .ace_cursor {
@@ -272,7 +272,7 @@ defineExpose({
 <style>
 /* Global styles for the terminal mode */
 .ace_editor {
-  font-family: 'Glass TTY VT220', 'Courier New', 'Courier', monospace !important;
+  font-family: 'Web437_IBM_MDA', 'Courier New', 'Courier', monospace !important;
 }
 
 .ace_editor.terminal {
@@ -281,7 +281,7 @@ defineExpose({
 .ace_editor.terminal .ace_content {
   background-color: transparent !important;
   color: #ffb000 !important;
-  font-family: 'Glass TTY VT220', 'Courier New', 'Courier', monospace !important;
+  font-family: 'Web437_IBM_MDA', 'Courier New', 'Courier', monospace !important;
 }
 .ace_editor.terminal .ace_cursor {
   background-color: #ffb000 !important;
@@ -293,7 +293,7 @@ defineExpose({
 
 /* Ensure the font is loaded globally */
 @font-face {
-  font-family: 'Glass TTY VT220';
+  font-family: 'Web437_IBM_MDA';
   src: url('/fonts/Glass_TTY_VT220.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
@@ -319,7 +319,7 @@ defineExpose({
 }
 
 :deep(.ace_editor) {
-  font-family: 'Glass TTY VT220', 'Courier New', 'Courier', monospace;
+  font-family: 'Web437_IBM_MDA', 'Courier New', 'Courier', monospace;
   background-color: transparent !important;
   font-size: 16px !important;
 }
@@ -335,7 +335,7 @@ defineExpose({
 :deep(.terminal .ace_content) {
   background-color: #000000 !important;
   color: #ffb000 !important; /* Amber color for vintage terminal look */
-  font-family: 'Glass TTY VT220', 'Courier New', 'Courier', monospace !important;
+  font-family: 'Web437_IBM_MDA', 'Courier New', 'Courier', monospace !important;
   font-size: 18px !important;
   line-height: 1.2 !important;
 }
@@ -346,12 +346,12 @@ defineExpose({
 }
 
 :deep(.terminal .ace_text-layer) {
-  font-family: 'Glass TTY VT220', 'Courier New', 'Courier', monospace !important;
+  font-family: 'Web437_IBM_MDA', 'Courier New', 'Courier', monospace !important;
 }
 
 @font-face {
-  font-family: 'Glass TTY VT220';
-  src: url('/fonts/Glass_TTY_VT220.ttf') format('truetype');
+  font-family: 'Web437_IBM_MDA';
+  src: url('/fonts/Web437_IBM_MDA.woff') format('truetype');
   font-weight: normal;
   font-style: normal;
   font-display: swap;

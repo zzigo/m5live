@@ -9,7 +9,6 @@
           @evaluate="evaluateSelection"
         />
         
-        <!-- Mini oscilloscope visualizations in top right corner -->
         <div class="mini-oscilloscopes">
           <div v-for="(table, index) in functionTables" :key="index" class="mini-oscilloscope">
             <div class="mini-oscilloscope-label">F{{ table.functionNum }}</div>
@@ -68,7 +67,6 @@ const audioUrl = ref<string | null>(null)
 const scoreEditorRef = ref<any>(null)
 const consoleEditorRef = ref<any>(null)
 
-// Divider and resizing state
 const isDragging = ref(false)
 const scoreEditorFlex = ref(0.85)
 const consoleEditorFlex = ref(0.15)
@@ -76,10 +74,18 @@ const startY = ref(0)
 const startScoreEditorFlex = ref(0)
 const startConsoleEditorFlex = ref(0)
 
-// Store function tables and canvas references
 const functionTables = ref<Array<{functionNum: number, data: number[]}>>([])
 const canvasRefs = reactive<Record<number, HTMLCanvasElement>>({})
 
+async function waitForEditor(ref: any, timeout = 1000): Promise<ace.Ace.Editor | null> {
+  const start = Date.now();
+  while (Date.now() - start < timeout) {
+    const instance = ref?.value?.aceEditorInstance?.();
+    if (instance) return instance;
+    await new Promise(resolve => setTimeout(resolve, 50));
+  }
+  return null;
+}
 function handleKeyDown(event: KeyboardEvent) {
   if (event.altKey && event.key === 'Enter') {
     event.preventDefault();
@@ -108,25 +114,25 @@ async function playAudio() {
       audioElement.play()
         .then(() => {
           if (consoleEditorRef.value) {
-            (consoleEditorRef.value as any).addTerminalOutput('Audio playback started', 'success');
+            (consoleEditorRef.value as any).addTerminalOutput('Audio playback started');
           }
         })
         .catch((err: Error) => {
           console.error('Error playing audio:', err);
           if (consoleEditorRef.value) {
-            (consoleEditorRef.value as any).addTerminalOutput(`Error playing audio: ${err.message}. Try clicking on the page first to enable audio.`, 'error');
+            (consoleEditorRef.value as any).addTerminalOutput(`Error playing audio: ${err.message}. Try clicking on the page first to enable audio.`);
           }
           fallbackAudioPlayback();
         });
     } catch (err) {
       console.error('Error creating audio element:', err);
       if (consoleEditorRef.value) {
-        (consoleEditorRef.value as any).addTerminalOutput(`Error creating audio element: ${(err as Error).message}`, 'error');
+        (consoleEditorRef.value as any).addTerminalOutput(`Error creating audio element: ${(err as Error).message}`);
       }
       fallbackAudioPlayback();
     }
   } else if (consoleEditorRef.value) {
-    (consoleEditorRef.value as any).addTerminalOutput('No audio available to play', 'error');
+    (consoleEditorRef.value as any).addTerminalOutput('No audio available to play');
   }
 }
 
@@ -156,19 +162,19 @@ function fallbackAudioPlayback() {
         gainNode.connect(audioContext.destination);
         source.start(0);
         if (consoleEditorRef.value) {
-          (consoleEditorRef.value as any).addTerminalOutput('Audio playback started (fallback)', 'success');
+          (consoleEditorRef.value as any).addTerminalOutput('Audio playback started (fallback)');
         }
       })
       .catch((err: Error) => {
         console.error('Error in fallback audio playback:', err);
         if (consoleEditorRef.value) {
-          (consoleEditorRef.value as any).addTerminalOutput(`Error in fallback audio playback: ${err.message}`, 'error');
+          (consoleEditorRef.value as any).addTerminalOutput(`Error in fallback audio playback: ${err.message}`);
         }
       });
   } catch (err) {
     console.error('Error in fallback audio playback:', err);
     if (consoleEditorRef.value) {
-      (consoleEditorRef.value as any).addTerminalOutput(`Error in fallback audio playback: ${(err as Error).message}`, 'error');
+      (consoleEditorRef.value as any).addTerminalOutput(`Error in fallback audio playback: ${(err as Error).message}`);
     }
   }
 }
@@ -223,33 +229,36 @@ function stopDrag() {
 }
 
 onMounted(async () => {
-  await new Promise(resolve => setTimeout(resolve, 100));
   await nextTick();
-  
-  if (scoreEditorRef.value) {
-    const aceEditorInstance = (scoreEditorRef.value as any).aceEditorInstance?.();
-    if (aceEditorInstance) {
-      aceEditorInstance.setValue(defaultScore.trim(), -1);
-      aceEditorInstance.gotoLine(1, 0);
-      aceEditorInstance.setOverwrite(false);
-      console.log('Default score set in editor:', defaultScore.trim());
-    } else {
-      console.error('AceEditor instance not available');
-    }
+
+  const scoreEditor = await waitForEditor(scoreEditorRef);
+  if (scoreEditor) {
+    scoreEditor.setValue(defaultScore.trim(), -1);
+    scoreEditor.gotoLine(1, 0);
+    scoreEditor.setOverwrite(false);
+    scoreEditor.setOptions({
+      fontFamily: 'Web437_IBM_MDA, monospace',
+      fontSize: '12px',
+    });
+    scoreEditor.renderer.updateFull();
+    console.log('Default score set in editor:', defaultScore.trim());
   } else {
-    console.error('scoreEditorRef is not defined');
+    console.error('Score editor instance not available after timeout');
   }
-  
-  if (consoleEditorRef.value) {
-    const terminalInstance = (consoleEditorRef.value as any).terminalInstance?.();
-    if (terminalInstance) {
-      clearConsole();
-      terminalInstance.renderer.setStyle('line-height', '1.2');
-    } else {
-      console.error('Console editor instance not available');
-    }
+
+  const consoleEditor = await waitForEditor(consoleEditorRef);
+  if (consoleEditor) {
+    clearConsole();
+    consoleEditor.setOptions({
+      fontFamily: 'Web437_IBM_MDA, monospace',
+      fontSize: '8.4px',
+    });
+    consoleEditor.renderer.setStyle('line-height', '1.5');
+    consoleEditor.renderer.updateFull();
+  } else {
+    console.error('Console editor instance not available after timeout');
   }
-  
+
   window.addEventListener('mousemove', onDrag);
   window.addEventListener('mouseup', stopDrag);
 });
@@ -275,46 +284,41 @@ async function evaluateSelection() {
     if (consoleEditorRef.value) {
       const terminalInstance = (consoleEditorRef.value as any).terminalInstance?.();
       if (terminalInstance) terminalInstance.setValue('');
-      (consoleEditorRef.value as any).addTerminalOutput('MUSIC V SCORE PROCESSING', 'success');
-      (consoleEditorRef.value as any).addTerminalOutput('=======================', 'info');
-      (consoleEditorRef.value as any).addTerminalOutput('Starting evaluation...', 'info');
     }
     
-    const musicV = new MusicV();
-    musicV.parseScore(currentScore);
+  const musicV = new MusicV();
+  musicV.parseScore(currentScore);
+  
+  if (consoleEditorRef.value) {
+    (consoleEditorRef.value as any).addTerminalOutput(musicV.getConsoleOutput());
+  }
+  
+  try {
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioContext.state === 'suspended') await audioContext.resume();
+    
+    await musicV.initAudio();
+    await musicV.play(); // Real-time playback first
     
     if (consoleEditorRef.value) {
-      (consoleEditorRef.value as any).addTerminalOutput(musicV.getConsoleOutput(), 'info');
+      (consoleEditorRef.value as any).addTerminalOutput('Real-time audio playback initialized.');
     }
-    
-    // Play real-time audio first, before generating WAV, to preserve events
-    try {
-      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-      if (audioContext.state === 'suspended') await audioContext.resume();
-      
-      await musicV.initAudio();
-      await musicV.play();
-      
-      if (consoleEditorRef.value) {
-        (consoleEditorRef.value as any).addTerminalOutput('Real-time audio playback initialized.', 'success');
-      }
-    } catch (audioError) {
-      console.error('Error initializing real-time audio:', audioError);
-      if (consoleEditorRef.value) {
-        (consoleEditorRef.value as any).addTerminalOutput(`Note: Real-time audio failed.`, 'warning');
-        (consoleEditorRef.value as any).addTerminalOutput(`Error: ${(audioError as Error).message}`, 'error');
-      }
-    }
-    
-    // Generate WAV file after real-time playback
+  } catch (audioError) {
+    console.error('Error initializing real-time audio:', audioError);
     if (consoleEditorRef.value) {
-      (consoleEditorRef.value as any).addTerminalOutput('Generating audio samples for WAV...', 'info');
+      (consoleEditorRef.value as any).addTerminalOutput(`Note: Real-time audio failed.`);
+      (consoleEditorRef.value as any).addTerminalOutput(`Error: ${(audioError as Error).message}`);
     }
-    
-    const audioBuffer = await musicV.generateSound(10);
+  }
+  
+  if (consoleEditorRef.value) {
+    (consoleEditorRef.value as any).addTerminalOutput('Generating audio samples for WAV...');
+  }
+  
+  const audioBuffer = await musicV.generateSound(10); // WAV generation after audioBuffer = await musicV.generateSound(10);
     
     if (consoleEditorRef.value) {
-      (consoleEditorRef.value as any).addTerminalOutput(`Generated ${audioBuffer.length} audio samples`, 'info');
+      (consoleEditorRef.value as any).addTerminalOutput(`Generated ${audioBuffer.length} audio samples`);
       let nonZeroCount = 0;
       let maxValue = 0;
       for (let i = 0; i < audioBuffer.length; i++) {
@@ -323,8 +327,8 @@ async function evaluateSelection() {
           maxValue = Math.max(maxValue, Math.abs(audioBuffer[i]));
         }
       }
-      (consoleEditorRef.value as any).addTerminalOutput(`Non-zero samples: ${nonZeroCount}`, 'info');
-      (consoleEditorRef.value as any).addTerminalOutput(`Max amplitude: ${maxValue}`, 'info');
+      (consoleEditorRef.value as any).addTerminalOutput(`Non-zero samples: ${nonZeroCount}`);
+      (consoleEditorRef.value as any).addTerminalOutput(`Max amplitude: ${maxValue}`);
     }
     
     const wavBlob = createWavBlob(audioBuffer, 44100);
@@ -334,89 +338,22 @@ async function evaluateSelection() {
     const filename = `musicv-output-${timestamp}.wav`;
     
     if (consoleEditorRef.value) {
-      (consoleEditorRef.value as any).addTerminalOutput('Audio generation complete.', 'info');
-      (consoleEditorRef.value as any).addTerminalOutput(`Audio file stored as Blob URL: ${audioUrl.value}`, 'info');
-      (consoleEditorRef.value as any).addTerminalOutput(`Press Ctrl+P to play the audio.`, 'success');
-      (consoleEditorRef.value as any).addTerminalOutput(`To save, right-click: `, 'info');
+      (consoleEditorRef.value as any).addTerminalOutput('Audio generation complete.');
+      (consoleEditorRef.value as any).addTerminalOutput(`Audio file stored as Blob URL: ${audioUrl.value}`);
+      (consoleEditorRef.value as any).addTerminalOutput('Press Ctrl+P to play the audio.');
+      (consoleEditorRef.value as any).addTerminalOutput('To save, right-click: ');
       (consoleEditorRef.value as any).addTerminalOutput(`<a href="${audioUrl.value}" download="${filename}" style="color:#ffb000;">Download ${filename}</a>`, 'html');
     }
     
     await playAudio();
     
     functionTables.value = musicV.getFunctionTables();
-    functionTables.value.forEach(table => visualizeFunctionTable(table.functionNum, table.data));
   } catch (error) {
     console.error('Error in evaluation:', error);
     if (consoleEditorRef.value) {
-      (consoleEditorRef.value as any).addTerminalOutput(`Error: ${(error as Error).message}`, 'error');
+      (consoleEditorRef.value as any).addTerminalOutput(`Error: ${(error as Error).message}`);
     }
   }
-}
-
-function visualizeFunctionTable(tableNum: number, tableData: number[] | Float32Array) {
-  if (!consoleEditorRef.value || !tableData) return;
-  
-  const width = 80;
-  const height = 15;
-  const grid = Array(height).fill(0).map(() => Array(width).fill(' '));
-  
-  let minVal = Infinity;
-  let maxVal = -Infinity;
-  for (let i = 0; i < tableData.length; i++) {
-    minVal = Math.min(minVal, tableData[i]);
-    maxVal = Math.max(maxVal, tableData[i]);
-  }
-  
-  if (minVal === maxVal) {
-    minVal -= 0.5;
-    maxVal += 0.5;
-  }
-  
-  if (minVal < 0 && maxVal > 0) {
-    const zeroLineY = Math.floor((height - 1) * (1 - (0 - minVal) / (maxVal - minVal)));
-    if (zeroLineY >= 0 && zeroLineY < height) {
-      for (let x = 0; x < width; x++) grid[zeroLineY][x] = '-';
-    }
-  }
-  
-  for (let x = 0; x < width; x++) {
-    const idx = Math.min(tableData.length - 1, Math.floor(x * tableData.length / width));
-    if (idx < tableData.length) {
-      const value = tableData[idx];
-      const y = Math.floor((height - 1) * (1 - (value - minVal) / (maxVal - minVal)));
-      const gridY = Math.max(0, Math.min(height - 1, y));
-      grid[gridY][x] = '*';
-    }
-  }
-  
-  let visualization = `\nFunction Table F${tableNum} (${tableData.length} points, range: ${minVal.toFixed(3)} to ${maxVal.toFixed(3)}):\n`;
-  for (let y = 0; y < height; y++) {
-    const yValue = maxVal - y * (maxVal - minVal) / (height - 1);
-    if (y === 0 || y === height - 1 || (minVal < 0 && maxVal > 0 && Math.abs(yValue) < 0.1)) {
-      visualization += `${yValue.toFixed(2).padStart(7)} |`;
-    } else {
-      visualization += '        |';
-    }
-    visualization += grid[y].join('') + '\n';
-  }
-  
-  visualization += '        +' + '-'.repeat(width) + '\n';
-  visualization += '         ' + '0'.padEnd(Math.floor(width/4)) + 
-                  (Math.floor(tableData.length/4)).toString().padEnd(Math.floor(width/4)) + 
-                  (Math.floor(tableData.length/2)).toString().padEnd(Math.floor(width/4)) + 
-                  (Math.floor(3*tableData.length/4)).toString().padEnd(Math.floor(width/4)) + 
-                  tableData.length.toString() + '\n';
-  
-  (consoleEditorRef.value as any).addTerminalOutput(visualization, 'info');
-  
-  const keyPositions = [0, 50, 205, 306, 461, 511];
-  let valueStr = 'Key values: ';
-  keyPositions.forEach(pos => {
-    if (pos < tableData.length) {
-      valueStr += `[${pos}]=${tableData[pos].toFixed(3)} `;
-    }
-  });
-  (consoleEditorRef.value as any).addTerminalOutput(valueStr, 'info');
 }
 
 function createWavBlob(audioData: Float32Array, sampleRate: number): Blob {
@@ -438,12 +375,16 @@ function createWavBlob(audioData: Float32Array, sampleRate: number): Blob {
   writeString(view, 36, 'data');
   view.setUint32(40, bufferLength, true);
 
-  const volume = 0.8;
+  const masterGain = 0.1; // Test with 0 and 1
   let index = 44;
   for (let i = 0; i < audioData.length; i++) {
-    const sample = Math.max(-1, Math.min(1, audioData[i])) * volume;
+    const rawSample = audioData[i];
+    const sample = Math.max(-1, Math.min(1, rawSample * masterGain));
     const int16Sample = sample < 0 ? sample * 0x8000 : sample * 0x7FFF;
     view.setInt16(index, int16Sample, true);
+    if (i < 10 || Math.random() < 0.01) {
+      console.log(`WAV sample at ${i}: raw=${rawSample.toFixed(6)}, gain=${masterGain}, final=${sample.toFixed(6)}`);
+    }
     index += 2;
   }
 
@@ -460,10 +401,10 @@ function clearConsole() {
   if (consoleEditorRef.value) {
     const terminalInstance = (consoleEditorRef.value as any).terminalInstance?.();
     if (terminalInstance) terminalInstance.setValue('');
-    (consoleEditorRef.value as any).addTerminalOutput('MUSIC V SCORE PROCESSING', 'info');
-    (consoleEditorRef.value as any).addTerminalOutput('=======================', 'info');
-    (consoleEditorRef.value as any).addTerminalOutput('Ready to evaluate. Press Alt+Enter to process the score.', 'info');
-    (consoleEditorRef.value as any).addTerminalOutput('After evaluation, you can play audio with Ctrl+P', 'info');
+    (consoleEditorRef.value as any).addTerminalOutput('MUSIC V SCORE PROCESSING');
+    (consoleEditorRef.value as any).addTerminalOutput('=======================');
+    (consoleEditorRef.value as any).addTerminalOutput('Ready to evaluate. Press Alt+Enter to process the score.');
+    (consoleEditorRef.value as any).addTerminalOutput('After evaluation, you can play audio with Ctrl+P');
   }
 }
 
@@ -652,7 +593,7 @@ function drawOscilloscope(table: {functionNum: number, data: number[]}) {
 }
 
 .mini-oscilloscope-label {
-  font-family: 'IBM Plex Mono', monospace;
+  font-family: 'Web437_IBM_MDA', monospace;
   color: #00ff00;
   font-size: 8px;
   margin-bottom: 2px;
@@ -663,8 +604,14 @@ function drawOscilloscope(table: {functionNum: number, data: number[]}) {
   border-radius: 2px;
 }
 
+:deep(.ace_editor) {
+  padding: 0 !important;
+  margin: 0 !important;
+  box-sizing: border-box;
+}
+
 :deep(.ace_editor.terminal .ace_line) {
-  line-height: 1.2 !important;
+  line-height: 1.5 !important;
   height: auto !important;
 }
 </style>
