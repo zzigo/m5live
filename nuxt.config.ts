@@ -14,7 +14,6 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      apiBase: 'https://m5live.onrender.com/api',
       basePath: basePath
     }
   },
@@ -46,6 +45,18 @@ export default defineNuxtConfig({
         { rel: 'apple-touch-icon', sizes: '180x180', href: `${basePath}/apple-touch-icon.png` },
         { rel: 'manifest', href: `${basePath}/manifest.json` }
       ]
+    }
+  },
+
+  // Additional GitHub Pages specific settings
+  routeRules: {
+    '/**': { swr: false }
+  },
+
+  // Ensure static assets are properly handled
+  vite: {
+    build: {
+      assetsInlineLimit: 0
     }
   },
 
