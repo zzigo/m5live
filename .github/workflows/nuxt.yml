@@ -62,7 +62,8 @@ jobs:
       # Install dependencies with specific flags to handle platform-specific packages
       - name: Install dependencies
         run: |
-          npm install --no-optional --no-shrinkwrap --no-package-lock
+          # Disable postinstall script to prevent nuxt prepare from running
+          npm install --ignore-scripts --no-package-lock
           # Explicitly install the Linux version of rollup
           npm install @rollup/rollup-linux-x64-gnu --no-save
       
