@@ -18,5 +18,8 @@
   "devDependencies": {
     "@types/node": "^20.17.5",
     "typescript": "^5.6.3"
+  },
+  "imports": {
+    "#internal/nuxt/paths": "./node_modules/nuxt/dist/core/runtime/nitro/paths"
   }
 }

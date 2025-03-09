@@ -36,7 +36,7 @@ export function useFavicon() {
     const opacityMatch = color.match(/[\d.]+\)$/);
     const opacity = opacityMatch ? parseFloat(opacityMatch[0]) : 1;
     const baseRadius = 7;
-    const radius = baseRadius + (1 - opacity) * 1.5; // Subtle zoom out when fading
+    const radius = Math.max(1, baseRadius + (1 - opacity) * 1.5); // Ensure radius is always positive
 
     // Center the circles more
     const centerY = 16;

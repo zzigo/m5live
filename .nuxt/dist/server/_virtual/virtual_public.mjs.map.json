@@ -1,0 +1,1 @@
+{"file":"virtual_public.mjs","mappings":";AAAuD,MAAe,aAAA,gBAAgB,UAAU;","names":[],"sources":["../../../../virtual:public?%2Fhkb.svg"],"sourcesContent":["import { publicAssetsURL } from '#internal/nuxt/paths';export default publicAssetsURL(\"/hkb.svg\")"],"version":3}

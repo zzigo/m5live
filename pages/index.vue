@@ -16,6 +16,7 @@
         <svg class="icon" viewBox="0 0 24 24">
           <path fill="currentColor" d="M8,5.14V19.14L19,12.14L8,5.14Z" />
         </svg>
+        <span class="f-subscript">F</span>
       </button>
       <button @click="handleEvaluateTS" class="icon-button" title="Evaluate TS (Alt+Enter)">
         <svg class="icon" viewBox="0 0 24 24">
@@ -111,7 +112,7 @@
       </div>
     </div>
     <div class="footer">
-      <div v-if="loading" class="loading">Processing... {{ Math.round(progress) }}%</div>
+      <div v-if="loading" class="loading">Processing...</div>
       <button v-if="isMobileOrTablet" @click="handleEvaluateTS" class="mobile-evaluate-btn" title="Alt+Enter">Evaluate TS</button>
     </div>
     <div v-if="error" class="error">{{ error }}</div>
@@ -127,6 +128,24 @@ import HelpModal from '~/components/HelpModal.vue';
 import { useRandomPrompt } from '~/composables/useRandomPrompt';
 import { useFavicon } from '~/composables/useFavicon';
 import { MusicV } from '~/lib/musicV';
+
+// Simple logger implementation
+const logger = {
+  debug: (context, message, ...args) => {
+    if (debugMode && debugMode.value) {
+      console.debug(`[${context}]`, message, ...args);
+    }
+  },
+  info: (context, message, ...args) => {
+    console.info(`[${context}]`, message, ...args);
+  },
+  warn: (context, message, ...args) => {
+    console.warn(`[${context}]`, message, ...args);
+  },
+  error: (context, message, ...args) => {
+    console.error(`[${context}]`, message, ...args);
+  }
+};
 
 const musicV = new MusicV();
 const defaultScore = `
@@ -159,6 +178,7 @@ const audioUrl = ref(null);
 const functionTables = ref([]);
 const canvasRefs = reactive({});
 const currentTitle = ref(''); // For title display
+const debugMode = ref(false); // Debug mode flag
 
 const codes = ref([]);
 const newCode = ref({ title: '', year: new Date().getFullYear(), composer: '', comments: '', code: '' });
@@ -260,13 +280,9 @@ const handleEvaluateBinary = () => {
   }
   loading.value = true;
   startProcessing();
-  const stopProgress = startProgress();
-  setTimeout(() => {
-    consoleEditorRef.value?.addTerminalOutput("Binary evaluation not implemented yet.");
-    stopProgress();
-    loading.value = false;
-    completeProcessing();
-  }, 1000);
+  consoleEditorRef.value?.addTerminalOutput("musicV fortran binaries original render next");
+  loading.value = false;
+  completeProcessing();
 };
 
 
@@ -281,19 +297,36 @@ const handleEvaluateTS = async (text = null) => {
   const stopProgress = startProgress();
   try {
     consoleEditorRef.value?.addTerminalOutput('');
-    // Fully reset oscilloscopes
-    functionTables.value = []; // Clear function tables
-    Object.keys(canvasRefs).forEach(key => delete canvasRefs[key]); // Clear canvas references
-    await nextTick(); // Ensure DOM updates before proceeding
-    musicV.parseScore(evalText);
-    consoleEditorRef.value?.addTerminalOutput(musicV.getConsoleOutput());
-    await musicV.initAudio();
-    await musicV.play();
-    const audioBuffer = await musicV.generateSound(10);
+    
+    // Reset MusicV instance
+    resetMusicV();
+    
+    // Clear oscilloscopes
+    clearOscilloscopes();
+    
+    // Force DOM update to ensure old oscilloscopes are removed
+    await nextTick();
+    
+    // Parse the score
+    musicV.value.parseScore(evalText);
+    consoleEditorRef.value?.addTerminalOutput(musicV.value.getConsoleOutput());
+    
+    // Initialize audio and play
+    await musicV.value.initAudio();
+    await musicV.value.play();
+    
+    // Generate sound
+    const audioBuffer = await musicV.value.generateSound(10);
     const wavBlob = createWavBlob(audioBuffer, 44100);
     audioUrl.value = URL.createObjectURL(wavBlob);
     consoleEditorRef.value?.addTerminalOutput(`Audio generated: ${audioUrl.value}`);
-    functionTables.value = musicV.getFunctionTables(); // Update with new tables
+    
+    // Update function tables - this will trigger the watcher to create new oscilloscopes
+    const newTables = musicV.value.getFunctionTables();
+    if (debugMode.value) {
+      logger.debug('App', `Found ${newTables.length} function tables`);
+    }
+    functionTables.value = newTables;
   } catch (err) {
     consoleEditorRef.value?.addTerminalOutput(`Error: ${err.message}`);
   } finally {
@@ -304,21 +337,30 @@ const handleEvaluateTS = async (text = null) => {
 };
 
 watch(functionTables, (newTables) => {
-  setTimeout(() => newTables.forEach(drawOscilloscope), 0); // Draw only current tables
+  // Clear all canvases first
+  Object.keys(canvasRefs).forEach(key => {
+    const canvas = canvasRefs[key];
+    if (canvas) {
+      const ctx = canvas.getContext('2d');
+      if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+  });
+  
+  // Only keep references to current tables
+  const currentTableNums = newTables.map(table => table.functionNum);
+  Object.keys(canvasRefs).forEach(key => {
+    if (!currentTableNums.includes(parseInt(key))) {
+      delete canvasRefs[key];
+    }
+  });
+  
+  // Draw only current tables
+  if (debugMode.value) {
+    logger.debug('App', `Drawing ${newTables.length} oscilloscopes`);
+  }
+  
+  setTimeout(() => newTables.forEach(drawOscilloscope), 0);
 }, { deep: true });
-
-// Update watcher to handle full redraw
-// watch(functionTables, (newTables) => {
-//   // Clear all canvases first
-//   Object.values(canvasRefs).forEach(canvas => {
-//     if (canvas) {
-//       const ctx = canvas.getContext('2d');
-//       ctx.clearRect(0, 0, canvas.width, canvas.height);
-//     }
-//   });
-//   // Draw only current tables
-//   setTimeout(() => newTables.forEach(drawOscilloscope), 0);
-// }, { deep: true });
 
 const handleEvaluateTSFromMenu = () => {
   if (selectedCode.value) handleEvaluateTS(selectedCode.value.code);
@@ -334,6 +376,16 @@ const handleKeyDown = (event) => {
   } else if (event.ctrlKey && event.key === 'h') {
     event.preventDefault();
     handleClear();
+  }
+};
+
+const resetMusicV = () => {
+  // Create a new MusicV instance to clear all internal state
+  musicV.value = new MusicV();
+  
+  // If debug mode is enabled, log this action
+  if (debugMode && debugMode.value) {
+    console.debug('Reset MusicV instance');
   }
 };
 
@@ -464,20 +516,51 @@ const sendToEditor = () => {
   if (selectedCode.value) {
     scoreEditorRef.value?.addToEditor(selectedCode.value.code || '');
     toggleStorageMenu();
+    clearOscilloscopes();
   }
 };
 
 const drawOscilloscope = (table) => {
+  // Validate table data
+  if (!table || !table.functionNum || !table.data || table.data.length === 0) {
+    if (debugMode.value) {
+      logger.warn('Oscilloscope', `Invalid function table data for F${table?.functionNum || 'unknown'}`);
+    }
+    return;
+  }
+
+  // Get canvas for this function table
   const canvas = canvasRefs[table.functionNum];
-  if (!canvas) return;
+  if (!canvas) {
+    if (debugMode.value) {
+      logger.warn('Oscilloscope', `Canvas not found for function table F${table.functionNum}`);
+    }
+    return;
+  }
+  
+  // Get 2D context
   const ctx = canvas.getContext('2d');
-  if (!ctx) return;
+  if (!ctx) {
+    if (debugMode.value) {
+      logger.warn('Oscilloscope', `Could not get 2D context for canvas F${table.functionNum}`);
+    }
+    return;
+  }
+  
+  if (debugMode.value) {
+    logger.debug('Oscilloscope', `Drawing function table F${table.functionNum} with ${table.data.length} points`);
+  }
+  
   const width = canvas.width;
   const height = canvas.height;
   const data = table.data;
+  
+  // Clear canvas
   ctx.clearRect(0, 0, width, height);
   ctx.fillStyle = '#1a1a1a';
   ctx.fillRect(0, 0, width, height);
+  
+  // Draw grid
   ctx.strokeStyle = '#333333';
   ctx.lineWidth = 0.5;
   for (let x = 0; x <= width; x += width / 4) {
@@ -492,34 +575,77 @@ const drawOscilloscope = (table) => {
     ctx.lineTo(width, y);
     ctx.stroke();
   }
+  
+  // Draw center line
   ctx.strokeStyle = '#555555';
   ctx.beginPath();
   ctx.moveTo(0, height / 2);
   ctx.lineTo(width, height / 2);
   ctx.stroke();
+  
+  // Find min/max values
   let minVal = Infinity, maxVal = -Infinity;
   for (let i = 0; i < data.length; i++) {
     minVal = Math.min(minVal, data[i]);
     maxVal = Math.max(maxVal, data[i]);
   }
-  if (minVal === maxVal) { minVal -= 0.5; maxVal += 0.5; }
+  
+  // Ensure we have a range even if all values are the same
+  if (minVal === maxVal) { 
+    minVal -= 0.5; 
+    maxVal += 0.5; 
+  }
+  
+  // Draw waveform
   ctx.strokeStyle = '#00ff00';
   ctx.lineWidth = 1.5;
   ctx.beginPath();
   const dataLength = data.length;
-  for (let i = 0; i < dataLength; i++) {
-    const x = (i / (dataLength - 1)) * width;
-    const normalizedValue = (data[i] - minVal) / (maxVal - minVal);
-    const y = (1 - normalizedValue) * height;
-    if (i === 0) ctx.moveTo(x, y);
-    else ctx.lineTo(x, y);
+  
+  try {
+    for (let i = 0; i < dataLength; i++) {
+      const x = (i / (dataLength - 1)) * width;
+      const normalizedValue = (data[i] - minVal) / (maxVal - minVal);
+      const y = (1 - normalizedValue) * height;
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    
+    // Add labels
+    ctx.fillStyle = '#00ff00';
+    ctx.font = '9px monospace';
+    ctx.fillText(`${maxVal.toFixed(2)}`, 2, 8);
+    ctx.fillText(`${minVal.toFixed(2)}`, 2, height - 2);
+    ctx.fillText(`${dataLength}p`, width - 25, 8);
+  } catch (err) {
+    if (debugMode.value) {
+      logger.error('Oscilloscope', `Error drawing oscilloscope for F${table.functionNum}:`, err);
+    }
   }
-  ctx.stroke();
-  ctx.fillStyle = '#00ff00';
-  ctx.font = '9px monospace';
-  ctx.fillText(`${maxVal.toFixed(2)}`, 2, 8);
-  ctx.fillText(`${minVal.toFixed(2)}`, 2, height - 2);
-  ctx.fillText(`${dataLength}p`, width - 25, 8);
+};
+
+const clearOscilloscopes = () => {
+  // Clear all canvas elements
+  Object.keys(canvasRefs).forEach(key => {
+    const canvas = canvasRefs[key];
+    if (canvas) {
+      const ctx = canvas.getContext('2d');
+      if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+  });
+  
+  // Clear all canvas references
+  Object.keys(canvasRefs).forEach(key => {
+    delete canvasRefs[key];
+  });
+  
+  // Clear function tables
+  functionTables.value = [];
+  
+  if (debugMode.value) {
+    logger.debug('App', 'Cleared all oscilloscopes');
+  }
 };
 </script>
 
@@ -708,6 +834,14 @@ const drawOscilloscope = (table) => {
   right: 2px;
   font-size: 10px;
   color: #00ff00;
+}
+
+.f-subscript {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  font-size: 10px;
+  color: #4a148c; /* Dark violet color */
 }
 
 .icon { width: 24px; height: 24px; }
