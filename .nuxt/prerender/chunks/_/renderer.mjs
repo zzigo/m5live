@@ -382,5 +382,5 @@ const renderer$1 = /*#__PURE__*/Object.freeze({
   default: renderer
 });
 
-export { headSymbol as h, publicAssetsURL as p, renderer$1 as r, useHead as u };
+export { headSymbol as h, renderer$1 as r, useHead as u };
 //# sourceMappingURL=renderer.mjs.map

@@ -30,7 +30,7 @@
           <path fill="currentColor" d="M9,3V4H4V6H5V19A2,2 0 0,0 7,21H17A2,2 0 0,0 19,21V6H20V4H15V3H9M7,6H17V19H7V6M9,8V17H11V8H9M13,8V17H15V8H13Z" />
         </svg>
       </button>
-      <button @click="handleRandomPrompt" class="icon-button" title="Random Prompt">
+      <button @click="handleRandomPrompt" class="icon-button" title="Randomize Score">
         <svg class="icon" viewBox="0 0 24 24">
           <path fill="currentColor" d="M14.83,13.41L13.42,14.82L16.55,17.95L14.5,20H20V14.5L17.96,16.54L14.83,13.41M14.5,4L16.54,6.04L4,18.59L5.41,20L17.96,7.46L20,9.5V4M10.59,9.17L5.41,4L4,5.41L9.17,10.58L10.59,9.17Z" />
         </svg>
@@ -50,8 +50,8 @@
       <div class="editor-container">
         <div class="score-editor" :style="{ flex: scoreEditorFlex }">
           <AceEditor ref="scoreEditorRef" mode="editor" :value="defaultScore" @evaluate="handleEvaluateBinary" @evaluateTS="handleEvaluateTS" @keydown="handleKeyDown" />
-          <div class="mini-oscilloscopes">
-            <div v-for="(table, index) in functionTables" :key="index" class="mini-oscilloscope">
+          <div class="mini-oscilloscopes" v-if="showOscilloscopes">
+            <div v-for="(table, index) in functionTables" :key="`table-${table.functionNum}-${index}`" class="mini-oscilloscope">
               <div class="mini-oscilloscope-label">F{{ table.functionNum }}</div>
               <canvas :ref="el => { if (el) canvasRefs[table.functionNum] = el }" width="80" height="50" class="mini-oscilloscope-canvas"></canvas>
             </div>
@@ -64,7 +64,7 @@
           </div>
           <AceEditor ref="consoleEditorRef" mode="terminal" />
         </div>
-      </div>
+    </div>
     </div>
     <Transition enter-active-class="fadeIn" leave-active-class="fadeOut" :duration="3000" mode="out-in">
       <div v-if="plotImage" class="plot-display" :key="transitionKey">
@@ -181,6 +181,7 @@ const canvasRefs = reactive({});
 const currentTitle = ref(''); // For title display
 const debugMode = ref(false); // Debug mode flag
 const isPlaying = ref(false); // Track if audio is playing
+const showOscilloscopes = ref(true); // Control oscilloscope visibility
 
 const codes = ref([]);
 const newCode = ref({ title: '', year: new Date().getFullYear(), composer: '', comments: '', code: '' });
@@ -260,6 +261,10 @@ const navigateCodes = (direction) => {
   selectedCodeIndex.value = newIndex;
   selectedCode.value = codes.value[newIndex];
   
+  // Hide oscilloscopes and clear them
+  showOscilloscopes.value = false;
+  clearOscilloscopes();
+  
   // Update editor based on menu state
   if (showStorageMenu.value && codeEditorRef.value) {
     codeEditorRef.value.addToEditor(selectedCode.value.code || '');
@@ -277,16 +282,23 @@ const toggleShowCode = () => showCode.value = !showCode.value;
 const toggleStorageMenu = () => showStorageMenu.value = !showStorageMenu.value;
 
 const handleRandomPrompt = async () => {
-  const { getRandomPrompt } = useRandomPrompt();
-  const prompt = await getRandomPrompt();
-  scoreEditorRef.value?.addToEditor(prompt);
+  const { randomizeScore } = useRandomPrompt();
+  const currentScore = scoreEditorRef.value?.aceEditor()?.getValue() || defaultScore;
+  const randomizedScore = randomizeScore(currentScore);
+  
+  // Hide oscilloscopes and clear them
+  showOscilloscopes.value = false;
+  clearOscilloscopes();
+  
+  // Update the editor with the randomized score
+  scoreEditorRef.value?.addToEditor(randomizedScore);
 };
 
 const startProgress = () => {
   progress.value = 0;
   const interval = setInterval(() => {
     if (progress.value < 90) progress.value += Math.random() * 15;
-    if (progress.value > 90) progress.value = 90;
+      if (progress.value > 90) progress.value = 90;
   }, 1200);
   return () => clearInterval(interval);
 };
@@ -333,7 +345,11 @@ const handleEvaluateTS = async (text = null) => {
   startProcessing();
   const stopProgress = startProgress();
   try {
-    // Clear oscilloscopes
+    // Hide oscilloscopes first
+    showOscilloscopes.value = false;
+    
+    // Clear oscilloscopes and function tables
+    functionTables.value = [];
     clearOscilloscopes();
     
     // Force DOM update to ensure old oscilloscopes are removed
@@ -353,12 +369,18 @@ const handleEvaluateTS = async (text = null) => {
     const wavBlob = createWavBlob(audioBuffer, 44100);
     audioUrl.value = URL.createObjectURL(wavBlob);
     
-    // Update function tables - this will trigger the watcher to create new oscilloscopes
+    // Get function tables from MusicV
     const newTables = musicV.getFunctionTables();
     if (debugMode.value) {
       logger.debug('App', `Found ${newTables.length} function tables`);
     }
-    functionTables.value = newTables;
+    
+    // Set new function tables
+    functionTables.value = [...newTables]; // Use spread to create a new array
+    
+    // Show oscilloscopes after tables are set
+    await nextTick();
+    showOscilloscopes.value = true;
   } catch (err) {
     consoleEditorRef.value?.addTerminalOutput(`Error: ${err.message}`);
     isPlaying.value = false;
@@ -659,12 +681,20 @@ const drawOscilloscope = (table) => {
 };
 
 const clearOscilloscopes = () => {
+  // Hide oscilloscopes
+  showOscilloscopes.value = false;
+  
   // Clear all canvas elements
   Object.keys(canvasRefs).forEach(key => {
     const canvas = canvasRefs[key];
     if (canvas) {
       const ctx = canvas.getContext('2d');
-      if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (ctx) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        // Fill with background color to ensure complete clearing
+        ctx.fillStyle = '#1a1a1a';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      }
     }
   });
   
@@ -680,6 +710,13 @@ const clearOscilloscopes = () => {
     logger.debug('App', 'Cleared all oscilloscopes');
   }
 };
+
+// Add a watcher for code changes to clear oscilloscopes
+watch(() => scoreEditorRef.value?.aceEditor()?.getValue(), () => {
+  // Hide oscilloscopes and clear them when code changes
+  showOscilloscopes.value = false;
+  clearOscilloscopes();
+}, { deep: true });
 </script>
 
 <style scoped>

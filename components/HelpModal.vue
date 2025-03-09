@@ -3,106 +3,99 @@
     <div v-if="modelValue" class="modal-overlay" @click="$emit('update:modelValue', false)">
       <div class="modal-content" @click.stop>
         <div class="modal-header">
-          <h2>Welcome to SOOG</h2>
+          <h2>Welcome to M5LIVE</h2>
           <button class="close-button" @click="$emit('update:modelValue', false)">×</button>
         </div>
         <div class="modal-body">
-          <h3>The Speculative Organology Organogram Generator</h3>
+          <h3>A LiveCoding Revival of MUSIC V</h3>
           <p>
-            SOOG helps you visualize musical instruments based on the organogram technique from ethnomusicologist Mantle Hood. 
-            It can also help create speculative instruments by mixing, morphing, and entangling geometrical and acoustical information.
+            M5LIVE is a modern reinterpretation of Max Mathews' pioneering MUSIC V system, enabling live coding of musical scores in the MUSIC V syntax. Built on Nuxt 3, it bridges vintage computer music with contemporary web technologies, offering a platform to explore sound synthesis and speculative instrument design.
           </p>
 
-          <h4>How it works:</h4>
+          <h4>Historical Context: Max Mathews and MUSIC I-VI</h4>
+          <p>
+            Max Mathews, often called the "father of computer music," invented the MUSIC series (I-VI) starting in 1957 at Bell Labs. MUSIC I was the first program to synthesize sound on a computer (an IBM 704), famously rendering "Daisy Bell" in 1961—later immortalized in *2001: A Space Odyssey*. By MUSIC V (1968), Mathews introduced a modular, score-based system that abstracted sound generation into "instruments" (unit generators) and "notes," laying the groundwork for modern digital audio workstations. Through a media archaeology lens, MUSIC V reveals deep patterns in computational design—modularity, abstraction, and human-machine collaboration—that resonate with philosophical questions about creativity and interface incentives. M5LIVE recovers these patterns, extending them into a web-based, interactive environment.
+          </p>
+
+          <h4>How It Works:</h4>
           <ol>
-            <li>Abstract instrument shapes using geometrical figures to represent resonant acoustical spaces</li>
-            <li>Abstract interfaces with different colored geometrical figures and indicate movements with arrows</li>
-            <li>Mix different acoustical shapes to create new polygons or freehand drawings</li>
-            <li>View spectrum simulations of acoustical shapes when available</li>
-            <li>Represent measurable components with light-blue numbers (e.g., strings, holes, keys)</li>
+            <li>Write MUSIC V scores in the editor (e.g., <code>INS 0 1; OSC P5 P6 B2 F2 P30;</code>).</li>
+            <li>Use shortcuts to evaluate code live or send it to the console.</li>
+            <li>Explore stored scores via the storage menu, updating or playing them as TypeScript audio.</li>
+            <li>Leverage media archaeology to rediscover design paradigms from Mathews' era, inspiring new interfaces.</li>
           </ol>
 
-          <h4>Organogram Basics:</h4>
+          <h4>Activated Commands:</h4>
           <ul>
-            <li><strong>Instrument Types:</strong>
-              <ul>
-                <li>Idiophones: squares</li>
-                <li>Membranophones: horizontal rectangles</li>
-                <li>Chordophones: vertical rectangles</li>
-                <li>Aerophones: circles</li>
-                <li>Electronophones: rhombus</li>
-              </ul>
-            </li>
-            <li><strong>Special Markings:</strong>
-              <ul>
-                <li>Genus: marked with semi-circle</li>
-                <li>Performer position: little white circle with dotted line</li>
-                <li>Electronic components:
-                  <ul>
-                    <li>Microphones: small rhombus</li>
-                    <li>Speakers: small horizontal cone (rotated to focus on sweet spot)</li>
-                  </ul>
-                </li>
-                <li>Arrows: Used for connections/relationships (with proportional heads)</li>
-                <li>Aerophone tubes: Parallel lines (straight) or conical lines (conical)</li>
-              </ul>
-            </li>
-            <li><strong>Materials (Colors):</strong>
-              <ul>
-                <li>Wood: orange</li>
-                <li>Bamboo: yellow</li>
-                <li>Skin: pink</li>
-                <li>Glass: green</li>
-                <li>Stone: white</li>
-                <li>Water: blue</li>
-                <li>Gourd: beige</li>
-                <li>Earth: brown</li>
-                <li>Plastic: grey</li>
-                <li>Bone: light grey</li>
-              </ul>
-            </li>
-            <li><strong>Symbols (Orange):</strong> H=hammer, Y=lacing, P=precise, R=relative, C=cord/string, Ri=ring, M=male, F=female</li>
+            <li><strong>Evaluate/Stop TS</strong>: <kbd>Alt + Enter</kbd> - Runs the selected or full score as TypeScript audio. When playing, changes to a stop button. Syntax: <code>INS &lt;time&gt; &lt;duration&gt;; OSC &lt;params&gt;; OUT &lt;buffer&gt;; END;</code></li>
+            <li><strong>Stop Playback</strong>: <kbd>Cmd + .</kbd> or <kbd>Ctrl + .</kbd> - Stops audio playback.</li>
+            <li><strong>Evaluate Binary</strong>: <kbd>Ctrl + Enter</kbd> - Will execute the score using original Fortran MUSIC V binary compilation (future implementation).</li>
+            <li><strong>Clear Editor</strong>: <kbd>Ctrl + H</kbd> - Wipes the editor content.</li>
+            <li><strong>Clear Console</strong>: <kbd>Ctrl + P</kbd> - Clears the console output.</li>
+            <li><strong>Storage Menu</strong>: <kbd>Ctrl + M</kbd> - Opens the storage menu for saved codes.</li>
+            <li><strong>Navigate Codes</strong>: <kbd>Alt + Shift + ←/→</kbd> - Navigate between saved codes.</li>
+            <li><strong>Show/Hide Code</strong>: Click the eye icon - Toggles visibility of generated code.</li>
+            <li><strong>Mobile Evaluate</strong>: Tap "Evaluate" button - Triggers evaluation on mobile devices.</li>
           </ul>
 
-          <h4>Commands:</h4>
+          <h4>Future Implementations:</h4>
           <ul>
-            <li><kbd>Alt</kbd> + <kbd>Enter</kbd>: Evaluate selected text or all text if nothing is selected</li>
-            <li><kbd>Ctrl</kbd> + <kbd>H</kbd>: Clear editor content</li>
-            <li><kbd>Ctrl</kbd> + <kbd>↑</kbd>/<kbd>↓</kbd> (<kbd>⌘</kbd> + <kbd>↑</kbd>/<kbd>↓</kbd> on Mac): Navigate command history</li>
-            <li>Click the eye icon to show/hide generated code</li>
-            <li>Click the trash icon to clear editor content</li>
-            <li>On mobile devices, use the "Evaluate" button at the bottom of the screen</li>
+            <li><strong>Save Session</strong>: <kbd>Ctrl + S</kbd> - Save current session to local storage.</li>
+            <li><strong>Load Preset</strong>: <kbd>Ctrl + L</kbd> - Load predefined MUSIC V presets.</li>
+            <li><strong>Visualize Waveform</strong>: <kbd>Ctrl + W</kbd> - Display real-time waveform of generated audio.</li>
+            <li><strong>Export WAV</strong>: <kbd>Ctrl + E</kbd> - Export audio as a WAV file.</li>
+            <li><strong>Speculative Synth</strong>: Combine MUSIC V with organogram-style instrument design for hybrid sound generation.</li>
+          </ul>
+
+          <h4>Operation Codes (Future Implementation):</h4>
+          <ul>
+            <li><strong>INS</strong> - Define an instrument</li>
+            <li><strong>OSC</strong> - Create an oscillator</li>
+            <li><strong>OUT</strong> - Define output routing</li>
+            <li><strong>END</strong> - End instrument definition</li>
+            <li><strong>GEN</strong> - Generate function table</li>
+            <li><strong>NOT</strong> - Define a note event</li>
+            <li><strong>TER</strong> - Terminate score</li>
+            <li><strong>ADD</strong> - Add signals</li>
+            <li><strong>MUL</strong> - Multiply signals</li>
+            <li><strong>ENV</strong> - Create envelope</li>
+            <li><strong>FLT</strong> - Apply filter</li>
+            <li><strong>DEL</strong> - Create delay</li>
+            <li><strong>REV</strong> - Apply reverb</li>
+            <li><strong>COM</strong> - Add comment</li>
+          </ul>
+
+          <h4>Shortcuts:</h4>
+          <ul>
+            <li><kbd>Alt + Enter</kbd>: Evaluate TypeScript audio / Start playback</li>
+            <li><kbd>Cmd + .</kbd> or <kbd>Ctrl + .</kbd>: Stop playback</li>
+            <li><kbd>Ctrl + Enter</kbd>: Evaluate binary audio</li>
+            <li><kbd>Ctrl + H</kbd>: Clear editor</li>
+            <li><kbd>Ctrl + P</kbd>: Clear console</li>
+            <li><kbd>Ctrl + M</kbd>: Open storage menu</li>
+            <li><kbd>Alt + Shift + ←/→</kbd>: Navigate between saved codes</li>
+            <li><kbd>Ctrl + S</kbd>: Save session (future)</li>
+            <li><kbd>Ctrl + L</kbd>: Load preset (future)</li>
+            <li><kbd>Ctrl + W</kbd>: Show waveform (future)</li>
+            <li><kbd>Ctrl + E</kbd>: Export WAV (future)</li>
           </ul>
 
           <p class="tip">
-            <strong>Tip:</strong> Start by describing an instrument or a combination of instruments you'd like to visualize. 
-            SOOG will help you create an organogram representation.
+            <strong>Tip:</strong> Start with a simple score like <code>INS 0 1; OSC P5 P6 B2 F2 P30; OUT B2 B1; END;</code> to hear a basic oscillator output, then experiment with parameters.
           </p>
 
           <div class="reference">
+            <h4>Media Archaeology & Design Insights</h4>
             <p>
-              The organogram methodology implemented in SOOG represents an extension of the original visualization technique developed by ethnomusicologist Mantle Hood. For comprehensive information about the foundational organogram system, please refer to:
-            </p>
-            <p class="citation">
-              Hood, Mantle (1982). <em>The ethnomusicologist</em> (2nd ed.). Kent State University Press.
+              Mathews' MUSIC V series, explored through media archaeology, uncovers a philosophical shift: music as code, not just sound. Its unit-generator model prefigures modular synths and DAWs, offering interface-design incentives—intuitive control over abstract processes. M5LIVE extends this legacy, merging historical patterns with modern web interactivity to inspire new sonic explorations.
             </p>
           </div>
 
           <div class="credits">
             <h4>Academic Attribution</h4>
             <p>
-              SOOG is a research project developed by Luciano Azzigotti in conjunction with the doctoral dissertation "<em>Speculative Organology</em>" within the Specialized Master and PhD in Music Performance Research programme at the Hochschule der Künste Bern.
+              M5LIVE is a research project by Luciano Azzigotti, inspired by Max Mathews' MUSIC V and media archaeological principles, developed within a broader study of speculative sound design.
             </p>
-            <div class="supervisors">
-              <p>Under the supervision of:</p>
-              <ul>
-                <li>Artistic Supervisor: Irene Galindo Quero</li>
-                <li>Scientific Supervisor: Prof. Dr. Michael Harenberg</li>
-              </ul>
-            </div>
-            <div class="institution">
-              <img src="/hkb.svg" alt="Hochschule der Künste Bern" class="hkb-logo">
-            </div>
           </div>
         </div>
       </div>
