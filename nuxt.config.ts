@@ -7,7 +7,7 @@ export default defineNuxtConfig({
     renderJsonPayloads: true
   },
 
-  ssr: true,
+  ssr: false,
 
   runtimeConfig: {
     public: {
@@ -26,8 +26,15 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-01-13',
 
   app: {
+    baseURL: process.env.GITHUB_ACTIONS ? '/25-m5live-nuxt/' : '/',
+    buildAssetsDir: '_nuxt',
     head: {
-      meta: [{ name: 'theme-color', content: '#4CAF50' }],
+      title: 'Music V Live',
+      meta: [
+        { charset: 'utf-8' },
+        { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+        { name: 'description', content: 'Music V Live - A web-based implementation of the classic Music V sound synthesis system' }
+      ],
       link: [
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
         { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32x32.png' },
@@ -48,5 +55,7 @@ export default defineNuxtConfig({
         background: '#1a1a1a'
       }
     }
-  }
+  },
+
+  devtools: { enabled: true }
 });
