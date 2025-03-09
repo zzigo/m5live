@@ -57,6 +57,7 @@ const _sfc_main = {
     const canvasRefs = reactive({});
     const currentTitle = ref("");
     const debugMode = ref(false);
+    const isPlaying = ref(false);
     const codes = ref([]);
     const newCode = ref({ title: "", year: (/* @__PURE__ */ new Date()).getFullYear(), composer: "", comments: "", code: "" });
     const selectedCodeIndex = ref(-1);
@@ -93,8 +94,24 @@ const _sfc_main = {
       loading.value = false;
       completeProcessing();
     };
+    const handleStop = () => {
+      var _a;
+      if (!isPlaying.value) return;
+      try {
+        musicV.stop();
+        isPlaying.value = false;
+        loading.value = false;
+        completeProcessing();
+      } catch (err) {
+        (_a = consoleEditorRef.value) == null ? void 0 : _a.addTerminalOutput(`Error stopping playback: ${err.message}`);
+      }
+    };
     const handleEvaluateTS = async (text = null) => {
-      var _a, _b, _c, _d, _e, _f;
+      var _a, _b, _c, _d;
+      if (isPlaying.value) {
+        handleStop();
+        return;
+      }
       const evalText = text ?? ((_b = (_a = scoreEditorRef.value) == null ? void 0 : _a.aceEditor()) == null ? void 0 : _b.getValue());
       if (!evalText || typeof evalText !== "string" || !evalText.trim()) {
         error.value = "Please enter some text to evaluate.";
@@ -104,25 +121,24 @@ const _sfc_main = {
       startProcessing();
       const stopProgress = startProgress();
       try {
-        (_c = consoleEditorRef.value) == null ? void 0 : _c.addTerminalOutput("");
-        resetMusicV();
         clearOscilloscopes();
         await nextTick();
-        musicV.value.parseScore(evalText);
-        (_d = consoleEditorRef.value) == null ? void 0 : _d.addTerminalOutput(musicV.value.getConsoleOutput());
-        await musicV.value.initAudio();
-        await musicV.value.play();
-        const audioBuffer = await musicV.value.generateSound(10);
+        musicV.parseScore(evalText);
+        (_c = consoleEditorRef.value) == null ? void 0 : _c.addTerminalOutput(musicV.getConsoleOutput());
+        await musicV.initAudio();
+        await musicV.play();
+        isPlaying.value = true;
+        const audioBuffer = await musicV.generateSound(10);
         const wavBlob = createWavBlob(audioBuffer, 44100);
         audioUrl.value = URL.createObjectURL(wavBlob);
-        (_e = consoleEditorRef.value) == null ? void 0 : _e.addTerminalOutput(`Audio generated: ${audioUrl.value}`);
-        const newTables = musicV.value.getFunctionTables();
+        const newTables = musicV.getFunctionTables();
         if (debugMode.value) {
           logger.debug("App", `Found ${newTables.length} function tables`);
         }
         functionTables.value = newTables;
       } catch (err) {
-        (_f = consoleEditorRef.value) == null ? void 0 : _f.addTerminalOutput(`Error: ${err.message}`);
+        (_d = consoleEditorRef.value) == null ? void 0 : _d.addTerminalOutput(`Error: ${err.message}`);
+        isPlaying.value = false;
       } finally {
         stopProgress();
         loading.value = false;
@@ -158,12 +174,6 @@ const _sfc_main = {
       } else if (event.ctrlKey && event.key === "h") {
         event.preventDefault();
         handleClear();
-      }
-    };
-    const resetMusicV = () => {
-      musicV.value = new MusicV();
-      if (debugMode && debugMode.value) {
-        console.debug("Reset MusicV instance");
       }
     };
     const createWavBlob = (audioData, sampleRate) => {
@@ -301,20 +311,26 @@ const _sfc_main = {
       }
     };
     return (_ctx, _push, _parent, _attrs) => {
-      _push(`<div${ssrRenderAttrs(mergeProps({ class: "app-container" }, _attrs))} data-v-d9a2155b><div class="settings" data-v-d9a2155b><button class="icon-button"${ssrRenderAttr("title", showCode.value ? "Hide Code" : "Show Code")} data-v-d9a2155b>`);
+      _push(`<div${ssrRenderAttrs(mergeProps({ class: "app-container" }, _attrs))} data-v-aae8d73d><div class="settings" data-v-aae8d73d><button class="icon-button"${ssrRenderAttr("title", showCode.value ? "Hide Code" : "Show Code")} data-v-aae8d73d>`);
       if (showCode.value) {
-        _push(`<svg class="icon" viewBox="0 0 24 24" data-v-d9a2155b><path fill="currentColor" d="M12,9A3,3 0 0,1 15,12A3,3 0 0,1 12,15A3,3 0 0,1 9,12A3,3 0 0,1 12,9M12,4.5C17,4.5 21.27,7.61 23,12C21.27,16.39 17,19.5 12,19.5C7,19.5 2.73,16.39 1,12C2.73,7.61 7,4.5 12,4.5M3.18,12C4.83,15.36 8.24,17.5 12,17.5C15.76,17.5 19.17,15.36 20.82,12C19.17,8.64 15.76,6.5 12,6.5C8.24,6.5 4.83,8.64 3.18,12Z" data-v-d9a2155b></path></svg>`);
+        _push(`<svg class="icon" viewBox="0 0 24 24" data-v-aae8d73d><path fill="currentColor" d="M12,9A3,3 0 0,1 15,12A3,3 0 0,1 12,15A3,3 0 0,1 9,12A3,3 0 0,1 12,9M12,4.5C17,4.5 21.27,7.61 23,12C21.27,16.39 17,19.5 12,19.5C7,19.5 2.73,16.39 1,12C2.73,7.61 7,4.5 12,4.5M3.18,12C4.83,15.36 8.24,17.5 12,17.5C15.76,17.5 19.17,15.36 20.82,12C19.17,8.64 15.76,6.5 12,6.5C8.24,6.5 4.83,8.64 3.18,12Z" data-v-aae8d73d></path></svg>`);
       } else {
-        _push(`<svg class="icon" viewBox="0 0 24 24" data-v-d9a2155b><path fill="currentColor" d="M11.83,9L15,12.16C15,12.11 15,12.05 15,12A3,3 0 0,0 12,9C11.94,9 11.89,9 11.83,9M7.53,9.8L9.08,11.35C9.03,11.56 9,11.77 9,12A3,3 0 0,0 12,15C12.22,15 12.44,14.97 12.65,14.92L14.2,16.47C13.53,16.8 12.79,17 12,17A5,5 0 0,1 7,12C7,11.21 7.2,10.47 7.53,9.8M2,4.27L4.28,6.55L4.73,7C3.08,8.3 1.78,10 1,12C2.73,16.39 7,19.5 12,19.5C13.55,19.5 15.03,19.2 16.38,18.66L16.81,19.08L19.73,22L21,20.73L3.27,3M12,7A5,5 0 0,1 17,12C17,12.64 16.87,13.26 16.64,13.82L19.57,16.75C21.07,15.5 22.27,13.86 23,12C21.27,7.61 17,4.5 12,4.5C10.6,4.5 9.26,4.75 8,5.2L10.17,7.35C10.74,7.13 11.35,7 12,7Z" data-v-d9a2155b></path></svg>`);
+        _push(`<svg class="icon" viewBox="0 0 24 24" data-v-aae8d73d><path fill="currentColor" d="M11.83,9L15,12.16C15,12.11 15,12.05 15,12A3,3 0 0,0 12,9C11.94,9 11.89,9 11.83,9M7.53,9.8L9.08,11.35C9.03,11.56 9,11.77 9,12A3,3 0 0,0 12,15C12.22,15 12.44,14.97 12.65,14.92L14.2,16.47C13.53,16.8 12.79,17 12,17A5,5 0 0,1 7,12C7,11.21 7.2,10.47 7.53,9.8M2,4.27L4.28,6.55L4.73,7C3.08,8.3 1.78,10 1,12C2.73,16.39 7,19.5 12,19.5C13.55,19.5 15.03,19.2 16.38,18.66L16.81,19.08L19.73,22L21,20.73L3.27,3M12,7A5,5 0 0,1 17,12C17,12.64 16.87,13.26 16.64,13.82L19.57,16.75C21.07,15.5 22.27,13.86 23,12C21.27,7.61 17,4.5 12,4.5C10.6,4.5 9.26,4.75 8,5.2L10.17,7.35C10.74,7.13 11.35,7 12,7Z" data-v-aae8d73d></path></svg>`);
       }
       if (currentTitle.value) {
-        _push(`<span class="current-title" data-v-d9a2155b>${ssrInterpolate(currentTitle.value)}</span>`);
+        _push(`<span class="current-title" data-v-aae8d73d>${ssrInterpolate(currentTitle.value)}</span>`);
       } else {
         _push(`<!---->`);
       }
-      _push(`</button><button class="icon-button" title="Evaluate Binary (Ctrl+Enter)" data-v-d9a2155b><svg class="icon" viewBox="0 0 24 24" data-v-d9a2155b><path fill="currentColor" d="M8,5.14V19.14L19,12.14L8,5.14Z" data-v-d9a2155b></path></svg><span class="f-subscript" data-v-d9a2155b>F</span></button><button class="icon-button" title="Evaluate TS (Alt+Enter)" data-v-d9a2155b><svg class="icon" viewBox="0 0 24 24" data-v-d9a2155b><path fill="currentColor" d="M8,5.14V19.14L19,12.14L8,5.14Z" data-v-d9a2155b></path></svg><span class="ts-subscript" data-v-d9a2155b>TS</span></button><button class="icon-button" title="Clear Editor (Ctrl+H)" data-v-d9a2155b><svg class="icon" viewBox="0 0 24 24" data-v-d9a2155b><path fill="currentColor" d="M9,3V4H4V6H5V19A2,2 0 0,0 7,21H17A2,2 0 0,0 19,21V6H20V4H15V3H9M7,6H17V19H7V6M9,8V17H11V8H9M13,8V17H15V8H13Z" data-v-d9a2155b></path></svg></button><button class="icon-button" title="Random Prompt" data-v-d9a2155b><svg class="icon" viewBox="0 0 24 24" data-v-d9a2155b><path fill="currentColor" d="M14.83,13.41L13.42,14.82L16.55,17.95L14.5,20H20V14.5L17.96,16.54L14.83,13.41M14.5,4L16.54,6.04L4,18.59L5.41,20L17.96,7.46L20,9.5V4M10.59,9.17L5.41,4L4,5.41L9.17,10.58L10.59,9.17Z" data-v-d9a2155b></path></svg></button><button class="icon-button" title="Help" data-v-d9a2155b><svg class="icon" viewBox="0 0 24 24" data-v-d9a2155b><path fill="currentColor" d="M11,18H13V16H11V18M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,6A4,4 0 0,0 8,10H10A2,2 0 0,1 12,8A2,2 0 0,1 14,10C14,12 11,11.75 11,15H13C13,12.75 16,12.5 16,10A4,4 0 0,0 12,6Z" data-v-d9a2155b></path></svg></button><button class="icon-button" title="Storage Menu (Ctrl+M)" data-v-d9a2155b><svg class="icon" viewBox="0 0 24 24" data-v-d9a2155b><path fill="currentColor" d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" data-v-d9a2155b></path></svg></button></div>`);
+      _push(`</button><button class="icon-button" title="Evaluate Binary (Ctrl+Enter)" data-v-aae8d73d><svg class="icon" viewBox="0 0 24 24" data-v-aae8d73d><path fill="currentColor" d="M8,5.14V19.14L19,12.14L8,5.14Z" data-v-aae8d73d></path></svg><span class="f-subscript" data-v-aae8d73d>F</span></button><button class="icon-button" title="Evaluate TS (Alt+Enter)" data-v-aae8d73d><svg class="icon" viewBox="0 0 24 24" data-v-aae8d73d>`);
+      if (!isPlaying.value) {
+        _push(`<path fill="currentColor" d="M8,5.14V19.14L19,12.14L8,5.14Z" data-v-aae8d73d></path>`);
+      } else {
+        _push(`<path fill="currentColor" d="M18,18H6V6H18V18Z" data-v-aae8d73d></path>`);
+      }
+      _push(`</svg><span class="ts-subscript" data-v-aae8d73d>TS</span></button><button class="icon-button" title="Clear Editor (Ctrl+H)" data-v-aae8d73d><svg class="icon" viewBox="0 0 24 24" data-v-aae8d73d><path fill="currentColor" d="M9,3V4H4V6H5V19A2,2 0 0,0 7,21H17A2,2 0 0,0 19,21V6H20V4H15V3H9M7,6H17V19H7V6M9,8V17H11V8H9M13,8V17H15V8H13Z" data-v-aae8d73d></path></svg></button><button class="icon-button" title="Random Prompt" data-v-aae8d73d><svg class="icon" viewBox="0 0 24 24" data-v-aae8d73d><path fill="currentColor" d="M14.83,13.41L13.42,14.82L16.55,17.95L14.5,20H20V14.5L17.96,16.54L14.83,13.41M14.5,4L16.54,6.04L4,18.59L5.41,20L17.96,7.46L20,9.5V4M10.59,9.17L5.41,4L4,5.41L9.17,10.58L10.59,9.17Z" data-v-aae8d73d></path></svg></button><button class="icon-button" title="Help" data-v-aae8d73d><svg class="icon" viewBox="0 0 24 24" data-v-aae8d73d><path fill="currentColor" d="M11,18H13V16H11V18M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,6A4,4 0 0,0 8,10H10A2,2 0 0,1 12,8A2,2 0 0,1 14,10C14,12 11,11.75 11,15H13C13,12.75 16,12.5 16,10A4,4 0 0,0 12,6Z" data-v-aae8d73d></path></svg></button><button class="icon-button" title="Storage Menu (Ctrl+M)" data-v-aae8d73d><svg class="icon" viewBox="0 0 24 24" data-v-aae8d73d><path fill="currentColor" d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" data-v-aae8d73d></path></svg></button></div>`);
       if (showCode.value) {
-        _push(`<div class="content-wrapper" data-v-d9a2155b><div class="editor-container" data-v-d9a2155b><div class="score-editor" style="${ssrRenderStyle({ flex: scoreEditorFlex.value })}" data-v-d9a2155b>`);
+        _push(`<div class="content-wrapper" data-v-aae8d73d><div class="editor-container" data-v-aae8d73d><div class="score-editor" style="${ssrRenderStyle({ flex: scoreEditorFlex.value })}" data-v-aae8d73d>`);
         _push(ssrRenderComponent(AceEditor, {
           ref_key: "scoreEditorRef",
           ref: scoreEditorRef,
@@ -324,11 +340,11 @@ const _sfc_main = {
           onEvaluateTS: handleEvaluateTS,
           onKeydown: handleKeyDown
         }, null, _parent));
-        _push(`<div class="mini-oscilloscopes" data-v-d9a2155b><!--[-->`);
+        _push(`<div class="mini-oscilloscopes" data-v-aae8d73d><!--[-->`);
         ssrRenderList(functionTables.value, (table, index2) => {
-          _push(`<div class="mini-oscilloscope" data-v-d9a2155b><div class="mini-oscilloscope-label" data-v-d9a2155b>F${ssrInterpolate(table.functionNum)}</div><canvas width="80" height="50" class="mini-oscilloscope-canvas" data-v-d9a2155b></canvas></div>`);
+          _push(`<div class="mini-oscilloscope" data-v-aae8d73d><div class="mini-oscilloscope-label" data-v-aae8d73d>F${ssrInterpolate(table.functionNum)}</div><canvas width="80" height="50" class="mini-oscilloscope-canvas" data-v-aae8d73d></canvas></div>`);
         });
-        _push(`<!--]--></div></div><div class="divider" data-v-d9a2155b></div><div class="console-editor" style="${ssrRenderStyle({ flex: consoleEditorFlex.value })}" data-v-d9a2155b><div class="console-header" data-v-d9a2155b><button class="clear-btn" title="Clear console" data-v-d9a2155b>🗑️</button></div>`);
+        _push(`<!--]--></div></div><div class="divider" data-v-aae8d73d></div><div class="console-editor" style="${ssrRenderStyle({ flex: consoleEditorFlex.value })}" data-v-aae8d73d><div class="console-header" data-v-aae8d73d><button class="clear-btn" title="Clear console (Ctrl+P)" data-v-aae8d73d>🗑️</button></div>`);
         _push(ssrRenderComponent(AceEditor, {
           ref_key: "consoleEditorRef",
           ref: consoleEditorRef,
@@ -339,21 +355,21 @@ const _sfc_main = {
         _push(`<!---->`);
       }
       if (plotImage.value) {
-        _push(`<div class="plot-display" data-v-d9a2155b><img${ssrRenderAttr("src", `data:image/png;base64,${plotImage.value}`)} alt="Plot" class="plot-image" data-v-d9a2155b></div>`);
+        _push(`<div class="plot-display" data-v-aae8d73d><img${ssrRenderAttr("src", `data:image/png;base64,${plotImage.value}`)} alt="Plot" class="plot-image" data-v-aae8d73d></div>`);
       } else {
         _push(`<!---->`);
       }
       if (showLightbox.value) {
-        _push(`<div class="lightbox" data-v-d9a2155b><button class="close-button" data-v-d9a2155b><svg class="icon" viewBox="0 0 24 24" data-v-d9a2155b><path fill="currentColor" d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" data-v-d9a2155b></path></svg></button><img${ssrRenderAttr("src", `data:image/png;base64,${plotImage.value}`)} alt="Plot" class="lightbox-image" data-v-d9a2155b></div>`);
+        _push(`<div class="lightbox" data-v-aae8d73d><button class="close-button" data-v-aae8d73d><svg class="icon" viewBox="0 0 24 24" data-v-aae8d73d><path fill="currentColor" d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" data-v-aae8d73d></path></svg></button><img${ssrRenderAttr("src", `data:image/png;base64,${plotImage.value}`)} alt="Plot" class="lightbox-image" data-v-aae8d73d></div>`);
       } else {
         _push(`<!---->`);
       }
       if (showStorageMenu.value) {
-        _push(`<div class="storage-menu" data-v-d9a2155b><div class="storage-menu-content" data-v-d9a2155b><div class="left-panel" data-v-d9a2155b><div class="entry-fields" data-v-d9a2155b><form data-v-d9a2155b><input${ssrRenderAttr("value", formFields.value.title)} placeholder="Title" required data-v-d9a2155b><input type="number"${ssrRenderAttr("value", formFields.value.year)} placeholder="Year" required data-v-d9a2155b><input${ssrRenderAttr("value", formFields.value.composer)} placeholder="Composer" required data-v-d9a2155b><textarea placeholder="Comments" rows="3" required data-v-d9a2155b>${ssrInterpolate(formFields.value.comments)}</textarea><button type="submit" data-v-d9a2155b>[ Add ]</button></form></div><div class="code-list" data-v-d9a2155b><!--[-->`);
+        _push(`<div class="storage-menu" data-v-aae8d73d><div class="storage-menu-content" data-v-aae8d73d><div class="left-panel" data-v-aae8d73d><div class="entry-fields" data-v-aae8d73d><form data-v-aae8d73d><input${ssrRenderAttr("value", formFields.value.title)} placeholder="Title" required data-v-aae8d73d><input type="number"${ssrRenderAttr("value", formFields.value.year)} placeholder="Year" required data-v-aae8d73d><input${ssrRenderAttr("value", formFields.value.composer)} placeholder="Composer" required data-v-aae8d73d><textarea placeholder="Comments" rows="3" required data-v-aae8d73d>${ssrInterpolate(formFields.value.comments)}</textarea><button type="submit" data-v-aae8d73d>[ Add ]</button></form></div><div class="code-list" data-v-aae8d73d><!--[-->`);
         ssrRenderList(codes.value, (codeEntry, index2) => {
-          _push(`<div class="${ssrRenderClass({ "selected": selectedCodeIndex.value === index2 })}" data-v-d9a2155b>${ssrInterpolate(codeEntry.composer)} - ${ssrInterpolate(codeEntry.year)} - ${ssrInterpolate(codeEntry.title || "Untitled")}</div>`);
+          _push(`<div class="${ssrRenderClass({ "selected": selectedCodeIndex.value === index2 })}" data-v-aae8d73d>${ssrInterpolate(codeEntry.composer)} - ${ssrInterpolate(codeEntry.year)} - ${ssrInterpolate(codeEntry.title || "Untitled")}</div>`);
         });
-        _push(`<!--]--></div></div><div class="right-panel" data-v-d9a2155b>`);
+        _push(`<!--]--></div></div><div class="right-panel" data-v-aae8d73d>`);
         _push(ssrRenderComponent(AceEditor, {
           ref_key: "codeEditorRef",
           ref: codeEditorRef,
@@ -361,24 +377,24 @@ const _sfc_main = {
           value: selectedCode.value ? selectedCode.value.code : "",
           onInput: updateCodeContent
         }, null, _parent));
-        _push(`<div class="code-actions" data-v-d9a2155b><button data-v-d9a2155b>[ Play TS ]</button><button data-v-d9a2155b>[ To Editor ]</button><button data-v-d9a2155b>[ Update ]</button><button data-v-d9a2155b>[ Delete ]</button></div></div></div></div>`);
+        _push(`<div class="code-actions" data-v-aae8d73d><button data-v-aae8d73d>[ Play TS ]</button><button data-v-aae8d73d>[ To Editor ]</button><button data-v-aae8d73d>[ Update ]</button><button data-v-aae8d73d>[ Delete ]</button></div></div></div></div>`);
       } else {
         _push(`<!---->`);
       }
-      _push(`<div class="footer" data-v-d9a2155b>`);
+      _push(`<div class="footer" data-v-aae8d73d>`);
       if (loading.value) {
-        _push(`<div class="loading" data-v-d9a2155b>Processing...</div>`);
+        _push(`<div class="loading" data-v-aae8d73d>Processing...</div>`);
       } else {
         _push(`<!---->`);
       }
       if (isMobileOrTablet.value) {
-        _push(`<button class="mobile-evaluate-btn" title="Alt+Enter" data-v-d9a2155b>Evaluate TS</button>`);
+        _push(`<button class="mobile-evaluate-btn" title="Alt+Enter" data-v-aae8d73d>Evaluate TS</button>`);
       } else {
         _push(`<!---->`);
       }
       _push(`</div>`);
       if (error.value) {
-        _push(`<div class="error" data-v-d9a2155b>${ssrInterpolate(error.value)}</div>`);
+        _push(`<div class="error" data-v-aae8d73d>${ssrInterpolate(error.value)}</div>`);
       } else {
         _push(`<!---->`);
       }
@@ -396,7 +412,7 @@ _sfc_main.setup = (props, ctx) => {
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("pages/index.vue");
   return _sfc_setup ? _sfc_setup(props, ctx) : void 0;
 };
-const index = /* @__PURE__ */ _export_sfc(_sfc_main, [["__scopeId", "data-v-d9a2155b"]]);
+const index = /* @__PURE__ */ _export_sfc(_sfc_main, [["__scopeId", "data-v-aae8d73d"]]);
 export {
   index as default
 };

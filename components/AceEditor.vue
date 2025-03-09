@@ -107,6 +107,11 @@ onMounted(() => {
     });
     aceEditor.value.commands.removeCommand('gotoline');
     aceEditor.value.commands.bindKey('ctrl-p', null);
+    
+    // Disable Alt+Shift+Arrow Left/Right shortcuts to prevent conflicts with code navigation
+    aceEditor.value.commands.bindKey('Alt-Shift-Left', null);
+    aceEditor.value.commands.bindKey('Alt-Shift-Right', null);
+    
     aceEditor.value.container.addEventListener('keydown', (e) => emit('keydown', e));
   }
 
@@ -133,7 +138,8 @@ defineExpose({
   },
   aceEditor: () => (!process.server ? aceEditor.value : null),
   resize: () => !process.server && aceEditor.value?.resize(),
-  clearEditor: () => !process.server && aceEditor.value?.setValue('')
+  clearEditor: () => !process.server && aceEditor.value?.setValue(''),
+  clearTerminal: () => !process.server && props.mode === 'terminal' && aceEditor.value?.setValue('')
 });
 </script>
 

@@ -25,14 +25,15 @@ const _sfc_main = {
       },
       aceEditor: () => null,
       resize: () => false,
-      clearEditor: () => false
+      clearEditor: () => false,
+      clearTerminal: () => false
     });
     return (_ctx, _push, _parent, _attrs) => {
       _push(`<div${ssrRenderAttrs(mergeProps({
         class: "ace-editor-container",
         ref_key: "editorContainer",
         ref: editorContainer
-      }, _attrs))} data-v-103e6f72><div class="${ssrRenderClass([{ "editor": __props.mode === "editor", "terminal": __props.mode === "terminal" }, "editor"])}" data-v-103e6f72></div></div>`);
+      }, _attrs))} data-v-233d8b60><div class="${ssrRenderClass([{ "editor": __props.mode === "editor", "terminal": __props.mode === "terminal" }, "editor"])}" data-v-233d8b60></div></div>`);
     };
   }
 };
@@ -42,7 +43,7 @@ _sfc_main.setup = (props, ctx) => {
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("components/AceEditor.vue");
   return _sfc_setup ? _sfc_setup(props, ctx) : void 0;
 };
-const AceEditor = /* @__PURE__ */ _export_sfc(_sfc_main, [["__scopeId", "data-v-103e6f72"]]);
+const AceEditor = /* @__PURE__ */ _export_sfc(_sfc_main, [["__scopeId", "data-v-233d8b60"]]);
 export {
   AceEditor as default
 };

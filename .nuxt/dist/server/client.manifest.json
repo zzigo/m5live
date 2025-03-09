@@ -1,27 +1,54 @@
 {
-  "_DAx-HpGI.js": {
+  "_D3JMHC0i.js": {
     "resourceType": "script",
     "module": true,
     "prefetch": true,
     "preload": true,
-    "file": "DAx-HpGI.js",
+    "file": "D3JMHC0i.js",
     "name": "v3",
     "imports": [
       "node_modules/nuxt/dist/app/entry.js"
     ]
+  },
+  "_D_AgpLSG.js": {
+    "resourceType": "script",
+    "module": true,
+    "prefetch": true,
+    "preload": true,
+    "file": "D_AgpLSG.js",
+    "name": "musicV",
+    "imports": [
+      "node_modules/nuxt/dist/app/entry.js"
+    ],
+    "css": [
+      "musicV.uhKrZr5X.css"
+    ]
+  },
+  "musicV.uhKrZr5X.css": {
+    "file": "musicV.uhKrZr5X.css",
+    "resourceType": "style",
+    "prefetch": true,
+    "preload": true
+  },
+  "_musicV.uhKrZr5X.css": {
+    "resourceType": "style",
+    "prefetch": true,
+    "preload": true,
+    "file": "musicV.uhKrZr5X.css",
+    "src": "_musicV.uhKrZr5X.css"
   },
   "node_modules/nuxt/dist/app/components/error-404.vue": {
     "resourceType": "script",
     "module": true,
     "prefetch": true,
     "preload": true,
-    "file": "By4EeDJM.js",
+    "file": "BGovO8TI.js",
     "name": "error-404",
     "src": "node_modules/nuxt/dist/app/components/error-404.vue",
     "isDynamicEntry": true,
     "imports": [
       "node_modules/nuxt/dist/app/entry.js",
-      "_DAx-HpGI.js"
+      "_D3JMHC0i.js"
     ],
     "css": []
   },
@@ -36,13 +63,13 @@
     "module": true,
     "prefetch": true,
     "preload": true,
-    "file": "Cqy4skIH.js",
+    "file": "BInBnw1G.js",
     "name": "error-500",
     "src": "node_modules/nuxt/dist/app/components/error-500.vue",
     "isDynamicEntry": true,
     "imports": [
       "node_modules/nuxt/dist/app/entry.js",
-      "_DAx-HpGI.js"
+      "_D3JMHC0i.js"
     ],
     "css": []
   },
@@ -57,7 +84,7 @@
     "module": true,
     "prefetch": true,
     "preload": true,
-    "file": "CBJeXBvF.js",
+    "file": "B0TynPC5.js",
     "name": "entry",
     "src": "node_modules/nuxt/dist/app/entry.js",
     "isEntry": true,
@@ -81,17 +108,39 @@
     "module": true,
     "prefetch": true,
     "preload": true,
-    "file": "CBcF5AaC.js",
+    "file": "B1q8rSYC.js",
     "name": "index",
     "src": "pages/index.vue",
     "isDynamicEntry": true,
     "imports": [
-      "node_modules/nuxt/dist/app/entry.js"
+      "node_modules/nuxt/dist/app/entry.js",
+      "_D_AgpLSG.js"
     ],
     "css": []
   },
-  "index.BFN3jv92.css": {
-    "file": "index.BFN3jv92.css",
+  "index.73mwJpzB.css": {
+    "file": "index.73mwJpzB.css",
+    "resourceType": "style",
+    "prefetch": true,
+    "preload": true
+  },
+  "pages/indextorefact.vue": {
+    "resourceType": "script",
+    "module": true,
+    "prefetch": true,
+    "preload": true,
+    "file": "Cx7u7b9J.js",
+    "name": "indextorefact",
+    "src": "pages/indextorefact.vue",
+    "isDynamicEntry": true,
+    "imports": [
+      "node_modules/nuxt/dist/app/entry.js",
+      "_D_AgpLSG.js"
+    ],
+    "css": []
+  },
+  "indextorefact.WasXQZBw.css": {
+    "file": "indextorefact.WasXQZBw.css",
     "resourceType": "style",
     "prefetch": true,
     "preload": true

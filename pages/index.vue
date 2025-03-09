@@ -20,7 +20,8 @@
       </button>
       <button @click="handleEvaluateTS" class="icon-button" title="Evaluate TS (Alt+Enter)">
         <svg class="icon" viewBox="0 0 24 24">
-          <path fill="currentColor" d="M8,5.14V19.14L19,12.14L8,5.14Z" />
+          <path v-if="!isPlaying" fill="currentColor" d="M8,5.14V19.14L19,12.14L8,5.14Z" />
+          <path v-else fill="currentColor" d="M18,18H6V6H18V18Z" />
         </svg>
         <span class="ts-subscript">TS</span>
       </button>
@@ -59,7 +60,7 @@
         <div class="divider" @mousedown="startDrag"></div>
         <div class="console-editor" :style="{ flex: consoleEditorFlex }">
           <div class="console-header">
-            <button class="clear-btn" @click="clearConsole" title="Clear console">🗑️</button>
+            <button class="clear-btn" @click="clearConsole" title="Clear console (Ctrl+P)">🗑️</button>
           </div>
           <AceEditor ref="consoleEditorRef" mode="terminal" />
         </div>
@@ -179,6 +180,7 @@ const functionTables = ref([]);
 const canvasRefs = reactive({});
 const currentTitle = ref(''); // For title display
 const debugMode = ref(false); // Debug mode flag
+const isPlaying = ref(false); // Track if audio is playing
 
 const codes = ref([]);
 const newCode = ref({ title: '', year: new Date().getFullYear(), composer: '', comments: '', code: '' });
@@ -230,6 +232,23 @@ const handleKeyDownGlobal = (event) => {
       navigateCodes(1);
     }
   }
+  
+  // Add Ctrl+P shortcut for clearing console
+  if (event.ctrlKey && event.key === 'p') {
+    event.preventDefault();
+    clearConsole();
+  }
+  
+  // Handle Command+. or Ctrl+. for stopping audio
+  const stopKey = /Mac|iPod|iPhone|iPad/.test(navigator.platform) 
+    ? (event.metaKey && event.key === '.') 
+    : (event.ctrlKey && event.key === '.');
+    
+  if (stopKey && isPlaying.value) {
+    event.preventDefault();
+    handleStop();
+  }
+  
   handleKeyDown(event);
 };
 
@@ -285,8 +304,26 @@ const handleEvaluateBinary = () => {
   completeProcessing();
 };
 
+const handleStop = () => {
+  if (!isPlaying.value) return;
+  
+  try {
+    musicV.stop();
+    isPlaying.value = false;
+    loading.value = false;
+    completeProcessing();
+  } catch (err) {
+    consoleEditorRef.value?.addTerminalOutput(`Error stopping playback: ${err.message}`);
+  }
+};
 
 const handleEvaluateTS = async (text = null) => {
+  // If already playing, stop playback
+  if (isPlaying.value) {
+    handleStop();
+    return;
+  }
+  
   const evalText = text ?? scoreEditorRef.value?.aceEditor()?.getValue();
   if (!evalText || typeof evalText !== 'string' || !evalText.trim()) {
     error.value = "Please enter some text to evaluate.";
@@ -296,11 +333,6 @@ const handleEvaluateTS = async (text = null) => {
   startProcessing();
   const stopProgress = startProgress();
   try {
-    consoleEditorRef.value?.addTerminalOutput('');
-    
-    // Reset MusicV instance
-    resetMusicV();
-    
     // Clear oscilloscopes
     clearOscilloscopes();
     
@@ -308,27 +340,28 @@ const handleEvaluateTS = async (text = null) => {
     await nextTick();
     
     // Parse the score
-    musicV.value.parseScore(evalText);
-    consoleEditorRef.value?.addTerminalOutput(musicV.value.getConsoleOutput());
+    musicV.parseScore(evalText);
+    consoleEditorRef.value?.addTerminalOutput(musicV.getConsoleOutput());
     
     // Initialize audio and play
-    await musicV.value.initAudio();
-    await musicV.value.play();
+    await musicV.initAudio();
+    await musicV.play();
+    isPlaying.value = true;
     
     // Generate sound
-    const audioBuffer = await musicV.value.generateSound(10);
+    const audioBuffer = await musicV.generateSound(10);
     const wavBlob = createWavBlob(audioBuffer, 44100);
     audioUrl.value = URL.createObjectURL(wavBlob);
-    consoleEditorRef.value?.addTerminalOutput(`Audio generated: ${audioUrl.value}`);
     
     // Update function tables - this will trigger the watcher to create new oscilloscopes
-    const newTables = musicV.value.getFunctionTables();
+    const newTables = musicV.getFunctionTables();
     if (debugMode.value) {
       logger.debug('App', `Found ${newTables.length} function tables`);
     }
     functionTables.value = newTables;
   } catch (err) {
     consoleEditorRef.value?.addTerminalOutput(`Error: ${err.message}`);
+    isPlaying.value = false;
   } finally {
     stopProgress();
     loading.value = false;
@@ -463,7 +496,7 @@ const stopDrag = () => {
 };
 
 const clearConsole = () => {
-  consoleEditorRef.value?.addTerminalOutput('MUSIC V SCORE PROCESSING\n=======================\nReady to evaluate.');
+  consoleEditorRef.value?.clearTerminal();
 };
 
 const addCode = () => {

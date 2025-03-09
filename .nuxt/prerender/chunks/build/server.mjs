@@ -398,6 +398,11 @@ const _routes = [
     name: "index",
     path: "/",
     component: () => import('./index.vue.mjs')
+  },
+  {
+    name: "indextorefact",
+    path: "/indextorefact",
+    component: () => import('./indextorefact.vue.mjs')
   }
 ];
 
