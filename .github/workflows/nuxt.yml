@@ -68,10 +68,20 @@ jobs:
           key: ${{ runner.os }}-nuxt-build-${{ hashFiles('.output') }}
           restore-keys: |
             ${{ runner.os }}-nuxt-build-
+      # Fix for Rollup platform-specific dependencies
+      - name: Clean dependencies
+        run: |
+          if [ -f "package-lock.json" ]; then
+            rm package-lock.json
+          fi
+          if [ -d "node_modules" ]; then
+            rm -rf node_modules
+          fi
+      # Use npm install instead of npm ci to handle optional dependencies correctly
       - name: Install dependencies
-        run: ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
+        run: npm install
       - name: Static HTML export with Nuxt
-        run: ${{ steps.detect-package-manager.outputs.manager }} run generate
+        run: npm run generate
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
