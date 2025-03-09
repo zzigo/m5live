@@ -6,7 +6,9 @@ export default defineNuxtPlugin((nuxtApp) => {
   // Add a global helper to get asset URLs with the correct base path
   nuxtApp.provide('asset', (path: string) => {
     if (path.startsWith('/')) {
-      return `${config.public.basePath}${path}`
+      // Remove the leading slash to avoid double slashes
+      const cleanPath = path.startsWith('/') ? path.substring(1) : path
+      return `${config.public.baseUrl}/${cleanPath}`
     }
     return path
   })
