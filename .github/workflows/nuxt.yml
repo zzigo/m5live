@@ -31,34 +31,18 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Detect package manager
-        id: detect-package-manager
-        run: |
-          if [ -f "${{ github.workspace }}/yarn.lock" ]; then
-            echo "manager=yarn" >> $GITHUB_OUTPUT
-            echo "command=install" >> $GITHUB_OUTPUT
-            exit 0
-          elif [ -f "${{ github.workspace }}/package.json" ]; then
-            echo "manager=npm" >> $GITHUB_OUTPUT
-            echo "command=ci" >> $GITHUB_OUTPUT
-            exit 0
-          else
-            echo "Unable to determine package manager"
-            exit 1
-          fi
+      
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: ${{ steps.detect-package-manager.outputs.manager }}
+          cache: 'npm'
+      
       - name: Setup Pages
         uses: actions/configure-pages@v5
         with:
-          # Automatically inject router.base in your Nuxt configuration file and set
-          # target to static (https://nuxtjs.org/docs/configuration-glossary/configuration-target/).
-          #
-          # You may remove this line if you want to manage the configuration yourself.
           static_site_generator: nuxt
+      
       - name: Restore cache
         uses: actions/cache@v4
         with:
@@ -68,20 +52,24 @@ jobs:
           key: ${{ runner.os }}-nuxt-build-${{ hashFiles('.output') }}
           restore-keys: |
             ${{ runner.os }}-nuxt-build-
-      # Fix for Rollup platform-specific dependencies
+      
+      # Completely clean the environment
       - name: Clean dependencies
         run: |
-          if [ -f "package-lock.json" ]; then
-            rm package-lock.json
-          fi
-          if [ -d "node_modules" ]; then
-            rm -rf node_modules
-          fi
-      # Use npm install instead of npm ci to handle optional dependencies correctly
+          rm -rf node_modules
+          rm -f package-lock.json
+      
+      # Install dependencies with specific flags to handle platform-specific packages
       - name: Install dependencies
-        run: npm install
-      - name: Static HTML export with Nuxt
-        run: npm run generate
+        run: |
+          npm install --no-optional --no-shrinkwrap --no-package-lock
+          # Explicitly install the Linux version of rollup
+          npm install @rollup/rollup-linux-x64-gnu --no-save
+      
+      # Use our custom build script that bypasses nuxt prepare
+      - name: Build site
+        run: npm run github-build
+      
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
