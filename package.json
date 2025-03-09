@@ -11,19 +11,12 @@
     "start": "node .output/server/index.mjs"
   },
   "dependencies": {
-    "@types/pino": "^7.0.5",
-    "@vite-pwa/nuxt": "^0.5.0",
     "ace-builds": "^1.37.4",
     "nuxt": "^3.15.1",
-    "pino": "^9.6.0",
-    "pino-pretty": "^10.3.0",
-    "vue": "latest",
-    "vue-ace-editor": "^1.0.3",
-    "vue-router": "latest"
+    "vue": "^3.5.12"
   },
   "devDependencies": {
-    "@nuxt/types": "latest",
-    "@types/node": "latest",
-    "typescript": "latest"
+    "@types/node": "^20.17.5",
+    "typescript": "^5.6.3"
   }
 }

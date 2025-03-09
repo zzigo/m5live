@@ -3,9 +3,9 @@ import type { DefineComponent, SlotsType } from 'vue'
 type IslandComponent<T extends DefineComponent> = T & DefineComponent<{}, {refresh: () => Promise<void>}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, SlotsType<{ fallback: { error: unknown } }>>
 interface _GlobalComponents {
       'AceEditor': typeof import("../components/AceEditor.vue")['default']
+    'Codemanager': typeof import("../components/Codemanager.vue")['default']
     'HelpModal': typeof import("../components/HelpModal.vue")['default']
-    'MusicVTest': typeof import("../components/MusicVTest.vue")['default']
-    'RandomPrompt': typeof import("../components/RandomPrompt.vue")['default']
+    'RandomPrompt': typeof import../components/MusicVTest.vue.toGarbage.vue")['default']
     'NuxtWelcome': typeof import("../node_modules/nuxt/dist/app/components/welcome.vue")['default']
     'NuxtLayout': typeof import("../node_modules/nuxt/dist/app/components/nuxt-layout")['default']
     'NuxtErrorBoundary': typeof import("../node_modules/nuxt/dist/app/components/nuxt-error-boundary")['default']
@@ -30,10 +30,10 @@ interface _GlobalComponents {
     'NuxtIsland': typeof import("../node_modules/nuxt/dist/app/components/nuxt-island")['default']
     'NuxtRouteAnnouncer': IslandComponent<typeof import("../node_modules/nuxt/dist/app/components/server-placeholder")['default']>
       'LazyAceEditor': typeof import("../components/AceEditor.vue")['default']
+    'LazyCodemanager': typeof import("../components/Codemanager.vue")['default']
     'LazyHelpModal': typeof import("../components/HelpModal.vue")['default']
-    'LazyMusicVTest': typeof import("../components/MusicVTest.vue")['default']
     'LazyRandomPrompt': typeof import("../components/RandomPrompt.vue")['default']
-    'LazyNuxtWelcome': typeof import("../node_modules/nuxt/dist/app/components/welcome.vue")['default']
+    'LazyNuxtWelcome': typeof import(../components/MusicVTest.vue.toGarbagepp/components/welcome.vue")['default']
     'LazyNuxtLayout': typeof import("../node_modules/nuxt/dist/app/components/nuxt-layout")['default']
     'LazyNuxtErrorBoundary': typeof import("../node_modules/nuxt/dist/app/components/nuxt-error-boundary")['default']
     'LazyClientOnly': typeof import("../node_modules/nuxt/dist/app/components/client-only")['default']
@@ -63,11 +63,11 @@ declare module 'vue' {
 }
 
 export const AceEditor: typeof import("../components/AceEditor.vue")['default']
+export const Codemanager: typeof import("../components/Codemanager.vue")['default']
 export const HelpModal: typeof import("../components/HelpModal.vue")['default']
-export const MusicVTest: typeof import("../components/MusicVTest.vue")['default']
 export const RandomPrompt: typeof import("../components/RandomPrompt.vue")['default']
 export const NuxtWelcome: typeof import("../node_modules/nuxt/dist/app/components/welcome.vue")['default']
-export const NuxtLayout: typeof import("../node_modules/nuxt/dist/app/components/nuxt-layout")['default']
+export const NuxtLayout: typeof import("../components/MusicVTest.vue.toGarbagep/components/nuxt-layout")['default']
 export const NuxtErrorBoundary: typeof import("../node_modules/nuxt/dist/app/components/nuxt-error-boundary")['default']
 export const ClientOnly: typeof import("../node_modules/nuxt/dist/app/components/client-only")['default']
 export const DevOnly: typeof import("../node_modules/nuxt/dist/app/components/dev-only")['default']
@@ -90,12 +90,12 @@ export const Body: typeof import("../node_modules/nuxt/dist/head/runtime/compone
 export const NuxtIsland: typeof import("../node_modules/nuxt/dist/app/components/nuxt-island")['default']
 export const NuxtRouteAnnouncer: IslandComponent<typeof import("../node_modules/nuxt/dist/app/components/server-placeholder")['default']>
 export const LazyAceEditor: typeof import("../components/AceEditor.vue")['default']
+export const LazyCodemanager: typeof import("../components/Codemanager.vue")['default']
 export const LazyHelpModal: typeof import("../components/HelpModal.vue")['default']
-export const LazyMusicVTest: typeof import("../components/MusicVTest.vue")['default']
 export const LazyRandomPrompt: typeof import("../components/RandomPrompt.vue")['default']
 export const LazyNuxtWelcome: typeof import("../node_modules/nuxt/dist/app/components/welcome.vue")['default']
 export const LazyNuxtLayout: typeof import("../node_modules/nuxt/dist/app/components/nuxt-layout")['default']
-export const LazyNuxtErrorBoundary: typeof import("../node_modules/nuxt/dist/app/components/nuxt-error-boundary")['default']
+export const LazyNuxtErrorBoundary: typeof i../components/MusicVTest.vue.toGarbagedist/app/components/nuxt-error-boundary")['default']
 export const LazyClientOnly: typeof import("../node_modules/nuxt/dist/app/components/client-only")['default']
 export const LazyDevOnly: typeof import("../node_modules/nuxt/dist/app/components/dev-only")['default']
 export const LazyServerPlaceholder: typeof import("../node_modules/nuxt/dist/app/components/server-placeholder")['default']

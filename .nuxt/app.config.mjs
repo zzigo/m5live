@@ -1,10 +1,10 @@
 
-import { updateAppConfig } from '#app/config'
+import { _replaceAppConfig } from '#app/config'
 import { defuFn } from 'defu'
 
 const inlineConfig = {
-  "name": "SOOG",
-  "description": "Speculative Organology Organogram Generator",
+  "name": "M5LIVE",
+  "description": "LiveCoding version of Pioneer MusicV",
   "theme": {
     "dark": true,
     "colors": {
@@ -18,7 +18,7 @@ const inlineConfig = {
 // Vite - webpack is handled directly in #app/config
 if (import.meta.hot) {
   import.meta.hot.accept((newModule) => {
-    updateAppConfig(newModule.default)
+    _replaceAppConfig(newModule.default)
   })
 }
 

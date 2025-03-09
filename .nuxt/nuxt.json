@@ -1,9 +1,9 @@
 {
-  "_hash": "1VKjmrr2jO",
+  "_hash": "3CL09sctKKCxbMmtlaH5SQ9ofwLh2l9h1pe9ul7F2ng",
   "project": {
     "rootDir": "/Users/zztt/projects/22-m5live/25-m5live-nuxt"
   },
   "versions": {
-    "nuxt": "3.15.1"
+    "nuxt": "3.16.0"
   }
 }

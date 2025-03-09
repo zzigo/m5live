@@ -17,19 +17,15 @@
         "./types/nitro-imports"
       ],
       "~/*": [
-        "../*",
         "../*"
       ],
       "@/*": [
-        "../*",
         "../*"
       ],
       "~~/*": [
-        "../*",
         "../*"
       ],
       "@@/*": [
-        "../*",
         "../*"
       ],
       "nitropack/types": [
@@ -65,6 +61,12 @@
       "@vue/compiler-sfc": [
         "../node_modules/@vue/compiler-sfc"
       ],
+      "vue-router": [
+        "../node_modules/vue-router"
+      ],
+      "vue-router/auto-routes": [
+        "../node_modules/vue-router/vue-router-auto-routes"
+      ],
       "unplugin-vue-router/client": [
         "../node_modules/unplugin-vue-router/client"
       ],
@@ -76,45 +78,6 @@
       ],
       "vite/client": [
         "../node_modules/vite/client"
-      ],
-      "~": [
-        "./.."
-      ],
-      "@": [
-        "./.."
-      ],
-      "~~": [
-        "./.."
-      ],
-      "@@": [
-        "./.."
-      ],
-      "#shared": [
-        "../shared"
-      ],
-      "assets": [
-        "../assets"
-      ],
-      "assets/*": [
-        "../assets/*"
-      ],
-      "public": [
-        "../public"
-      ],
-      "public/*": [
-        "../public/*"
-      ],
-      "#build": [
-        "./"
-      ],
-      "#build/*": [
-        "./*"
-      ],
-      "#internal/nuxt/paths": [
-        "../node_modules/nuxt/dist/core/runtime/nitro/paths"
-      ],
-      "#vue-router": [
-        "./vue-router"
       ]
     },
     "lib": [

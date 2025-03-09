@@ -6,7 +6,7 @@
 </template>
 
 <script setup>
-import MusicVTest from '~/components/MusicVTest.vue';
+import MusicVTest from '~/components/MusicVTest.vue.toGarbage';
 </script>
 
 <style scoped>

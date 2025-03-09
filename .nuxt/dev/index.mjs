@@ -1,18 +1,20 @@
-import process from 'node:process';globalThis._importMeta_={url:import.meta.url,env:process.env};import { getRequestHeader, splitCookiesString, setResponseStatus, setResponseHeader, send, getRequestHeaders, defineEventHandler, handleCacheHeaders, createEvent, fetchWithEvent, isEvent, eventHandler, setHeaders, sendRedirect, proxyRequest, createApp, createRouter as createRouter$1, toNodeListener, lazyEventHandler, getResponseStatus, setResponseHeaders, createError, getRouterParam, getQuery as getQuery$1, readBody, getResponseStatusText } from 'file:///Users/zztt/projects/22-m5live/25-m5live-nuxt/node_modules/h3/dist/index.mjs';
+import process from 'node:process';globalThis._importMeta_={url:import.meta.url,env:process.env};import { tmpdir } from 'node:os';
+import { getRequestHeader, setResponseHeaders, setResponseStatus, send, getRequestHeaders, setResponseHeader, getRequestURL, getResponseHeader, defineEventHandler, handleCacheHeaders, splitCookiesString, createEvent, fetchWithEvent, isEvent, eventHandler, setHeaders, sendRedirect, proxyRequest, createApp, createRouter as createRouter$1, toNodeListener, lazyEventHandler, getResponseStatus, createError, getRouterParam, readBody, getQuery as getQuery$1, getResponseStatusText } from 'file:///Users/zztt/projects/22-m5live/25-m5live-nuxt/node_modules/h3/dist/index.mjs';
 import { Server } from 'node:http';
-import { mkdirSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import path, { resolve, dirname, join } from 'node:path';
+import nodeCrypto from 'node:crypto';
 import { parentPort, threadId } from 'node:worker_threads';
-import { getRequestDependencies, getPreloadLinks, getPrefetchLinks, createRenderer } from 'file:///Users/zztt/projects/22-m5live/25-m5live-nuxt/node_modules/vue-bundle-renderer/dist/runtime.mjs';
-import { stringify, uneval } from 'file:///Users/zztt/projects/22-m5live/25-m5live-nuxt/node_modules/devalue/index.js';
+import fs, { readFile } from 'node:fs/promises';
+import { createRenderer, getRequestDependencies, getPreloadLinks, getPrefetchLinks } from 'file:///Users/zztt/projects/22-m5live/25-m5live-nuxt/node_modules/vue-bundle-renderer/dist/runtime.mjs';
 import destr from 'file:///Users/zztt/projects/22-m5live/25-m5live-nuxt/node_modules/destr/dist/index.mjs';
 import { withQuery, joinURL, withTrailingSlash, parseURL, withoutBase, getQuery, joinRelativeURL } from 'file:///Users/zztt/projects/22-m5live/25-m5live-nuxt/node_modules/ufo/dist/index.mjs';
+import { createHead as createHead$1, propsToString, renderSSRHead } from 'file:///Users/zztt/projects/22-m5live/25-m5live-nuxt/node_modules/unhead/dist/server.mjs';
+import { isVNode, toValue, isRef } from 'file:///Users/zztt/projects/22-m5live/25-m5live-nuxt/node_modules/vue/index.mjs';
+import { walkResolver } from 'file:///Users/zztt/projects/22-m5live/25-m5live-nuxt/node_modules/unhead/dist/utils.mjs';
 import { renderToString } from 'file:///Users/zztt/projects/22-m5live/25-m5live-nuxt/node_modules/vue/server-renderer/index.mjs';
-import { propsToString, renderSSRHead } from 'file:///Users/zztt/projects/22-m5live/25-m5live-nuxt/node_modules/@unhead/ssr/dist/index.mjs';
 import { createHooks } from 'file:///Users/zztt/projects/22-m5live/25-m5live-nuxt/node_modules/hookable/dist/index.mjs';
-import { createFetch as createFetch$1, Headers as Headers$1 } from 'file:///Users/zztt/projects/22-m5live/25-m5live-nuxt/node_modules/ofetch/dist/node.mjs';
-import { createCall, createFetch } from 'file:///Users/zztt/projects/22-m5live/25-m5live-nuxt/node_modules/unenv/runtime/fetch/index.mjs';
+import { createFetch, Headers as Headers$1 } from 'file:///Users/zztt/projects/22-m5live/25-m5live-nuxt/node_modules/ofetch/dist/node.mjs';
+import { fetchNodeRequestHandler, callNodeRequestHandler } from 'file:///Users/zztt/projects/22-m5live/25-m5live-nuxt/node_modules/node-mock-http/dist/index.mjs';
 import { klona } from 'file:///Users/zztt/projects/22-m5live/25-m5live-nuxt/node_modules/klona/dist/index.mjs';
 import defu, { defuFn } from 'file:///Users/zztt/projects/22-m5live/25-m5live-nuxt/node_modules/defu/dist/defu.mjs';
 import { snakeCase } from 'file:///Users/zztt/projects/22-m5live/25-m5live-nuxt/node_modules/scule/dist/index.mjs';
@@ -20,116 +22,48 @@ import { createStorage, prefixStorage } from 'file:///Users/zztt/projects/22-m5l
 import unstorage_47drivers_47fs from 'file:///Users/zztt/projects/22-m5live/25-m5live-nuxt/node_modules/unstorage/drivers/fs.mjs';
 import { toRouteMatcher, createRouter } from 'file:///Users/zztt/projects/22-m5live/25-m5live-nuxt/node_modules/radix3/dist/index.mjs';
 import { getContext } from 'file:///Users/zztt/projects/22-m5live/25-m5live-nuxt/node_modules/unctx/dist/index.mjs';
+import { digest } from 'file:///Users/zztt/projects/22-m5live/25-m5live-nuxt/node_modules/ohash/dist/index.mjs';
+import consola, { consola as consola$1 } from 'file:///Users/zztt/projects/22-m5live/25-m5live-nuxt/node_modules/consola/dist/index.mjs';
+import { ErrorParser } from 'file:///Users/zztt/projects/22-m5live/25-m5live-nuxt/node_modules/youch-core/build/index.js';
+import { Youch } from 'file:///Users/zztt/projects/22-m5live/25-m5live-nuxt/node_modules/youch/build/index.js';
+import { SourceMapConsumer } from 'file:///Users/zztt/projects/22-m5live/25-m5live-nuxt/node_modules/source-map/source-map.js';
 import { AsyncLocalStorage } from 'node:async_hooks';
-import { consola } from 'file:///Users/zztt/projects/22-m5live/25-m5live-nuxt/node_modules/consola/dist/index.mjs';
+import { stringify, uneval } from 'file:///Users/zztt/projects/22-m5live/25-m5live-nuxt/node_modules/devalue/index.js';
 import { captureRawStackTrace, parseRawStackTrace } from 'file:///Users/zztt/projects/22-m5live/25-m5live-nuxt/node_modules/errx/dist/index.js';
-import { isVNode, version, unref } from 'file:///Users/zztt/projects/22-m5live/25-m5live-nuxt/node_modules/vue/index.mjs';
-import { hash } from 'file:///Users/zztt/projects/22-m5live/25-m5live-nuxt/node_modules/ohash/dist/index.mjs';
-import { createServerHead as createServerHead$1, CapoPlugin } from 'file:///Users/zztt/projects/22-m5live/25-m5live-nuxt/node_modules/unhead/dist/index.mjs';
-import { defineHeadPlugin } from 'file:///Users/zztt/projects/22-m5live/25-m5live-nuxt/node_modules/@unhead/shared/dist/index.mjs';
+import { DeprecationsPlugin, PromisesPlugin, TemplateParamsPlugin, AliasSortingPlugin } from 'file:///Users/zztt/projects/22-m5live/25-m5live-nuxt/node_modules/unhead/dist/plugins.mjs';
 
-function hasReqHeader(event, name, includes) {
-  const value = getRequestHeader(event, name);
-  return value && typeof value === "string" && value.toLowerCase().includes(includes);
-}
 function isJsonRequest(event) {
   if (hasReqHeader(event, "accept", "text/html")) {
     return false;
   }
   return hasReqHeader(event, "accept", "application/json") || hasReqHeader(event, "user-agent", "curl/") || hasReqHeader(event, "user-agent", "httpie/") || hasReqHeader(event, "sec-fetch-mode", "cors") || event.path.startsWith("/api/") || event.path.endsWith(".json");
 }
-function normalizeError(error, isDev) {
-  const cwd = typeof process.cwd === "function" ? process.cwd() : "/";
-  const stack = (error.unhandled || error.fatal) ? [] : (error.stack || "").split("\n").splice(1).filter((line) => line.includes("at ")).map((line) => {
-    const text = line.replace(cwd + "/", "./").replace("webpack:/", "").replace("file://", "").trim();
-    return {
-      text,
-      internal: line.includes("node_modules") && !line.includes(".cache") || line.includes("internal") || line.includes("new Promise")
-    };
-  });
-  const statusCode = error.statusCode || 500;
-  const statusMessage = error.statusMessage ?? (statusCode === 404 ? "Not Found" : "");
-  const message = error.unhandled ? "internal server error" : error.message || error.toString();
-  return {
-    stack,
-    statusCode,
-    statusMessage,
-    message
-  };
-}
-function _captureError(error, type) {
-  console.error(`[nitro] [${type}]`, error);
-  useNitroApp().captureError(error, { tags: [type] });
-}
-function trapUnhandledNodeErrors() {
-  process.on(
-    "unhandledRejection",
-    (error) => _captureError(error, "unhandledRejection")
-  );
-  process.on(
-    "uncaughtException",
-    (error) => _captureError(error, "uncaughtException")
-  );
-}
-function joinHeaders(value) {
-  return Array.isArray(value) ? value.join(", ") : String(value);
-}
-function normalizeFetchResponse(response) {
-  if (!response.headers.has("set-cookie")) {
-    return response;
-  }
-  return new Response(response.body, {
-    status: response.status,
-    statusText: response.statusText,
-    headers: normalizeCookieHeaders(response.headers)
-  });
-}
-function normalizeCookieHeader(header = "") {
-  return splitCookiesString(joinHeaders(header));
-}
-function normalizeCookieHeaders(headers) {
-  const outgoingHeaders = new Headers();
-  for (const [name, header] of headers) {
-    if (name === "set-cookie") {
-      for (const cookie of normalizeCookieHeader(header)) {
-        outgoingHeaders.append("set-cookie", cookie);
-      }
-    } else {
-      outgoingHeaders.set(name, joinHeaders(header));
-    }
-  }
-  return outgoingHeaders;
+function hasReqHeader(event, name, includes) {
+  const value = getRequestHeader(event, name);
+  return value && typeof value === "string" && value.toLowerCase().includes(includes);
 }
 
-const errorHandler = (async function errorhandler(error, event) {
-  const { stack, statusCode, statusMessage, message } = normalizeError(error);
-  const errorObject = {
-    url: event.path,
-    statusCode,
-    statusMessage,
-    message,
-    stack: statusCode !== 404 ? `<pre>${stack.map((i) => `<span class="stack${i.internal ? " internal" : ""}">${i.text}</span>`).join("\n")}</pre>` : "",
-    // TODO: check and validate error.data for serialisation into query
-    data: error.data
-  };
-  if (error.unhandled || error.fatal) {
-    const tags = [
-      "[nuxt]",
-      "[request error]",
-      error.unhandled && "[unhandled]",
-      error.fatal && "[fatal]",
-      Number(errorObject.statusCode) !== 200 && `[${errorObject.statusCode}]`
-    ].filter(Boolean).join(" ");
-    console.error(tags, (error.message || error.toString() || "internal server error") + "\n" + stack.map((l) => "  " + l.text).join("  \n"));
-  }
-  if (event.handled) {
+const errorHandler$0 = (async function errorhandler(error, event, { defaultHandler }) {
+  if (isJsonRequest(event)) {
     return;
   }
-  setResponseStatus(event, errorObject.statusCode !== 200 && errorObject.statusCode || 500, errorObject.statusMessage);
-  if (isJsonRequest(event)) {
-    setResponseHeader(event, "Content-Type", "application/json");
-    return send(event, JSON.stringify(errorObject));
+  const defaultRes = await defaultHandler(error, event, { json: true });
+  const statusCode = error.statusCode || 500;
+  if (statusCode === 404 && defaultRes.status === 302) {
+    setResponseHeaders(event, defaultRes.headers);
+    setResponseStatus(event, defaultRes.status, defaultRes.statusText);
+    return send(event, JSON.stringify(defaultRes.body, null, 2));
   }
+  if (typeof defaultRes.body !== "string" && Array.isArray(defaultRes.body.stack)) {
+    defaultRes.body.stack = defaultRes.body.stack.join("\n");
+  }
+  const errorObject = defaultRes.body;
+  const url = new URL(errorObject.url);
+  errorObject.url = url.pathname + url.search + url.hash;
+  errorObject.message ||= "Server Error";
+  delete defaultRes.headers["content-type"];
+  delete defaultRes.headers["content-security-policy"];
+  setResponseHeaders(event, defaultRes.headers);
   const reqHeaders = getRequestHeaders(event);
   const isRenderingError = event.path.startsWith("/__nuxt_error") || !!reqHeaders["x-nuxt-error"];
   const res = isRenderingError ? null : await useNitroApp().localFetch(
@@ -139,27 +73,162 @@ const errorHandler = (async function errorhandler(error, event) {
       redirect: "manual"
     }
   ).catch(() => null);
+  if (event.handled) {
+    return;
+  }
   if (!res) {
     const { template } = await Promise.resolve().then(function () { return errorDev; }) ;
     {
       errorObject.description = errorObject.message;
     }
-    if (event.handled) {
-      return;
-    }
     setResponseHeader(event, "Content-Type", "text/html;charset=UTF-8");
     return send(event, template(errorObject));
   }
   const html = await res.text();
-  if (event.handled) {
-    return;
-  }
   for (const [header, value] of res.headers.entries()) {
     setResponseHeader(event, header, value);
   }
-  setResponseStatus(event, res.status && res.status !== 200 ? res.status : undefined, res.statusText);
+  setResponseStatus(event, res.status && res.status !== 200 ? res.status : defaultRes.status, res.statusText || defaultRes.statusText);
   return send(event, html);
 });
+
+function defineNitroErrorHandler(handler) {
+  return handler;
+}
+
+const errorHandler$1 = defineNitroErrorHandler(
+  async function defaultNitroErrorHandler(error, event) {
+    const res = await defaultHandler(error, event);
+    setResponseHeaders(event, res.headers);
+    setResponseStatus(event, res.status, res.statusText);
+    return send(
+      event,
+      typeof res.body === "string" ? res.body : JSON.stringify(res.body, null, 2)
+    );
+  }
+);
+async function defaultHandler(error, event, opts) {
+  const isSensitive = error.unhandled || error.fatal;
+  const statusCode = error.statusCode || 500;
+  const statusMessage = error.statusMessage || "Server Error";
+  const url = getRequestURL(event, { xForwardedHost: true, xForwardedProto: true });
+  if (statusCode === 404) {
+    const baseURL = "/";
+    if (/^\/[^/]/.test(baseURL) && !url.pathname.startsWith(baseURL)) {
+      const redirectTo = `${baseURL}${url.pathname.slice(1)}${url.search}`;
+      return {
+        status: 302,
+        statusText: "Found",
+        headers: { location: redirectTo },
+        body: `Redirecting...`
+      };
+    }
+  }
+  await loadStackTrace(error).catch(consola.error);
+  const youch = new Youch();
+  if (isSensitive && !opts?.silent) {
+    const tags = [error.unhandled && "[unhandled]", error.fatal && "[fatal]"].filter(Boolean).join(" ");
+    const ansiError = await (await youch.toANSI(error)).replaceAll(process.cwd(), ".");
+    consola.error(
+      `[request error] ${tags} [${event.method}] ${url}
+
+`,
+      ansiError
+    );
+  }
+  const useJSON = opts?.json || !getRequestHeader(event, "accept")?.includes("text/html");
+  const headers = {
+    "content-type": useJSON ? "application/json" : "text/html",
+    // Prevent browser from guessing the MIME types of resources.
+    "x-content-type-options": "nosniff",
+    // Prevent error page from being embedded in an iframe
+    "x-frame-options": "DENY",
+    // Prevent browsers from sending the Referer header
+    "referrer-policy": "no-referrer",
+    // Disable the execution of any js
+    "content-security-policy": "script-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'self';"
+  };
+  if (statusCode === 404 || !getResponseHeader(event, "cache-control")) {
+    headers["cache-control"] = "no-cache";
+  }
+  const body = useJSON ? {
+    error: true,
+    url,
+    statusCode,
+    statusMessage,
+    message: error.message,
+    data: error.data,
+    stack: error.stack?.split("\n").map((line) => line.trim())
+  } : await youch.toHTML(error, {
+    request: {
+      url: url.href,
+      method: event.method,
+      headers: getRequestHeaders(event)
+    }
+  });
+  return {
+    status: statusCode,
+    statusText: statusMessage,
+    headers,
+    body
+  };
+}
+async function loadStackTrace(error) {
+  if (!(error instanceof Error)) {
+    return;
+  }
+  const parsed = await new ErrorParser().defineSourceLoader(sourceLoader).parse(error);
+  const stack = error.message + "\n" + parsed.frames.map((frame) => fmtFrame(frame)).join("\n");
+  Object.defineProperty(error, "stack", { value: stack });
+  if (error.cause) {
+    await loadStackTrace(error.cause).catch(consola.error);
+  }
+}
+async function sourceLoader(frame) {
+  if (!frame.fileName || frame.fileType !== "fs" || frame.type === "native") {
+    return;
+  }
+  if (frame.type === "app") {
+    const rawSourceMap = await readFile(`${frame.fileName}.map`, "utf8").catch(() => {
+    });
+    if (rawSourceMap) {
+      const consumer = await new SourceMapConsumer(rawSourceMap);
+      const originalPosition = consumer.originalPositionFor({ line: frame.lineNumber, column: frame.columnNumber });
+      if (originalPosition.source && originalPosition.line) {
+        frame.fileName = resolve(dirname(frame.fileName), originalPosition.source);
+        frame.lineNumber = originalPosition.line;
+        frame.columnNumber = originalPosition.column || 0;
+      }
+    }
+  }
+  const contents = await readFile(frame.fileName, "utf8").catch(() => {
+  });
+  return contents ? { contents } : void 0;
+}
+function fmtFrame(frame) {
+  if (frame.type === "native") {
+    return frame.raw;
+  }
+  const src = `${frame.fileName || ""}:${frame.lineNumber}:${frame.columnNumber})`;
+  return frame.functionName ? `at ${frame.functionName} (${src}` : `at ${src}`;
+}
+
+const errorHandlers = [errorHandler$0, errorHandler$1];
+
+async function errorHandler(error, event) {
+  for (const handler of errorHandlers) {
+    try {
+      await handler(error, event, { defaultHandler });
+      if (event.handled) {
+        return; // Response handled
+      }
+    } catch(error) {
+      // Handler itself thrown, log and continue
+      console.error(error);
+    }
+  }
+  // H3 will handle fallback
+}
 
 const script = `
 if (!window.__NUXT_DEVTOOLS_TIME_METRIC__) {
@@ -172,7 +241,7 @@ if (!window.__NUXT_DEVTOOLS_TIME_METRIC__) {
 window.__NUXT_DEVTOOLS_TIME_METRIC__.appInit = Date.now()
 `;
 
-const _4ICPEyyiXG = (function(nitro) {
+const _8hM3I2dV6MVbP5YHsoUNbiVmnwOOnT6O5f7BLPHpOpc = (function(nitro) {
   nitro.hooks.hook("render:html", (htmlContext) => {
     htmlContext.head.push(`<script>${script}<\/script>`);
   });
@@ -193,11 +262,11 @@ const appTeleportAttrs = {"id":"teleports"};
 const appId = "nuxt-app";
 
 const devReducers = {
-  VNode: (data) => isVNode(data) ? { type: data.type, props: data.props } : undefined,
-  URL: (data) => data instanceof URL ? data.toString() : undefined
+  VNode: (data) => isVNode(data) ? { type: data.type, props: data.props } : void 0,
+  URL: (data) => data instanceof URL ? data.toString() : void 0
 };
 const asyncContext = getContext("nuxt-dev", { asyncContext: true, AsyncLocalStorage });
-const _Bjuwrp6gBx = (nitroApp) => {
+const _SbwqYpdISZ6rZGqbiawRVBnDOylyUBf2MCfSZqZB8dE = (nitroApp) => {
   const handler = nitroApp.h3App.handler;
   nitroApp.h3App.handler = (event) => {
     return asyncContext.callAsync({ logs: [], event }, () => handler(event));
@@ -258,24 +327,26 @@ const _Bjuwrp6gBx = (nitroApp) => {
 };
 const EXCLUDE_TRACE_RE = /\/node_modules\/(?:.*\/)?(?:nuxt|nuxt-nightly|nuxt-edge|nuxt3|consola|@vue)\/|core\/runtime\/nitro/;
 function onConsoleLog(callback) {
-  consola.addReporter({
+  consola$1.addReporter({
     log(logObj) {
       callback(logObj);
     }
   });
-  consola.wrapConsole();
+  consola$1.wrapConsole();
 }
 
 const plugins = [
-  _4ICPEyyiXG,
-_Bjuwrp6gBx
+  _8hM3I2dV6MVbP5YHsoUNbiVmnwOOnT6O5f7BLPHpOpc,
+_SbwqYpdISZ6rZGqbiawRVBnDOylyUBf2MCfSZqZB8dE
 ];
 
-const _lazy_0nBJEF = () => Promise.resolve().then(function () { return renderer$1; });
+const _lazy_3uoPla = () => Promise.resolve().then(function () { return codes$1; });
+const _lazy_GYU48a = () => Promise.resolve().then(function () { return renderer$1; });
 
 const handlers = [
-  { route: '/__nuxt_error', handler: _lazy_0nBJEF, lazy: true, middleware: false, method: undefined },
-  { route: '/**', handler: _lazy_0nBJEF, lazy: true, middleware: false, method: undefined }
+  { route: '/api/codes', handler: _lazy_3uoPla, lazy: true, middleware: false, method: undefined },
+  { route: '/__nuxt_error', handler: _lazy_GYU48a, lazy: true, middleware: false, method: undefined },
+  { route: '/**', handler: _lazy_GYU48a, lazy: true, middleware: false, method: undefined }
 ];
 
 const serverAssets = [{"baseName":"server","dir":"/Users/zztt/projects/22-m5live/25-m5live-nuxt/server/assets"}];
@@ -290,14 +361,193 @@ const storage = createStorage({});
 
 storage.mount('/assets', assets);
 
-storage.mount('root', unstorage_47drivers_47fs({"driver":"fs","readOnly":true,"base":"/Users/zztt/projects/22-m5live/25-m5live-nuxt","ignore":["**/node_modules/**","**/.git/**"]}));
-storage.mount('src', unstorage_47drivers_47fs({"driver":"fs","readOnly":true,"base":"/Users/zztt/projects/22-m5live/25-m5live-nuxt/server","ignore":["**/node_modules/**","**/.git/**"]}));
-storage.mount('build', unstorage_47drivers_47fs({"driver":"fs","readOnly":false,"base":"/Users/zztt/projects/22-m5live/25-m5live-nuxt/.nuxt","ignore":["**/node_modules/**","**/.git/**"]}));
-storage.mount('cache', unstorage_47drivers_47fs({"driver":"fs","readOnly":false,"base":"/Users/zztt/projects/22-m5live/25-m5live-nuxt/.nuxt/cache","ignore":["**/node_modules/**","**/.git/**"]}));
-storage.mount('data', unstorage_47drivers_47fs({"driver":"fs","base":"/Users/zztt/projects/22-m5live/25-m5live-nuxt/.data/kv","ignore":["**/node_modules/**","**/.git/**"]}));
+storage.mount('root', unstorage_47drivers_47fs({"driver":"fs","readOnly":true,"base":"/Users/zztt/projects/22-m5live/25-m5live-nuxt","watchOptions":{"ignored":[null]}}));
+storage.mount('src', unstorage_47drivers_47fs({"driver":"fs","readOnly":true,"base":"/Users/zztt/projects/22-m5live/25-m5live-nuxt/server","watchOptions":{"ignored":[null]}}));
+storage.mount('build', unstorage_47drivers_47fs({"driver":"fs","readOnly":false,"base":"/Users/zztt/projects/22-m5live/25-m5live-nuxt/.nuxt"}));
+storage.mount('cache', unstorage_47drivers_47fs({"driver":"fs","readOnly":false,"base":"/Users/zztt/projects/22-m5live/25-m5live-nuxt/.nuxt/cache"}));
+storage.mount('data', unstorage_47drivers_47fs({"driver":"fs","base":"/Users/zztt/projects/22-m5live/25-m5live-nuxt/.data/kv"}));
 
 function useStorage(base = "") {
   return base ? prefixStorage(storage, base) : storage;
+}
+
+function hash(value) {
+  return digest(typeof value === "string" ? value : serialize(value)).replace(/[-_]/g, "").slice(0, 10);
+}
+function serialize(object) {
+  const hasher = new Hasher();
+  hasher.dispatch(object);
+  return hasher.buff;
+}
+class Hasher {
+  buff = "";
+  #context = /* @__PURE__ */ new Map();
+  write(str) {
+    this.buff += str;
+  }
+  dispatch(value) {
+    const type = value === null ? "null" : typeof value;
+    return this[type](value);
+  }
+  object(object) {
+    if (object && typeof object.toJSON === "function") {
+      return this.object(object.toJSON());
+    }
+    const objString = Object.prototype.toString.call(object);
+    let objType = "";
+    const objectLength = objString.length;
+    objType = objectLength < 10 ? "unknown:[" + objString + "]" : objString.slice(8, objectLength - 1);
+    objType = objType.toLowerCase();
+    let objectNumber = null;
+    if ((objectNumber = this.#context.get(object)) === void 0) {
+      this.#context.set(object, this.#context.size);
+    } else {
+      return this.dispatch("[CIRCULAR:" + objectNumber + "]");
+    }
+    if (typeof Buffer !== "undefined" && Buffer.isBuffer && Buffer.isBuffer(object)) {
+      this.write("buffer:");
+      return this.write(object.toString("utf8"));
+    }
+    if (objType !== "object" && objType !== "function" && objType !== "asyncfunction") {
+      if (this[objType]) {
+        this[objType](object);
+      } else {
+        this.unknown(object, objType);
+      }
+    } else {
+      const keys = Object.keys(object).sort();
+      const extraKeys = [];
+      this.write("object:" + (keys.length + extraKeys.length) + ":");
+      const dispatchForKey = (key) => {
+        this.dispatch(key);
+        this.write(":");
+        this.dispatch(object[key]);
+        this.write(",");
+      };
+      for (const key of keys) {
+        dispatchForKey(key);
+      }
+      for (const key of extraKeys) {
+        dispatchForKey(key);
+      }
+    }
+  }
+  array(arr, unordered) {
+    unordered = unordered === void 0 ? false : unordered;
+    this.write("array:" + arr.length + ":");
+    if (!unordered || arr.length <= 1) {
+      for (const entry of arr) {
+        this.dispatch(entry);
+      }
+      return;
+    }
+    const contextAdditions = /* @__PURE__ */ new Map();
+    const entries = arr.map((entry) => {
+      const hasher = new Hasher();
+      hasher.dispatch(entry);
+      for (const [key, value] of hasher.#context) {
+        contextAdditions.set(key, value);
+      }
+      return hasher.toString();
+    });
+    this.#context = contextAdditions;
+    entries.sort();
+    return this.array(entries, false);
+  }
+  date(date) {
+    return this.write("date:" + date.toJSON());
+  }
+  symbol(sym) {
+    return this.write("symbol:" + sym.toString());
+  }
+  unknown(value, type) {
+    this.write(type);
+    if (!value) {
+      return;
+    }
+    this.write(":");
+    if (value && typeof value.entries === "function") {
+      return this.array(
+        [...value.entries()],
+        true
+        /* ordered */
+      );
+    }
+  }
+  error(err) {
+    return this.write("error:" + err.toString());
+  }
+  boolean(bool) {
+    return this.write("bool:" + bool);
+  }
+  string(string) {
+    this.write("string:" + string.length + ":");
+    this.write(string);
+  }
+  function(fn) {
+    this.write("fn:");
+    if (isNativeFunction(fn)) {
+      this.dispatch("[native]");
+    } else {
+      this.dispatch(fn.toString());
+    }
+  }
+  number(number) {
+    return this.write("number:" + number);
+  }
+  null() {
+    return this.write("Null");
+  }
+  undefined() {
+    return this.write("Undefined");
+  }
+  regexp(regex) {
+    return this.write("regex:" + regex.toString());
+  }
+  arraybuffer(arr) {
+    this.write("arraybuffer:");
+    return this.dispatch(new Uint8Array(arr));
+  }
+  url(url) {
+    return this.write("url:" + url.toString());
+  }
+  map(map) {
+    this.write("map:");
+    const arr = [...map];
+    return this.array(arr, false);
+  }
+  set(set) {
+    this.write("set:");
+    const arr = [...set];
+    return this.array(arr, false);
+  }
+  bigint(number) {
+    return this.write("bigint:" + number.toString());
+  }
+}
+for (const type of [
+  "uint8array",
+  "uint8clampedarray",
+  "unt8array",
+  "uint16array",
+  "unt16array",
+  "uint32array",
+  "unt32array",
+  "float32array",
+  "float64array"
+]) {
+  Hasher.prototype[type] = function(arr) {
+    this.write(type + ":");
+    return this.array([...arr], false);
+  };
+}
+const nativeFunc = "[native code] }";
+const nativeFuncLength = nativeFunc.length;
+function isNativeFunction(f) {
+  if (typeof f !== "function") {
+    return false;
+  }
+  return Function.prototype.toString.call(f).slice(-nativeFuncLength) === nativeFunc;
 }
 
 function defaultCacheOptions() {
@@ -314,17 +564,17 @@ function defineCachedFunction(fn, opts = {}) {
   const group = opts.group || "nitro/functions";
   const name = opts.name || fn.name || "_";
   const integrity = opts.integrity || hash([fn, opts]);
-  const validate = opts.validate || ((entry) => entry.value !== undefined);
+  const validate = opts.validate || ((entry) => entry.value !== void 0);
   async function get(key, resolver, shouldInvalidateCache, event) {
     const cacheKey = [opts.base, group, name, key + ".json"].filter(Boolean).join(":").replace(/:\/$/, ":index");
     let entry = await useStorage().getItem(cacheKey).catch((error) => {
-      console.error(`[nitro] [cache] Cache read error.`, error);
+      console.error(`[cache] Cache read error.`, error);
       useNitroApp().captureError(error, { event, tags: ["cache"] });
     }) || {};
     if (typeof entry !== "object") {
       entry = {};
       const error = new Error("Malformed data read from cache.");
-      console.error("[nitro] [cache]", error);
+      console.error("[cache]", error);
       useNitroApp().captureError(error, { event, tags: ["cache"] });
     }
     const ttl = (opts.maxAge ?? 0) * 1e3;
@@ -335,11 +585,11 @@ function defineCachedFunction(fn, opts = {}) {
     const _resolve = async () => {
       const isPending = pending[key];
       if (!isPending) {
-        if (entry.value !== undefined && (opts.staleMaxAge || 0) >= 0 && opts.swr === false) {
-          entry.value = undefined;
-          entry.integrity = undefined;
-          entry.mtime = undefined;
-          entry.expires = undefined;
+        if (entry.value !== void 0 && (opts.staleMaxAge || 0) >= 0 && opts.swr === false) {
+          entry.value = void 0;
+          entry.integrity = void 0;
+          entry.mtime = void 0;
+          entry.expires = void 0;
         }
         pending[key] = Promise.resolve(resolver());
       }
@@ -361,7 +611,7 @@ function defineCachedFunction(fn, opts = {}) {
             setOpts = { ttl: opts.maxAge };
           }
           const promise = useStorage().setItem(cacheKey, entry, setOpts).catch((error) => {
-            console.error(`[nitro] [cache] Cache write error.`, error);
+            console.error(`[cache] Cache write error.`, error);
             useNitroApp().captureError(error, { event, tags: ["cache"] });
           });
           if (event?.waitUntil) {
@@ -371,14 +621,14 @@ function defineCachedFunction(fn, opts = {}) {
       }
     };
     const _resolvePromise = expired ? _resolve() : Promise.resolve();
-    if (entry.value === undefined) {
+    if (entry.value === void 0) {
       await _resolvePromise;
     } else if (expired && event && event.waitUntil) {
       event.waitUntil(_resolvePromise);
     }
     if (opts.swr && validate(entry) !== false) {
       _resolvePromise.catch((error) => {
-        console.error(`[nitro] [cache] SWR handler error.`, error);
+        console.error(`[cache] SWR handler error.`, error);
         useNitroApp().captureError(error, { event, tags: ["cache"] });
       });
       return entry;
@@ -396,7 +646,7 @@ function defineCachedFunction(fn, opts = {}) {
       key,
       () => fn(...args),
       shouldInvalidateCache,
-      args[0] && isEvent(args[0]) ? args[0] : undefined
+      args[0] && isEvent(args[0]) ? args[0] : void 0
     );
     let value = entry.value;
     if (opts.transform) {
@@ -409,7 +659,7 @@ function cachedFunction(fn, opts = {}) {
   return defineCachedFunction(fn, opts);
 }
 function getKey(...args) {
-  return args.length > 0 ? hash(args, {}) : "";
+  return args.length > 0 ? hash(args) : "";
 }
 function escapeKey(key) {
   return String(key).replace(/\W/g, "");
@@ -441,7 +691,7 @@ function defineCachedEventHandler(handler, opts = defaultCacheOptions()) {
       if (entry.value.code >= 400) {
         return false;
       }
-      if (entry.value.body === undefined) {
+      if (entry.value.body === void 0) {
         return false;
       }
       if (entry.value.headers.etag === "undefined" || entry.value.headers["last-modified"] === "undefined") {
@@ -457,7 +707,7 @@ function defineCachedEventHandler(handler, opts = defaultCacheOptions()) {
       const variableHeaders = {};
       for (const header of variableHeaderNames) {
         const value = incomingEvent.node.req.headers[header];
-        if (value !== undefined) {
+        if (value !== void 0) {
           variableHeaders[header] = value;
         }
       }
@@ -508,7 +758,7 @@ function defineCachedEventHandler(handler, opts = defaultCacheOptions()) {
             _resSendBody = chunk;
           }
           if (typeof arg2 === "function") {
-            arg2(undefined);
+            arg2(void 0);
           }
           if (typeof arg3 === "function") {
             arg3();
@@ -523,7 +773,7 @@ function defineCachedEventHandler(handler, opts = defaultCacheOptions()) {
             }
             for (const header in headers2) {
               const value = headers2[header];
-              if (value !== undefined) {
+              if (value !== void 0) {
                 this.setHeader(
                   header,
                   value
@@ -541,6 +791,7 @@ function defineCachedEventHandler(handler, opts = defaultCacheOptions()) {
       event.$fetch = (url, fetchOptions) => fetchWithEvent(event, url, fetchOptions, {
         fetch: globalThis.$fetch
       });
+      event.waitUntil = incomingEvent.waitUntil;
       event.context = incomingEvent.context;
       event.context.cache = {
         options: _opts
@@ -607,7 +858,7 @@ function defineCachedEventHandler(handler, opts = defaultCacheOptions()) {
           splitCookiesString(value)
         );
       } else {
-        if (value !== undefined) {
+        if (value !== void 0) {
           event.node.res.setHeader(name, value);
         }
       }
@@ -635,8 +886,8 @@ function cloneWithProxy(obj, overrides) {
 const cachedEventHandler = defineCachedEventHandler;
 
 const inlineAppConfig = {
-  "name": "SOOG",
-  "description": "Speculative Organology Organogram Generator",
+  "name": "M5LIVE",
+  "description": "LiveCoding version of Pioneer MusicV",
   "theme": {
     "dark": true,
     "colors": {
@@ -668,7 +919,7 @@ function applyEnv(obj, opts, parentKey = "") {
       if (_isObject(envValue)) {
         obj[key] = { ...obj[key], ...envValue };
         applyEnv(obj[key], opts, subKey);
-      } else if (envValue === undefined) {
+      } else if (envValue === void 0) {
         applyEnv(obj[key], opts, subKey);
       } else {
         obj[key] = envValue ?? obj[key];
@@ -682,7 +933,7 @@ function applyEnv(obj, opts, parentKey = "") {
   }
   return obj;
 }
-const envExpandRx = /{{(.*?)}}/g;
+const envExpandRx = /\{\{([^{}]*)\}\}/g;
 function _expandFromEnv(value) {
   return value.replace(envExpandRx, (match, key) => {
     return process.env[key] || match;
@@ -715,7 +966,7 @@ const _inlineRuntimeConfig = {
     }
   },
   "public": {
-    "apiBase": "https://soog.onrender.com/api"
+    "apiBase": "https://m5live.onrender.com/api"
   }
 };
 const envOptions = {
@@ -758,13 +1009,13 @@ new Proxy(/* @__PURE__ */ Object.create(null), {
     if (prop in runtimeConfig) {
       return runtimeConfig[prop];
     }
-    return undefined;
+    return void 0;
   }
 });
 
 getContext("nitro-app", {
   asyncContext: false,
-  AsyncLocalStorage: undefined
+  AsyncLocalStorage: void 0
 });
 
 const config = useRuntimeConfig();
@@ -825,6 +1076,50 @@ function getRouteRulesForPath(path) {
   return defu({}, ..._routeRulesMatcher.matchAll(path).reverse());
 }
 
+function _captureError(error, type) {
+  console.error(`[${type}]`, error);
+  useNitroApp().captureError(error, { tags: [type] });
+}
+function trapUnhandledNodeErrors() {
+  process.on(
+    "unhandledRejection",
+    (error) => _captureError(error, "unhandledRejection")
+  );
+  process.on(
+    "uncaughtException",
+    (error) => _captureError(error, "uncaughtException")
+  );
+}
+function joinHeaders(value) {
+  return Array.isArray(value) ? value.join(", ") : String(value);
+}
+function normalizeFetchResponse(response) {
+  if (!response.headers.has("set-cookie")) {
+    return response;
+  }
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers: normalizeCookieHeaders(response.headers)
+  });
+}
+function normalizeCookieHeader(header = "") {
+  return splitCookiesString(joinHeaders(header));
+}
+function normalizeCookieHeaders(headers) {
+  const outgoingHeaders = new Headers();
+  for (const [name, header] of headers) {
+    if (name === "set-cookie") {
+      for (const cookie of normalizeCookieHeader(header)) {
+        outgoingHeaders.append("set-cookie", cookie);
+      }
+    } else {
+      outgoingHeaders.set(name, joinHeaders(header));
+    }
+  }
+  return outgoingHeaders;
+}
+
 function createNitroApp() {
   const config = useRuntimeConfig();
   const hooks = createHooks();
@@ -849,38 +1144,6 @@ function createNitroApp() {
       return errorHandler(error, event);
     },
     onRequest: async (event) => {
-      await nitroApp$1.hooks.callHook("request", event).catch((error) => {
-        captureError(error, { event, tags: ["request"] });
-      });
-    },
-    onBeforeResponse: async (event, response) => {
-      await nitroApp$1.hooks.callHook("beforeResponse", event, response).catch((error) => {
-        captureError(error, { event, tags: ["request", "response"] });
-      });
-    },
-    onAfterResponse: async (event, response) => {
-      await nitroApp$1.hooks.callHook("afterResponse", event, response).catch((error) => {
-        captureError(error, { event, tags: ["request", "response"] });
-      });
-    }
-  });
-  const router = createRouter$1({
-    preemptive: true
-  });
-  const localCall = createCall(toNodeListener(h3App));
-  const _localFetch = createFetch(localCall, globalThis.fetch);
-  const localFetch = (input, init) => _localFetch(input, init).then(
-    (response) => normalizeFetchResponse(response)
-  );
-  const $fetch = createFetch$1({
-    fetch: localFetch,
-    Headers: Headers$1,
-    defaults: { baseURL: config.app.baseURL }
-  });
-  globalThis.$fetch = $fetch;
-  h3App.use(createRouteRulesHandler({ localFetch }));
-  h3App.use(
-    eventHandler((event) => {
       event.context.nitro = event.context.nitro || { errors: [] };
       const envContext = event.node.req?.__unenv__;
       if (envContext) {
@@ -902,8 +1165,43 @@ function createNitroApp() {
       event.captureError = (error, context) => {
         captureError(error, { event, ...context });
       };
-    })
-  );
+      await nitroApp$1.hooks.callHook("request", event).catch((error) => {
+        captureError(error, { event, tags: ["request"] });
+      });
+    },
+    onBeforeResponse: async (event, response) => {
+      await nitroApp$1.hooks.callHook("beforeResponse", event, response).catch((error) => {
+        captureError(error, { event, tags: ["request", "response"] });
+      });
+    },
+    onAfterResponse: async (event, response) => {
+      await nitroApp$1.hooks.callHook("afterResponse", event, response).catch((error) => {
+        captureError(error, { event, tags: ["request", "response"] });
+      });
+    }
+  });
+  const router = createRouter$1({
+    preemptive: true
+  });
+  const nodeHandler = toNodeListener(h3App);
+  const localCall = (aRequest) => callNodeRequestHandler(nodeHandler, aRequest);
+  const localFetch = (input, init) => {
+    if (!input.toString().startsWith("/")) {
+      return globalThis.fetch(input, init);
+    }
+    return fetchNodeRequestHandler(
+      nodeHandler,
+      input,
+      init
+    ).then((response) => normalizeFetchResponse(response));
+  };
+  const $fetch = createFetch({
+    fetch: localFetch,
+    Headers: Headers$1,
+    defaults: { baseURL: config.app.baseURL }
+  });
+  globalThis.$fetch = $fetch;
+  h3App.use(createRouteRulesHandler({ localFetch }));
   for (const h of handlers) {
     let handler = h.lazy ? lazyEventHandler(h.handler) : h.handler;
     if (h.middleware || !h.route) {
@@ -956,7 +1254,7 @@ function defineRenderHandler(render) {
   const runtimeConfig = useRuntimeConfig();
   return eventHandler(async (event) => {
     const nitroApp = useNitroApp();
-    const ctx = { event, render, response: undefined };
+    const ctx = { event, render, response: void 0 };
     await nitroApp.hooks.callHook("render:before", ctx);
     if (!ctx.response) {
       if (event.path === `${runtimeConfig.app.baseURL}favicon.ico`) {
@@ -990,8 +1288,6 @@ function defineRenderHandler(render) {
     return ctx.response.body;
   });
 }
-
-const r=Object.create(null),i=e=>globalThis.process?.env||globalThis._importMeta_.env||globalThis.Deno?.env.toObject()||globalThis.__env__||(e?r:globalThis),s=new Proxy(r,{get(e,o){return i()[o]??r[o]},has(e,o){const E=i();return o in E||o in r},set(e,o,E){const b=i(true);return b[o]=E,true},deleteProperty(e,o){if(!o)return  false;const E=i(true);return delete E[o],true},ownKeys(){const e=i(true);return Object.keys(e)}}),t=typeof process<"u"&&process.env&&"development"||"",B=[["APPVEYOR"],["AWS_AMPLIFY","AWS_APP_ID",{ci:true}],["AZURE_PIPELINES","SYSTEM_TEAMFOUNDATIONCOLLECTIONURI"],["AZURE_STATIC","INPUT_AZURE_STATIC_WEB_APPS_API_TOKEN"],["APPCIRCLE","AC_APPCIRCLE"],["BAMBOO","bamboo_planKey"],["BITBUCKET","BITBUCKET_COMMIT"],["BITRISE","BITRISE_IO"],["BUDDY","BUDDY_WORKSPACE_ID"],["BUILDKITE"],["CIRCLE","CIRCLECI"],["CIRRUS","CIRRUS_CI"],["CLOUDFLARE_PAGES","CF_PAGES",{ci:true}],["CODEBUILD","CODEBUILD_BUILD_ARN"],["CODEFRESH","CF_BUILD_ID"],["DRONE"],["DRONE","DRONE_BUILD_EVENT"],["DSARI"],["GITHUB_ACTIONS"],["GITLAB","GITLAB_CI"],["GITLAB","CI_MERGE_REQUEST_ID"],["GOCD","GO_PIPELINE_LABEL"],["LAYERCI"],["HUDSON","HUDSON_URL"],["JENKINS","JENKINS_URL"],["MAGNUM"],["NETLIFY"],["NETLIFY","NETLIFY_LOCAL",{ci:false}],["NEVERCODE"],["RENDER"],["SAIL","SAILCI"],["SEMAPHORE"],["SCREWDRIVER"],["SHIPPABLE"],["SOLANO","TDDIUM"],["STRIDER"],["TEAMCITY","TEAMCITY_VERSION"],["TRAVIS"],["VERCEL","NOW_BUILDER"],["VERCEL","VERCEL",{ci:false}],["VERCEL","VERCEL_ENV",{ci:false}],["APPCENTER","APPCENTER_BUILD_ID"],["CODESANDBOX","CODESANDBOX_SSE",{ci:false}],["STACKBLITZ"],["STORMKIT"],["CLEAVR"],["ZEABUR"],["CODESPHERE","CODESPHERE_APP_ID",{ci:true}],["RAILWAY","RAILWAY_PROJECT_ID"],["RAILWAY","RAILWAY_SERVICE_ID"],["DENO-DEPLOY","DENO_DEPLOYMENT_ID"],["FIREBASE_APP_HOSTING","FIREBASE_APP_HOSTING",{ci:true}]];function p(){if(globalThis.process?.env)for(const e of B){const o=e[1]||e[0];if(globalThis.process?.env[o])return {name:e[0].toLowerCase(),...e[2]}}return globalThis.process?.env?.SHELL==="/bin/jsh"&&globalThis.process?.versions?.webcontainer?{name:"stackblitz",ci:false}:{name:"",ci:false}}const l=p(),d=l.name;function n(e){return e?e!=="false":false}const I=globalThis.process?.platform||"",T=n(s.CI)||l.ci!==false,R=n(globalThis.process?.stdout&&globalThis.process?.stdout.isTTY);n(s.DEBUG);const A=t==="test"||n(s.TEST);n(s.MINIMAL)||T||A||!R;const _=/^win/i.test(I);!n(s.NO_COLOR)&&(n(s.FORCE_COLOR)||(R||_)&&s.TERM!=="dumb"||T);const C=(globalThis.process?.versions?.node||"").replace(/^v/,"")||null;Number(C?.split(".")[0])||null;const y=globalThis.process||Object.create(null),c={versions:{}};new Proxy(y,{get(e,o){if(o==="env")return s;if(o in e)return e[o];if(o in c)return c[o]}});const L=globalThis.process?.release?.name==="node",a=!!globalThis.Bun||!!globalThis.process?.versions?.bun,D=!!globalThis.Deno,O=!!globalThis.fastly,S=!!globalThis.Netlify,N=!!globalThis.EdgeRuntime,P=globalThis.navigator?.userAgent==="Cloudflare-Workers",F=[[S,"netlify"],[N,"edge-light"],[P,"workerd"],[O,"fastly"],[D,"deno"],[a,"bun"],[L,"node"]];function G(){const e=F.find(o=>o[0]);if(e)return {name:e[1]}}const u=G();u?.name||"";
 
 const scheduledTasks = false;
 
@@ -1030,27 +1326,25 @@ async function runTask(name, {
   }
 }
 
+if (!globalThis.crypto) {
+  globalThis.crypto = nodeCrypto;
+}
+const { NITRO_NO_UNIX_SOCKET, NITRO_DEV_WORKER_ID } = process.env;
+trapUnhandledNodeErrors();
+parentPort?.on("message", (msg) => {
+  if (msg && msg.event === "shutdown") {
+    shutdown();
+  }
+});
 const nitroApp = useNitroApp();
 const server = new Server(toNodeListener(nitroApp.h3App));
-function getAddress() {
-  if (d === "stackblitz" || process.env.NITRO_NO_UNIX_SOCKET || process.versions.bun) {
-    return 0;
-  }
-  const socketName = `worker-${process.pid}-${threadId}.sock`;
-  if (_) {
-    return join(String.raw`\\.\pipe\nitro`, socketName);
-  }
-  const socketDir = join(tmpdir(), "nitro");
-  mkdirSync(socketDir, { recursive: true });
-  return join(socketDir, socketName);
-}
-const listenAddress = getAddress();
-server.listen(listenAddress, () => {
-  const _address = server.address();
-  parentPort?.postMessage({
-    event: "listen",
-    address: typeof _address === "string" ? { socketPath: _address } : { host: "localhost", port: _address?.port }
-  });
+let listener;
+listen().catch(() => listen(
+  true
+  /* use random port */
+)).catch((error) => {
+  console.error("Dev worker failed to listen:", error);
+  return shutdown();
 });
 nitroApp.router.get(
   "/_nitro/tasks",
@@ -1078,21 +1372,50 @@ nitroApp.router.use(
     return await runTask(name, { payload });
   })
 );
-trapUnhandledNodeErrors();
-async function onShutdown(signal) {
-  await nitroApp.hooks.callHook("close");
+function listen(useRandomPort = Boolean(
+  NITRO_NO_UNIX_SOCKET || process.versions.webcontainer
+)) {
+  return new Promise((resolve, reject) => {
+    try {
+      listener = server.listen(useRandomPort ? 0 : getSocketAddress(), () => {
+        const address = server.address();
+        parentPort?.postMessage({
+          event: "listen",
+          address: typeof address === "string" ? { socketPath: address } : { host: "localhost", port: address?.port }
+        });
+        resolve();
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
 }
-parentPort?.on("message", async (msg) => {
-  if (msg && msg.event === "shutdown") {
-    await onShutdown();
-    parentPort?.postMessage({ event: "exit" });
+function getSocketAddress() {
+  const socketName = `nitro-worker-${process.pid}-${threadId}-${NITRO_DEV_WORKER_ID}-${Math.round(Math.random() * 1e4)}.sock`;
+  if (process.platform === "win32") {
+    return join(String.raw`\\.\pipe`, socketName);
   }
-});
+  if (process.platform === "linux") {
+    const nodeMajor = Number.parseInt(process.versions.node.split(".")[0], 10);
+    if (nodeMajor >= 20) {
+      return `\0${socketName}`;
+    }
+  }
+  return join(tmpdir(), socketName);
+}
+async function shutdown() {
+  server.closeAllConnections?.();
+  await Promise.all([
+    new Promise((resolve) => listener?.close(resolve)),
+    nitroApp.hooks.callHook("close").catch(console.error)
+  ]);
+  parentPort?.postMessage({ event: "exit" });
+}
 
 const _messages = { "appName": "Nuxt", "version": "", "statusCode": 500, "statusMessage": "Server error", "description": "An error occurred in the application and the page could not be served. If you are the application owner, check your server logs for details.", "stack": "" };
 const template$1 = (messages) => {
   messages = { ..._messages, ...messages };
-  return '<!DOCTYPE html><html lang="en"><head><title>' + messages.statusCode + " - " + messages.statusMessage + " | " + messages.appName + `</title><meta charset="utf-8"><meta content="width=device-width,initial-scale=1.0,minimum-scale=1.0" name="viewport"><style>.spotlight{background:linear-gradient(45deg,#00dc82,#36e4da 50%,#0047e1);bottom:-40vh;filter:blur(30vh);height:60vh;opacity:.8}*,:after,:before{border-color:var(--un-default-border-color,#e5e7eb);border-style:solid;border-width:0;box-sizing:border-box}:after,:before{--un-content:""}html{line-height:1.5;-webkit-text-size-adjust:100%;font-family:ui-sans-serif,system-ui,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji;font-feature-settings:normal;font-variation-settings:normal;-moz-tab-size:4;tab-size:4;-webkit-tap-highlight-color:transparent}body{line-height:inherit;margin:0}h1{font-size:inherit;font-weight:inherit}pre{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace;font-feature-settings:normal;font-size:1em;font-variation-settings:normal}h1,p,pre{margin:0}*,:after,:before{--un-rotate:0;--un-rotate-x:0;--un-rotate-y:0;--un-rotate-z:0;--un-scale-x:1;--un-scale-y:1;--un-scale-z:1;--un-skew-x:0;--un-skew-y:0;--un-translate-x:0;--un-translate-y:0;--un-translate-z:0;--un-pan-x: ;--un-pan-y: ;--un-pinch-zoom: ;--un-scroll-snap-strictness:proximity;--un-ordinal: ;--un-slashed-zero: ;--un-numeric-figure: ;--un-numeric-spacing: ;--un-numeric-fraction: ;--un-border-spacing-x:0;--un-border-spacing-y:0;--un-ring-offset-shadow:0 0 transparent;--un-ring-shadow:0 0 transparent;--un-shadow-inset: ;--un-shadow:0 0 transparent;--un-ring-inset: ;--un-ring-offset-width:0px;--un-ring-offset-color:#fff;--un-ring-width:0px;--un-ring-color:rgba(147,197,253,.5);--un-blur: ;--un-brightness: ;--un-contrast: ;--un-drop-shadow: ;--un-grayscale: ;--un-hue-rotate: ;--un-invert: ;--un-saturate: ;--un-sepia: ;--un-backdrop-blur: ;--un-backdrop-brightness: ;--un-backdrop-contrast: ;--un-backdrop-grayscale: ;--un-backdrop-hue-rotate: ;--un-backdrop-invert: ;--un-backdrop-opacity: ;--un-backdrop-saturate: ;--un-backdrop-sepia: }.fixed{position:fixed}.left-0{left:0}.right-0{right:0}.z-10{z-index:10}.mb-6{margin-bottom:1.5rem}.mb-8{margin-bottom:2rem}.h-auto{height:auto}.min-h-screen{min-height:100vh}.flex{display:flex}.flex-1{flex:1 1 0%}.flex-col{flex-direction:column}.overflow-y-auto{overflow-y:auto}.rounded-t-md{border-top-left-radius:.375rem;border-top-right-radius:.375rem}.bg-black\\/5{background-color:#0000000d}.bg-white{--un-bg-opacity:1;background-color:rgb(255 255 255/var(--un-bg-opacity))}.p-8{padding:2rem}.px-10{padding-left:2.5rem;padding-right:2.5rem}.pt-14{padding-top:3.5rem}.text-6xl{font-size:3.75rem;line-height:1}.text-xl{font-size:1.25rem;line-height:1.75rem}.text-black{--un-text-opacity:1;color:rgb(0 0 0/var(--un-text-opacity))}.font-light{font-weight:300}.font-medium{font-weight:500}.leading-tight{line-height:1.25}.font-sans{font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji}.antialiased{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}@media (prefers-color-scheme:dark){.dark\\:bg-black{--un-bg-opacity:1;background-color:rgb(0 0 0/var(--un-bg-opacity))}.dark\\:bg-white\\/10{background-color:#ffffff1a}.dark\\:text-white{--un-text-opacity:1;color:rgb(255 255 255/var(--un-text-opacity))}}@media (min-width:640px){.sm\\:text-2xl{font-size:1.5rem;line-height:2rem}.sm\\:text-8xl{font-size:6rem;line-height:1}}</style><script>!function(){const e=document.createElement("link").relList;if(!(e&&e.supports&&e.supports("modulepreload"))){for(const e of document.querySelectorAll('link[rel="modulepreload"]'))r(e);new MutationObserver((e=>{for(const o of e)if("childList"===o.type)for(const e of o.addedNodes)"LINK"===e.tagName&&"modulepreload"===e.rel&&r(e)})).observe(document,{childList:!0,subtree:!0})}function r(e){if(e.ep)return;e.ep=!0;const r=function(e){const r={};return e.integrity&&(r.integrity=e.integrity),e.referrerPolicy&&(r.referrerPolicy=e.referrerPolicy),"use-credentials"===e.crossOrigin?r.credentials="include":"anonymous"===e.crossOrigin?r.credentials="omit":r.credentials="same-origin",r}(e);fetch(e.href,r)}}();<\/script></head><body class="antialiased bg-white dark:bg-black dark:text-white flex flex-col font-sans min-h-screen pt-14 px-10 text-black"><div class="fixed left-0 right-0 spotlight"></div><h1 class="font-medium mb-6 sm:text-8xl text-6xl">` + messages.statusCode + '</h1><p class="font-light leading-tight mb-8 sm:text-2xl text-xl">' + messages.description + '</p><div class="bg-black/5 bg-white dark:bg-white/10 flex-1 h-auto overflow-y-auto rounded-t-md"><pre class="font-light leading-tight p-8 text-xl z-10">' + messages.stack + "</pre></div></body></html>";
+  return '<!DOCTYPE html><html lang="en"><head><title>' + messages.statusCode + " - " + (messages.statusMessage || "Internal Server Error") + `</title><meta charset="utf-8"><meta content="width=device-width,initial-scale=1.0,minimum-scale=1.0" name="viewport"><style>.spotlight{background:linear-gradient(45deg,#00dc82,#36e4da 50%,#0047e1);bottom:-40vh;filter:blur(30vh);height:60vh;opacity:.8}*,:after,:before{border-color:var(--un-default-border-color,#e5e7eb);border-style:solid;border-width:0;box-sizing:border-box}:after,:before{--un-content:""}html{line-height:1.5;-webkit-text-size-adjust:100%;font-family:ui-sans-serif,system-ui,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji;font-feature-settings:normal;font-variation-settings:normal;-moz-tab-size:4;tab-size:4;-webkit-tap-highlight-color:transparent}body{line-height:inherit;margin:0}h1{font-size:inherit;font-weight:inherit}h1,p{margin:0}*,:after,:before{--un-rotate:0;--un-rotate-x:0;--un-rotate-y:0;--un-rotate-z:0;--un-scale-x:1;--un-scale-y:1;--un-scale-z:1;--un-skew-x:0;--un-skew-y:0;--un-translate-x:0;--un-translate-y:0;--un-translate-z:0;--un-pan-x: ;--un-pan-y: ;--un-pinch-zoom: ;--un-scroll-snap-strictness:proximity;--un-ordinal: ;--un-slashed-zero: ;--un-numeric-figure: ;--un-numeric-spacing: ;--un-numeric-fraction: ;--un-border-spacing-x:0;--un-border-spacing-y:0;--un-ring-offset-shadow:0 0 transparent;--un-ring-shadow:0 0 transparent;--un-shadow-inset: ;--un-shadow:0 0 transparent;--un-ring-inset: ;--un-ring-offset-width:0px;--un-ring-offset-color:#fff;--un-ring-width:0px;--un-ring-color:rgba(147,197,253,.5);--un-blur: ;--un-brightness: ;--un-contrast: ;--un-drop-shadow: ;--un-grayscale: ;--un-hue-rotate: ;--un-invert: ;--un-saturate: ;--un-sepia: ;--un-backdrop-blur: ;--un-backdrop-brightness: ;--un-backdrop-contrast: ;--un-backdrop-grayscale: ;--un-backdrop-hue-rotate: ;--un-backdrop-invert: ;--un-backdrop-opacity: ;--un-backdrop-saturate: ;--un-backdrop-sepia: }.fixed{position:fixed}.left-0{left:0}.right-0{right:0}.z-10{z-index:10}.mb-6{margin-bottom:1.5rem}.mb-8{margin-bottom:2rem}.h-auto{height:auto}.min-h-screen{min-height:100vh}.flex{display:flex}.flex-1{flex:1 1 0%}.flex-col{flex-direction:column}.overflow-y-auto{overflow-y:auto}.rounded-t-md{border-top-left-radius:.375rem;border-top-right-radius:.375rem}.bg-black\\/5{background-color:#0000000d}.bg-white{--un-bg-opacity:1;background-color:rgb(255 255 255/var(--un-bg-opacity))}.p-8{padding:2rem}.px-10{padding-left:2.5rem;padding-right:2.5rem}.pt-14{padding-top:3.5rem}.text-6xl{font-size:3.75rem;line-height:1}.text-xl{font-size:1.25rem;line-height:1.75rem}.text-black{--un-text-opacity:1;color:rgb(0 0 0/var(--un-text-opacity))}.font-light{font-weight:300}.font-medium{font-weight:500}.leading-tight{line-height:1.25}.font-sans{font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji}.antialiased{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}@media (prefers-color-scheme:dark){.dark\\:bg-black{--un-bg-opacity:1;background-color:rgb(0 0 0/var(--un-bg-opacity))}.dark\\:bg-white\\/10{background-color:#ffffff1a}.dark\\:text-white{--un-text-opacity:1;color:rgb(255 255 255/var(--un-text-opacity))}}@media (min-width:640px){.sm\\:text-2xl{font-size:1.5rem;line-height:2rem}.sm\\:text-8xl{font-size:6rem;line-height:1}}</style><script>!function(){const e=document.createElement("link").relList;if(!(e&&e.supports&&e.supports("modulepreload"))){for(const e of document.querySelectorAll('link[rel="modulepreload"]'))r(e);new MutationObserver((e=>{for(const o of e)if("childList"===o.type)for(const e of o.addedNodes)"LINK"===e.tagName&&"modulepreload"===e.rel&&r(e)})).observe(document,{childList:!0,subtree:!0})}function r(e){if(e.ep)return;e.ep=!0;const r=function(e){const r={};return e.integrity&&(r.integrity=e.integrity),e.referrerPolicy&&(r.referrerPolicy=e.referrerPolicy),"use-credentials"===e.crossOrigin?r.credentials="include":"anonymous"===e.crossOrigin?r.credentials="omit":r.credentials="same-origin",r}(e);fetch(e.href,r)}}();<\/script></head><body class="antialiased bg-white dark:bg-black dark:text-white flex flex-col font-sans min-h-screen pt-14 px-10 text-black"><div class="fixed left-0 right-0 spotlight"></div><h1 class="font-medium mb-6 sm:text-8xl text-6xl">` + messages.statusCode + '</h1><p class="font-light leading-tight mb-8 sm:text-2xl text-xl">' + messages.description + '</p><div class="bg-black/5 bg-white dark:bg-white/10 flex-1 h-auto overflow-y-auto rounded-t-md"><div class="font-light leading-tight p-8 text-xl z-10">' + messages.stack + "</div></div></body></html>";
 };
 
 const errorDev = /*#__PURE__*/Object.freeze({
@@ -1100,68 +1423,55 @@ const errorDev = /*#__PURE__*/Object.freeze({
   template: template$1
 });
 
-const Vue3 = version[0] === "3";
-
-function resolveUnref(r) {
-  return typeof r === "function" ? r() : unref(r);
-}
-function resolveUnrefHeadInput(ref) {
-  if (ref instanceof Promise || ref instanceof Date || ref instanceof RegExp)
-    return ref;
-  const root = resolveUnref(ref);
-  if (!ref || !root)
-    return root;
-  if (Array.isArray(root))
-    return root.map((r) => resolveUnrefHeadInput(r));
-  if (typeof root === "object") {
-    const resolved = {};
-    for (const k in root) {
-      if (!Object.prototype.hasOwnProperty.call(root, k)) {
-        continue;
-      }
-      if (k === "titleTemplate" || k[0] === "o" && k[1] === "n") {
-        resolved[k] = unref(root[k]);
-        continue;
-      }
-      resolved[k] = resolveUnrefHeadInput(root[k]);
+const filePath = path.resolve("data/codes.json");
+const codes = defineEventHandler(async (event) => {
+  if (event.node.req.method === "GET") {
+    try {
+      const data = await fs.readFile(filePath, "utf-8");
+      return JSON.parse(data);
+    } catch (error) {
+      return [];
     }
-    return resolved;
-  }
-  return root;
-}
-
-const VueReactivityPlugin = defineHeadPlugin({
-  hooks: {
-    "entries:resolve": (ctx) => {
-      for (const entry of ctx.entries)
-        entry.resolvedInput = resolveUnrefHeadInput(entry.input);
-    }
+  } else if (event.node.req.method === "POST") {
+    const body = await readBody(event);
+    await fs.writeFile(filePath, JSON.stringify(body, null, 2), "utf-8");
+    return { success: true };
   }
 });
+
+const codes$1 = /*#__PURE__*/Object.freeze({
+  __proto__: null,
+  default: codes
+});
+
+const VueResolver = (_, value) => {
+  return isRef(value) ? toValue(value) : value;
+};
 
 const headSymbol = "usehead";
 function vueInstall(head) {
   const plugin = {
     install(app) {
-      if (Vue3) {
-        app.config.globalProperties.$unhead = head;
-        app.config.globalProperties.$head = head;
-        app.provide(headSymbol, head);
-      }
+      app.config.globalProperties.$unhead = head;
+      app.config.globalProperties.$head = head;
+      app.provide(headSymbol, head);
     }
   };
   return plugin.install;
 }
-function createServerHead(options = {}) {
-  const head = createServerHead$1(options);
-  head.use(VueReactivityPlugin);
+
+function createHead(options = {}) {
+  const head = createHead$1({
+    ...options,
+    propResolvers: [VueResolver]
+  });
   head.install = vueInstall(head);
   return head;
 }
 
-const unheadPlugins = true ? [CapoPlugin({ track: true })] : [];
-
-const renderSSRHeadOptions = {"omitLineBreaks":false};
+function resolveUnrefHeadInput(input) {
+  return walkResolver(input, VueResolver);
+}
 
 function buildAssetsDir() {
   return useRuntimeConfig().app.buildAssetsDir;
@@ -1175,8 +1485,8 @@ function publicAssetsURL(...path) {
   return path.length ? joinRelativeURL(publicBase, ...path) : publicBase;
 }
 
-globalThis.__buildAssetsURL = buildAssetsURL;
-globalThis.__publicAssetsURL = publicAssetsURL;
+const APP_ROOT_OPEN_TAG = `<${appRootTag}${propsToString(appRootAttrs)}>`;
+const APP_ROOT_CLOSE_TAG = `</${appRootTag}>`;
 const getClientManifest = () => import('file:///Users/zztt/projects/22-m5live/25-m5live-nuxt/.nuxt/dist/server/client.manifest.mjs').then((r) => r.default || r).then((r) => typeof r === "function" ? r() : r);
 const getServerEntry = () => import('file:///Users/zztt/projects/22-m5live/25-m5live-nuxt/.nuxt/dist/server/server.mjs').then((r) => r.default || r);
 const getSSRStyles = lazyCachedFunction(() => Promise.resolve().then(function () { return styles$1; }).then((r) => r.default || r));
@@ -1221,7 +1531,7 @@ const getSPARenderer = lazyCachedFunction(async () => {
   const result = await renderer.renderToString({});
   const renderToString = (ssrContext) => {
     const config = useRuntimeConfig(ssrContext.event);
-    ssrContext.modules = ssrContext.modules || /* @__PURE__ */ new Set();
+    ssrContext.modules ||= /* @__PURE__ */ new Set();
     ssrContext.payload.serverRendered = false;
     ssrContext.config = {
       public: config.public,
@@ -1234,11 +1544,57 @@ const getSPARenderer = lazyCachedFunction(async () => {
     renderToString
   };
 });
+function lazyCachedFunction(fn) {
+  let res = null;
+  return () => {
+    if (res === null) {
+      res = fn().catch((err) => {
+        res = null;
+        throw err;
+      });
+    }
+    return res;
+  };
+}
+
+function renderPayloadJsonScript(opts) {
+  const contents = opts.data ? stringify(opts.data, opts.ssrContext._payloadReducers) : "";
+  const payload = {
+    "type": "application/json",
+    "innerHTML": contents,
+    "data-nuxt-data": appId,
+    "data-ssr": !(opts.ssrContext.noSSR)
+  };
+  {
+    payload.id = "__NUXT_DATA__";
+  }
+  if (opts.src) {
+    payload["data-src"] = opts.src;
+  }
+  const config = uneval(opts.ssrContext.config);
+  return [
+    payload,
+    {
+      innerHTML: `window.__NUXT__={};window.__NUXT__.config=${config}`
+    }
+  ];
+}
+
+const unheadOptions = {
+  disableDefaults: true,
+  disableCapoSorting: false,
+  plugins: [DeprecationsPlugin, PromisesPlugin, TemplateParamsPlugin, AliasSortingPlugin],
+};
+
+const renderSSRHeadOptions = {"omitLineBreaks":false};
+
+globalThis.__buildAssetsURL = buildAssetsURL;
+globalThis.__publicAssetsURL = publicAssetsURL;
 const ISLAND_SUFFIX_RE = /\.json(\?.*)?$/;
 async function getIslandContext(event) {
   let url = event.path || "";
   const componentParts = url.substring("/__nuxt_island".length + 1).replace(ISLAND_SUFFIX_RE, "").split("_");
-  const hashId = componentParts.length > 1 ? componentParts.pop() : undefined;
+  const hashId = componentParts.length > 1 ? componentParts.pop() : void 0;
   const componentName = componentParts.join("_");
   const context = event.method === "GET" ? getQuery$1(event) : await readBody(event);
   const ctx = {
@@ -1255,9 +1611,6 @@ async function getIslandContext(event) {
 const HAS_APP_TELEPORTS = !!(appTeleportAttrs.id);
 const APP_TELEPORT_OPEN_TAG = HAS_APP_TELEPORTS ? `<${appTeleportTag}${propsToString(appTeleportAttrs)}>` : "";
 const APP_TELEPORT_CLOSE_TAG = HAS_APP_TELEPORTS ? `</${appTeleportTag}>` : "";
-const APP_ROOT_OPEN_TAG = `<${appRootTag}${propsToString(appRootAttrs)}>`;
-const APP_ROOT_CLOSE_TAG = `</${appRootTag}>`;
-const PAYLOAD_URL_RE = /\/_payload.json(\?.*)?$/ ;
 const ROOT_NODE_REGEX = new RegExp(`^<${appRootTag}[^>]*>([\\s\\S]*)<\\/${appRootTag}>$`);
 const renderer = defineRenderHandler(async (event) => {
   const nitroApp = useNitroApp();
@@ -1272,18 +1625,10 @@ const renderer = defineRenderHandler(async (event) => {
     });
   }
   const isRenderingIsland = event.path.startsWith("/__nuxt_island");
-  const islandContext = isRenderingIsland ? await getIslandContext(event) : undefined;
+  const islandContext = isRenderingIsland ? await getIslandContext(event) : void 0;
   let url = ssrError?.url || islandContext?.url || event.path;
-  const isRenderingPayload = PAYLOAD_URL_RE.test(url) && !isRenderingIsland;
-  if (isRenderingPayload) {
-    url = url.substring(0, url.lastIndexOf("/")) || "/";
-    event._path = url;
-    event.node.req.url = url;
-  }
   const routeOptions = getRouteRules(event);
-  const head = createServerHead({
-    plugins: unheadPlugins
-  });
+  const head = createHead(unheadOptions);
   const headEntryOptions = { mode: "server" };
   if (!isRenderingIsland) {
     head.push(appHead, headEntryOptions);
@@ -1295,7 +1640,7 @@ const renderer = defineRenderHandler(async (event) => {
     noSSR: event.context.nuxt?.noSSR || routeOptions.ssr === false && !isRenderingIsland || (false),
     head,
     error: !!ssrError,
-    nuxt: undefined,
+    nuxt: void 0,
     /* NuxtApp */
     payload: ssrError ? { error: ssrError } : {},
     _payloadReducers: /* @__PURE__ */ Object.create(null),
@@ -1318,12 +1663,8 @@ const renderer = defineRenderHandler(async (event) => {
   if (ssrContext.payload?.error && !ssrError) {
     throw ssrContext.payload.error;
   }
-  if (isRenderingPayload) {
-    const response2 = renderPayloadResponse(ssrContext);
-    return response2;
-  }
   const inlinedStyles = isRenderingIsland ? await renderInlineStyles(ssrContext.modules ?? []) : [];
-  const NO_SCRIPTS = routeOptions.experimentalNoScripts;
+  const NO_SCRIPTS = routeOptions.noScripts;
   const { styles, scripts } = getRequestDependencies(ssrContext, renderer.rendererContext);
   if (ssrContext._preloadManifest) {
     head.push({
@@ -1349,7 +1690,39 @@ const renderer = defineRenderHandler(async (event) => {
       head.push({ link }, headEntryOptions);
     }
   }
-  if (!NO_SCRIPTS && !isRenderingIsland) {
+  if (isRenderingIsland && islandContext) {
+    const islandHead = {};
+    for (const entry of head.entries.values()) {
+      for (const [key, value] of Object.entries(resolveUnrefHeadInput(entry.input))) {
+        const currentValue = islandHead[key];
+        if (Array.isArray(currentValue)) {
+          currentValue.push(...value);
+        }
+        islandHead[key] = value;
+      }
+    }
+    islandHead.link ||= [];
+    islandHead.style ||= [];
+    const islandResponse = {
+      id: islandContext.id,
+      head: islandHead,
+      html: getServerComponentHTML(_rendered.html),
+      components: getClientIslandResponse(ssrContext),
+      slots: getSlotIslandResponse(ssrContext)
+    };
+    await nitroApp.hooks.callHook("render:island", islandResponse, { event, islandContext });
+    const response2 = {
+      body: JSON.stringify(islandResponse, null, 2),
+      statusCode: getResponseStatus(event),
+      statusMessage: getResponseStatusText(event),
+      headers: {
+        "content-type": "application/json;charset=utf-8",
+        "x-powered-by": "Nuxt"
+      }
+    };
+    return response2;
+  }
+  if (!NO_SCRIPTS) {
     head.push({
       link: getPreloadLinks(ssrContext, renderer.rendererContext)
     }, headEntryOptions);
@@ -1365,7 +1738,7 @@ const renderer = defineRenderHandler(async (event) => {
       tagPriority: "high"
     });
   }
-  if (!routeOptions.experimentalNoScripts && !isRenderingIsland) {
+  if (!routeOptions.noScripts) {
     head.push({
       script: Object.values(scripts).map((resource) => ({
         type: resource.module ? "module" : null,
@@ -1392,38 +1765,6 @@ const renderer = defineRenderHandler(async (event) => {
     bodyAppend: [bodyTags]
   };
   await nitroApp.hooks.callHook("render:html", htmlContext, { event });
-  if (isRenderingIsland && islandContext) {
-    const islandHead = {};
-    for (const entry of head.headEntries()) {
-      for (const [key, value] of Object.entries(resolveUnrefHeadInput(entry.input))) {
-        const currentValue = islandHead[key];
-        if (Array.isArray(currentValue)) {
-          currentValue.push(...value);
-        }
-        islandHead[key] = value;
-      }
-    }
-    islandHead.link = islandHead.link || [];
-    islandHead.style = islandHead.style || [];
-    const islandResponse = {
-      id: islandContext.id,
-      head: islandHead,
-      html: getServerComponentHTML(htmlContext.body),
-      components: getClientIslandResponse(ssrContext),
-      slots: getSlotIslandResponse(ssrContext)
-    };
-    await nitroApp.hooks.callHook("render:island", islandResponse, { event, islandContext });
-    const response2 = {
-      body: JSON.stringify(islandResponse, null, 2),
-      statusCode: getResponseStatus(event),
-      statusMessage: getResponseStatusText(event),
-      headers: {
-        "content-type": "application/json;charset=utf-8",
-        "x-powered-by": "Nuxt"
-      }
-    };
-    return response2;
-  }
   const response = {
     body: renderHTMLDocument(htmlContext),
     statusCode: getResponseStatus(event),
@@ -1435,18 +1776,6 @@ const renderer = defineRenderHandler(async (event) => {
   };
   return response;
 });
-function lazyCachedFunction(fn) {
-  let res = null;
-  return () => {
-    if (res === null) {
-      res = fn().catch((err) => {
-        res = null;
-        throw err;
-      });
-    }
-    return res;
-  };
-}
 function normalizeChunks(chunks) {
   return chunks.filter(Boolean).map((i) => i.trim());
 }
@@ -1474,56 +1803,16 @@ async function renderInlineStyles(usedModules) {
   }
   return Array.from(inlinedStyles).map((style) => ({ innerHTML: style }));
 }
-function renderPayloadResponse(ssrContext) {
-  return {
-    body: stringify(splitPayload(ssrContext).payload, ssrContext._payloadReducers) ,
-    statusCode: getResponseStatus(ssrContext.event),
-    statusMessage: getResponseStatusText(ssrContext.event),
-    headers: {
-      "content-type": "application/json;charset=utf-8" ,
-      "x-powered-by": "Nuxt"
-    }
-  };
-}
-function renderPayloadJsonScript(opts) {
-  const contents = opts.data ? stringify(opts.data, opts.ssrContext._payloadReducers) : "";
-  const payload = {
-    "type": "application/json",
-    "innerHTML": contents,
-    "data-nuxt-data": appId,
-    "data-ssr": !(opts.ssrContext.noSSR)
-  };
-  {
-    payload.id = "__NUXT_DATA__";
-  }
-  if (opts.src) {
-    payload["data-src"] = opts.src;
-  }
-  const config = uneval(opts.ssrContext.config);
-  return [
-    payload,
-    {
-      innerHTML: `window.__NUXT__={};window.__NUXT__.config=${config}`
-    }
-  ];
-}
-function splitPayload(ssrContext) {
-  const { data, prerenderedAt, ...initial } = ssrContext.payload;
-  return {
-    initial: { ...initial, prerenderedAt },
-    payload: { data, prerenderedAt }
-  };
-}
 function getServerComponentHTML(body) {
-  const match = body[0].match(ROOT_NODE_REGEX);
-  return match?.[1] || body[0];
+  const match = body.match(ROOT_NODE_REGEX);
+  return match?.[1] || body;
 }
 const SSR_SLOT_TELEPORT_MARKER = /^uid=([^;]*);slot=(.*)$/;
 const SSR_CLIENT_TELEPORT_MARKER = /^uid=([^;]*);client=(.*)$/;
-const SSR_CLIENT_SLOT_MARKER = /^island-slot=[^;]*;(.*)$/;
+const SSR_CLIENT_SLOT_MARKER = /^island-slot=([^;]*);(.*)$/;
 function getSlotIslandResponse(ssrContext) {
   if (!ssrContext.islandContext || !Object.keys(ssrContext.islandContext.slots).length) {
-    return undefined;
+    return void 0;
   }
   const response = {};
   for (const [name, slot] of Object.entries(ssrContext.islandContext.slots)) {
@@ -1536,7 +1825,7 @@ function getSlotIslandResponse(ssrContext) {
 }
 function getClientIslandResponse(ssrContext) {
   if (!ssrContext.islandContext || !Object.keys(ssrContext.islandContext.components).length) {
-    return undefined;
+    return void 0;
   }
   const response = {};
   for (const [clientUid, component] of Object.entries(ssrContext.islandContext.components)) {
@@ -1544,19 +1833,19 @@ function getClientIslandResponse(ssrContext) {
     response[clientUid] = {
       ...component,
       html,
-      slots: getComponentSlotTeleport(ssrContext.teleports ?? {})
+      slots: getComponentSlotTeleport(clientUid, ssrContext.teleports ?? {})
     };
   }
   return response;
 }
-function getComponentSlotTeleport(teleports) {
+function getComponentSlotTeleport(clientUid, teleports) {
   const entries = Object.entries(teleports);
   const slots = {};
   for (const [key, value] of entries) {
     const match = key.match(SSR_CLIENT_SLOT_MARKER);
     if (match) {
-      const [, slot] = match;
-      if (!slot) {
+      const [, id, slot] = match;
+      if (!slot || clientUid !== id) {
         continue;
       }
       slots[slot] = value;

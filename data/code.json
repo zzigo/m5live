@@ -1,0 +1,8 @@
+[
+  {
+    "code": "INS 0 1\nOSC P5 P6 B2 F2 P30\nOUT B2 B1\nEND\nNOT 0 1 0.5 440 2",
+    "year": 1969,
+    "composer": "Jean-Claude Risset",
+    "comments": "Simple test score"
+  }
+]

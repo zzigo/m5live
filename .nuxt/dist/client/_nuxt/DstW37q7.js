@@ -1,1 +1,0 @@
-import{M as e}from"./CwYQi8d3.js";import{_ as t,v as a,x as o,z as c,t as r}from"./CLPStcoR.js";const n={class:"musicv-test-page"},_={__name:"musicv-test",setup(m){return(i,s)=>(r(),a("div",n,[s[0]||(s[0]=o("h1",null,"MUSIC V Test Environment",-1)),c(e)]))}},d=t(_,[["__scopeId","data-v-c93b7afd"]]);export{d as default};

@@ -4,8 +4,8 @@ import type { Defu } from 'defu'
 
 
 declare const inlineConfig = {
-  "name": "SOOG",
-  "description": "Speculative Organology Organogram Generator",
+  "name": "M5LIVE",
+  "description": "LiveCoding version of Pioneer MusicV",
   "theme": {
     "dark": true,
     "colors": {
