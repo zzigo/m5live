@@ -3,7 +3,7 @@ services:
   - type: web
     name: m5live
     env: static
-    buildCommand: ./build-render.sh
+    buildCommand: ./build-render-combined.sh
     staticPublishPath: ./.output/public
     # Add any environment variables your app needs
     envVars:
@@ -11,5 +11,7 @@ services:
         value: 20.10.0
       - key: RENDER
         value: "true"
+      - key: BUN_VERSION
+        value: "1.1.0"
     # Configure the service to auto-deploy on push to master
     autoDeploy: true 

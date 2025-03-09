@@ -3,20 +3,16 @@
 # Exit on error
 set -e
 
-echo "Starting custom build process for Render..."
+echo "Starting custom build process for Render using Bun..."
 
 # Clean environment
 echo "Cleaning environment..."
 rm -rf node_modules
-rm -f package-lock.json
+rm -f package-lock.json bun.lockb
 
-# Install dependencies without running scripts
-echo "Installing dependencies..."
-RENDER=true npm install --no-package-lock --no-optional
-
-# Explicitly install the Linux Rollup binary
-echo "Installing Rollup Linux binary..."
-npm install @rollup/rollup-linux-x64-gnu --no-save
+# Install dependencies using Bun
+echo "Installing dependencies with Bun..."
+bun install --no-save
 
 # Create a simple Nuxt config for the build
 echo "Creating temporary Nuxt config..."
@@ -30,6 +26,12 @@ export default defineNuxtConfig({
   },
   app: {
     baseURL: '/'
+  },
+  // Disable features that might cause issues
+  experimental: {
+    payloadExtraction: false,
+    renderJsonPayloads: false,
+    viewTransition: false
   }
 });
 EOF
@@ -42,13 +44,13 @@ cp nuxt.config.ts nuxt.config.original.ts
 echo "Using temporary Nuxt config..."
 cp nuxt.config.temp.ts nuxt.config.ts
 
-# Build the application
-echo "Building the application..."
-NODE_OPTIONS="--max-old-space-size=4096" npx nuxt build
+# Build the application using Bun
+echo "Building the application with Bun..."
+NODE_OPTIONS="--max-old-space-size=8192" bun run nuxt build
 
 # Generate static files
 echo "Generating static files..."
-npx nuxt generate
+bun run nuxt generate
 
 # Restore original config
 echo "Restoring original Nuxt config..."
