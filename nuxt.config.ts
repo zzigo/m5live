@@ -1,18 +1,19 @@
 import { defineNuxtConfig } from 'nuxt/config';
 
-// Determine if we're in GitHub Pages environment
-const isGitHubPages = process.env.GITHUB_ACTIONS === 'true';
-const baseUrl = isGitHubPages ? '/m5live/' : '/';
+// Determine if we're in production environment
+const isProduction = process.env.NODE_ENV === 'production';
+// Base URL will be / for Render
+const baseUrl = '/';
 
 export default defineNuxtConfig({
-  // Disable SSR completely for GitHub Pages
+  // Disable SSR for static site
   ssr: false,
 
   // Experimental features
   experimental: {
     payloadExtraction: false,
     viewTransition: true,
-    renderJsonPayloads: false // Disable JSON payloads which can cause issues on GH Pages
+    renderJsonPayloads: false
   },
 
   // Runtime config
@@ -22,9 +23,9 @@ export default defineNuxtConfig({
     }
   },
 
-  // Nitro configuration
+  // Nitro configuration - use static preset for Render
   nitro: {
-    preset: 'github-pages'
+    preset: isProduction ? 'static' : 'node-server'
   },
 
   // Development server
@@ -39,8 +40,6 @@ export default defineNuxtConfig({
   app: {
     baseURL: baseUrl,
     buildAssetsDir: '_nuxt',
-    // Use CDN: false to ensure assets are loaded from relative paths
-    cdnURL: '',
     head: {
       title: 'Music V Live',
       meta: [
@@ -61,7 +60,7 @@ export default defineNuxtConfig({
   // Route rules
   routeRules: {
     '/**': { 
-      prerender: true, // Prerender all routes for static hosting
+      prerender: true,
       cache: {
         maxAge: 60 * 60 * 24 // Cache for 24 hours
       }
@@ -73,11 +72,6 @@ export default defineNuxtConfig({
     build: {
       assetsInlineLimit: 0, // Don't inline assets as base64
       cssCodeSplit: false, // Generate a single CSS file
-      rollupOptions: {
-        output: {
-          manualChunks: () => 'everything.js' // Bundle all JS into a single file
-        }
-      }
     }
   },
 

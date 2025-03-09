@@ -3,13 +3,12 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "NODE_OPTIONS='--max-old-space-size=4096' nuxt build --no-prepare",
+    "build": "nuxt build",
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "start": "node .output/server/index.mjs",
-    "github-build": "NODE_OPTIONS='--max-old-space-size=8192' NITRO_PRESET=github-pages nuxt build --no-prepare && nuxt generate"
+    "start": "node .output/server/index.mjs"
   },
   "dependencies": {
     "ace-builds": "^1.37.4",
@@ -22,5 +21,8 @@
   },
   "imports": {
     "#internal/nuxt/paths": "./node_modules/nuxt/dist/core/runtime/nitro/paths"
+  },
+  "engines": {
+    "node": ">=20.0.0"
   }
 }

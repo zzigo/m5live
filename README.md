@@ -1,6 +1,55 @@
-# m5live - Modern Music V Live Coding Environment
+# M5LIVE - Music V Live
 
-m5live is a modern web-based implementation of the classic Music V sound synthesis system, reimagined for live coding and real-time audio synthesis in the browser. This project brings the pioneering work of Max Mathews into the modern era with a user-friendly interface built on Nuxt.js.
+A web-based implementation of the classic Music V sound synthesis system.
+
+## Deployment to Render
+
+This project is configured for easy deployment to [Render](https://render.com).
+
+### Automatic Deployment
+
+1. Create a new account on Render if you don't have one
+2. Connect your GitHub repository to Render
+3. Create a new Web Service and select the repository
+4. Render will automatically detect the `render.yaml` configuration
+5. Click "Create Web Service"
+
+### Manual Configuration
+
+If you prefer to configure manually:
+
+1. Create a new **Static Site** on Render
+2. Connect your GitHub repository
+3. Configure the following settings:
+   - **Build Command**: `npm install && npm run build && npm run generate`
+   - **Publish Directory**: `.output/public`
+   - **Environment Variable**: Add `NODE_VERSION` with value `20.0.0`
+
+## Local Development
+
+```bash
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+
+# Build for production
+npm run build
+
+# Generate static site
+npm run generate
+
+# Start production server
+npm run start
+```
+
+## Features
+
+- Live coding interface for Music V
+- Real-time audio synthesis
+- Oscilloscope visualization
+- Support for classic Music V syntax
 
 ## About Music V
 

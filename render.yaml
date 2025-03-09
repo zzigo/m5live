@@ -1,0 +1,13 @@
+services:
+  # Static site service
+  - type: web
+    name: m5live
+    env: static
+    buildCommand: npm install && npm run build && npm run generate
+    staticPublishPath: ./.output/public
+    # Add any environment variables your app needs
+    envVars:
+      - key: NODE_VERSION
+        value: 20.0.0
+    # Configure the service to auto-deploy on push to master
+    autoDeploy: true 
