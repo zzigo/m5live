@@ -3,7 +3,7 @@ services:
   - type: web
     name: m5live
     env: static
-    buildCommand: RENDER=true npm install && npm run build && npm run generate
+    buildCommand: ./build-render.sh
     staticPublishPath: ./.output/public
     # Add any environment variables your app needs
     envVars:
