@@ -7,7 +7,7 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare",
+    "postinstall": "node -e \"process.env.RENDER && process.exit(0)\" || nuxt prepare",
     "start": "node .output/server/index.mjs"
   },
   "dependencies": {
@@ -23,6 +23,6 @@
     "#internal/nuxt/paths": "./node_modules/nuxt/dist/core/runtime/nitro/paths"
   },
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=20.10.0"
   }
 }
