@@ -18,7 +18,7 @@
         </svg>
         <span class="f-subscript">F</span>
       </button>
-      <button @click="handleEvaluateTS" class="icon-button" title="Evaluate TS (Alt+Enter)">
+      <button @click="handleEvaluateTS" class="icon-button" :title="isPlaying ? 'Stop Audio (Cmd+. or Ctrl+.)' : 'Evaluate TS (Alt+Enter)'">
         <svg class="icon" viewBox="0 0 24 24">
           <path v-if="!isPlaying" fill="currentColor" d="M8,5.14V19.14L19,12.14L8,5.14Z" />
           <path v-else fill="currentColor" d="M18,18H6V6H18V18Z" />
@@ -45,14 +45,6 @@
           <path fill="currentColor" d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" />
         </svg>
       </button>
-      <div class="import-export-buttons">
-        <button @click="handleExportCodes" class="icon-button" title="Export Codes">
-          <span class="icon">↓</span> Export
-        </button>
-        <button @click="handleImportCodes" class="icon-button" title="Import Codes">
-          <span class="icon">↑</span> Import
-        </button>
-      </div>
     </div>
     <div class="content-wrapper" v-if="showCode">
       <div class="editor-container">
@@ -72,7 +64,7 @@
           </div>
           <AceEditor ref="consoleEditorRef" mode="terminal" />
         </div>
-    </div>
+      </div>
     </div>
     <Transition enter-active-class="fadeIn" leave-active-class="fadeOut" :duration="3000" mode="out-in">
       <div v-if="plotImage" class="plot-display" :key="transitionKey">
@@ -116,12 +108,14 @@
             <button @click="sendToEditor">[ To Editor ]</button>
             <button @click="updateCode(selectedCodeIndex)">[ Update ]</button>
             <button @click="deleteCode(selectedCodeIndex)">[ Delete ]</button>
+            <button @click="handleExportCodes">[ Export ]</button>
+            <button @click="handleImportCodes">[ Import ]</button>
           </div>
         </div>
       </div>
     </div>
     <div class="footer">
-      <div v-if="loading" class="loading">Processing...</div>
+      <div v-if="loading" class="loading"></div>
       <button v-if="isMobileOrTablet" @click="handleEvaluateTS" class="mobile-evaluate-btn" title="Alt+Enter">Evaluate TS</button>
     </div>
     <div v-if="error" class="error">{{ error }}</div>
@@ -134,14 +128,13 @@
   </div>
 </template>
 
-
 <script setup>
 import { ref, onMounted, onUnmounted, nextTick, reactive, watch } from 'vue';
 import AceEditor from '~/components/AceEditor.vue';
 import HelpModal from '~/components/HelpModal.vue';
 import { useRandomPrompt } from '~/composables/useRandomPrompt';
 import { useFavicon } from '~/composables/useFavicon';
-import { MusicV } from '~/lib/musicV';
+import { MusicV } from '~/lib/musicV'; // Ensure this path is correct
 import { useLocalStorage } from '~/composables/useLocalStorage';
 
 // Simple logger implementation
@@ -192,10 +185,10 @@ const showLightbox = ref(false);
 const audioUrl = ref(null);
 const functionTables = ref([]);
 const canvasRefs = reactive({});
-const currentTitle = ref(''); // For title display
-const debugMode = ref(false); // Debug mode flag
-const isPlaying = ref(false); // Track if audio is playing
-const showOscilloscopes = ref(true); // Control oscilloscope visibility
+const currentTitle = ref('');
+const debugMode = ref(false);
+const isPlaying = ref(false);
+const showOscilloscopes = ref(true);
 
 const { 
   codes, 
@@ -211,13 +204,12 @@ const selectedCode = ref(null);
 const formFields = ref({ ...newCode.value });
 
 const isDragging = ref(false);
-const scoreEditorFlex = ref(0.85);
-const consoleEditorFlex = ref(0.15);
+const scoreEditorFlex = ref(0.7);
+const consoleEditorFlex = ref(0.3);
 const startY = ref(0);
 const startScoreEditorFlex = ref(0);
 const startConsoleEditorFlex = ref(0);
 
-// Add a notification ref
 const notification = ref('');
 const showNotification = ref(false);
 
@@ -230,23 +222,18 @@ onMounted(async () => {
   window.addEventListener('resize', checkDevice);
   window.addEventListener('keydown', handleKeyDownGlobal);
   
-  // Add event listeners for import notifications
   const handleImportSuccess = (e) => {
     const detail = e.detail || { count: 0 };
     notification.value = `Imported ${detail.count} codes successfully!`;
     showNotification.value = true;
-    setTimeout(() => {
-      showNotification.value = false;
-    }, 3000);
+    setTimeout(() => { showNotification.value = false; }, 3000);
   };
   
   const handleImportError = (e) => {
     const detail = e.detail || { error: 'Unknown error' };
     notification.value = `Import failed: ${detail.error}`;
     showNotification.value = true;
-    setTimeout(() => {
-      showNotification.value = false;
-    }, 3000);
+    setTimeout(() => { showNotification.value = false; }, 3000);
   };
   
   window.addEventListener('m5live:import-success', handleImportSuccess);
@@ -255,6 +242,15 @@ onMounted(async () => {
   await nextTick();
   clearConsole();
   await loadCodes();
+  
+  // Ensure the default score is loaded into the editor
+  console.log('Setting default score in editor');
+  if (scoreEditorRef.value) {
+    scoreEditorRef.value.addToEditor(defaultScore);
+    console.log('Default score set in editor');
+  } else {
+    console.error('Score editor reference not available');
+  }
 });
 
 onUnmounted(() => {
@@ -276,13 +272,11 @@ const handleKeyDownGlobal = (event) => {
     }
   }
   
-  // Add Ctrl+P shortcut for clearing console
   if (event.ctrlKey && event.key === 'p') {
     event.preventDefault();
     clearConsole();
   }
   
-  // Handle Command+. or Ctrl+. for stopping audio
   const stopKey = /Mac|iPod|iPhone|iPad/.test(navigator.platform) 
     ? (event.metaKey && event.key === '.') 
     : (event.ctrlKey && event.key === '.');
@@ -298,25 +292,22 @@ const handleKeyDownGlobal = (event) => {
 const navigateCodes = (direction) => {
   if (codes.value.length === 0) return;
   let newIndex = selectedCodeIndex.value + direction;
-  if (newIndex < 0) newIndex = codes.value.length - 1; // Wrap to end
-  if (newIndex >= codes.value.length) newIndex = 0; // Wrap to start
+  if (newIndex < 0) newIndex = codes.value.length - 1;
+  if (newIndex >= codes.value.length) newIndex = 0;
   selectedCodeIndex.value = newIndex;
   selectedCode.value = codes.value[newIndex];
   
-  // Hide oscilloscopes and clear them
   showOscilloscopes.value = false;
   clearOscilloscopes();
   
-  // Update editor based on menu state
   if (showStorageMenu.value && codeEditorRef.value) {
     codeEditorRef.value.addToEditor(selectedCode.value.code || '');
   } else {
     scoreEditorRef.value?.addToEditor(selectedCode.value.code || '');
   }
   
-  // Show title with fade
   currentTitle.value = selectedCode.value.title || 'Untitled';
-  setTimeout(() => { currentTitle.value = ''; }, 4000); // Clear after 4s
+  setTimeout(() => { currentTitle.value = ''; }, 4000);
 };
 
 const handleClear = () => scoreEditorRef.value?.clearEditor();
@@ -328,11 +319,9 @@ const handleRandomPrompt = async () => {
   const currentScore = scoreEditorRef.value?.aceEditor()?.getValue() || defaultScore;
   const randomizedScore = randomizeScore(currentScore);
   
-  // Hide oscilloscopes and clear them
   showOscilloscopes.value = false;
   clearOscilloscopes();
   
-  // Update the editor with the randomized score
   scoreEditorRef.value?.addToEditor(randomizedScore);
 };
 
@@ -340,14 +329,19 @@ const startProgress = () => {
   progress.value = 0;
   const interval = setInterval(() => {
     if (progress.value < 90) progress.value += Math.random() * 15;
-      if (progress.value > 90) progress.value = 90;
+    if (progress.value > 90) progress.value = 90;
   }, 1200);
   return () => clearInterval(interval);
 };
 
 const handleEvaluateBinary = () => {
-  const text = scoreEditorRef.value?.aceEditor()?.getValue();
-  if (!text?.trim()) {
+  const editor = scoreEditorRef.value?.aceEditor();
+  const text = editor ? editor.getValue() : '';
+  
+  console.log('Binary editor instance:', editor);
+  console.log('Binary editor text:', text);
+  
+  if (!text || !text.trim()) {
     error.value = "Please enter some text to evaluate.";
     return;
   }
@@ -361,95 +355,91 @@ const handleEvaluateBinary = () => {
 const handleStop = () => {
   if (!isPlaying.value) return;
   
+  console.log('Stopping playback...');
   try {
     musicV.stop();
     isPlaying.value = false;
+    console.log('Playback stopped, isPlaying set to:', isPlaying.value);
     loading.value = false;
     completeProcessing();
   } catch (err) {
+    console.error('Error stopping playback:', err);
     consoleEditorRef.value?.addTerminalOutput(`Error stopping playback: ${err.message}`);
   }
 };
 
 const handleEvaluateTS = async (text = null) => {
-  // If already playing, stop playback
+  console.log('handleEvaluateTS called, current isPlaying state:', isPlaying.value);
   if (isPlaying.value) {
+    console.log('Audio is playing, stopping...');
     handleStop();
     return;
   }
   
-  const evalText = text ?? scoreEditorRef.value?.aceEditor()?.getValue();
+  const editor = scoreEditorRef.value?.aceEditor();
+  const editorValue = editor ? editor.getValue() : '';
+  const evalText = text ?? editorValue;
+  
+  console.log('Editor instance:', editor);
+  console.log('Editor text:', evalText);
+  
   if (!evalText || typeof evalText !== 'string' || !evalText.trim()) {
+    console.error('No text to evaluate found in editor');
     error.value = "Please enter some text to evaluate.";
     return;
   }
   
+  console.log('Starting audio evaluation...');
   loading.value = true;
   startProcessing();
   const stopProgress = startProgress();
   
   try {
-    // Add debug output to console
     consoleEditorRef.value?.addTerminalOutput("Starting TS evaluation...");
     
-    // Hide oscilloscopes first
     showOscilloscopes.value = false;
-    
-    // Clear oscilloscopes and function tables
     functionTables.value = [];
     clearOscilloscopes();
-    
-    // Force DOM update to ensure old oscilloscopes are removed
     await nextTick();
     
-    // Parse the score
     consoleEditorRef.value?.addTerminalOutput("Parsing score...");
     musicV.parseScore(evalText);
     consoleEditorRef.value?.addTerminalOutput(musicV.getConsoleOutput());
     
-    // Initialize audio and play
     consoleEditorRef.value?.addTerminalOutput("Initializing audio...");
-    try {
-      await musicV.initAudio();
-      consoleEditorRef.value?.addTerminalOutput("Audio initialized successfully");
-      
-      consoleEditorRef.value?.addTerminalOutput("Starting playback...");
-      await musicV.play();
-      consoleEditorRef.value?.addTerminalOutput("Playback started");
-      isPlaying.value = true;
-      
-      // Generate sound
-      consoleEditorRef.value?.addTerminalOutput("Generating sound...");
-      const audioBuffer = await musicV.generateSound(10);
-      const wavBlob = createWavBlob(audioBuffer, 44100);
-      
-      // Clean up previous audio URL if it exists
-      if (audioUrl.value) {
-        URL.revokeObjectURL(audioUrl.value);
-      }
-      
-      audioUrl.value = URL.createObjectURL(wavBlob);
-      consoleEditorRef.value?.addTerminalOutput("Sound generation complete");
-      
-      // Get function tables from MusicV
-      const newTables = musicV.getFunctionTables();
-      if (debugMode.value) {
-        logger.debug('App', `Found ${newTables.length} function tables`);
-      }
-      
-      // Set new function tables
-      functionTables.value = [...newTables]; // Use spread to create a new array
-      
-      // Show oscilloscopes after tables are set
-      await nextTick();
-      showOscilloscopes.value = true;
-    } catch (audioError) {
-      consoleEditorRef.value?.addTerminalOutput(`Audio error: ${audioError.message}`);
-      throw audioError;
+    await musicV.initAudio(); // Ensure initialization completes
+    consoleEditorRef.value?.addTerminalOutput("Audio initialized successfully");
+    
+    consoleEditorRef.value?.addTerminalOutput("Starting playback...");
+    await musicV.play(); // Play only after init
+    consoleEditorRef.value?.addTerminalOutput("Playback started");
+    isPlaying.value = true;
+    console.log('Playback started, isPlaying set to:', isPlaying.value);
+    
+    consoleEditorRef.value?.addTerminalOutput("Generating sound...");
+    const audioBuffer = await musicV.generateSound(10);
+    const wavBlob = createWavBlob(audioBuffer, 44100);
+    
+    if (audioUrl.value) {
+      URL.revokeObjectURL(audioUrl.value);
     }
+    
+    audioUrl.value = URL.createObjectURL(wavBlob);
+    consoleEditorRef.value?.addTerminalOutput("Sound generation complete");
+    
+    const newTables = musicV.getFunctionTables();
+    if (debugMode.value) {
+      logger.debug('App', `Found ${newTables.length} function tables`);
+    }
+    
+    functionTables.value = [...newTables];
+    await nextTick();
+    showOscilloscopes.value = true;
   } catch (err) {
+    console.error('Error during evaluation:', err);
     consoleEditorRef.value?.addTerminalOutput(`Error: ${err.message}`);
     isPlaying.value = false;
+    error.value = `Evaluation failed: ${err.message}`;
   } finally {
     stopProgress();
     loading.value = false;
@@ -458,7 +448,6 @@ const handleEvaluateTS = async (text = null) => {
 };
 
 watch(functionTables, (newTables) => {
-  // Clear all canvases first
   Object.keys(canvasRefs).forEach(key => {
     const canvas = canvasRefs[key];
     if (canvas) {
@@ -467,7 +456,6 @@ watch(functionTables, (newTables) => {
     }
   });
   
-  // Only keep references to current tables
   const currentTableNums = newTables.map(table => table.functionNum);
   Object.keys(canvasRefs).forEach(key => {
     if (!currentTableNums.includes(parseInt(key))) {
@@ -475,7 +463,6 @@ watch(functionTables, (newTables) => {
     }
   });
   
-  // Draw only current tables
   if (debugMode.value) {
     logger.debug('App', `Drawing ${newTables.length} oscilloscopes`);
   }
@@ -484,7 +471,14 @@ watch(functionTables, (newTables) => {
 }, { deep: true });
 
 const handleEvaluateTSFromMenu = () => {
-  if (selectedCode.value) handleEvaluateTS(selectedCode.value.code);
+  console.log('handleEvaluateTSFromMenu called, selectedCode:', selectedCode.value);
+  if (selectedCode.value && selectedCode.value.code) {
+    console.log('Evaluating code from menu:', selectedCode.value.code);
+    handleEvaluateTS(selectedCode.value.code);
+  } else {
+    console.error('No code selected in menu');
+    error.value = "No code selected to evaluate.";
+  }
 };
 
 const handleKeyDown = (event) => {
@@ -501,10 +495,8 @@ const handleKeyDown = (event) => {
 };
 
 const resetMusicV = () => {
-  // Create a new MusicV instance to clear all internal state
-  musicV.value = new MusicV();
+  musicV = new MusicV();
   
-  // If debug mode is enabled, log this action
   if (debugMode && debugMode.value) {
     console.debug('Reset MusicV instance');
   }
@@ -560,7 +552,7 @@ const onDrag = (event) => {
   const deltaRatio = deltaY / containerHeight;
   let newScoreEditorFlex = startScoreEditorFlex.value + deltaRatio;
   let newConsoleEditorFlex = startConsoleEditorFlex.value - deltaRatio;
-  const minFlex = 0.1;
+  const minFlex = 0.2;
   if (newScoreEditorFlex < minFlex) {
     newScoreEditorFlex = minFlex;
     newConsoleEditorFlex = 1 - minFlex;
@@ -638,7 +630,6 @@ const sendToEditor = () => {
 };
 
 const drawOscilloscope = (table) => {
-  // Validate table data
   if (!table || !table.functionNum || !table.data || table.data.length === 0) {
     if (debugMode.value) {
       logger.warn('Oscilloscope', `Invalid function table data for F${table?.functionNum || 'unknown'}`);
@@ -646,7 +637,6 @@ const drawOscilloscope = (table) => {
     return;
   }
 
-  // Get canvas for this function table
   const canvas = canvasRefs[table.functionNum];
   if (!canvas) {
     if (debugMode.value) {
@@ -655,7 +645,6 @@ const drawOscilloscope = (table) => {
     return;
   }
   
-  // Get 2D context
   const ctx = canvas.getContext('2d');
   if (!ctx) {
     if (debugMode.value) {
@@ -672,12 +661,10 @@ const drawOscilloscope = (table) => {
   const height = canvas.height;
   const data = table.data;
   
-  // Clear canvas
   ctx.clearRect(0, 0, width, height);
   ctx.fillStyle = '#1a1a1a';
   ctx.fillRect(0, 0, width, height);
   
-  // Draw grid
   ctx.strokeStyle = '#333333';
   ctx.lineWidth = 0.5;
   for (let x = 0; x <= width; x += width / 4) {
@@ -693,27 +680,23 @@ const drawOscilloscope = (table) => {
     ctx.stroke();
   }
   
-  // Draw center line
   ctx.strokeStyle = '#555555';
   ctx.beginPath();
   ctx.moveTo(0, height / 2);
   ctx.lineTo(width, height / 2);
   ctx.stroke();
   
-  // Find min/max values
   let minVal = Infinity, maxVal = -Infinity;
   for (let i = 0; i < data.length; i++) {
     minVal = Math.min(minVal, data[i]);
     maxVal = Math.max(maxVal, data[i]);
   }
   
-  // Ensure we have a range even if all values are the same
   if (minVal === maxVal) { 
     minVal -= 0.5; 
     maxVal += 0.5; 
   }
   
-  // Draw waveform
   ctx.strokeStyle = '#00ff00';
   ctx.lineWidth = 1.5;
   ctx.beginPath();
@@ -729,7 +712,6 @@ const drawOscilloscope = (table) => {
     }
     ctx.stroke();
     
-    // Add labels
     ctx.fillStyle = '#00ff00';
     ctx.font = '9px monospace';
     ctx.fillText(`${maxVal.toFixed(2)}`, 2, 8);
@@ -743,29 +725,24 @@ const drawOscilloscope = (table) => {
 };
 
 const clearOscilloscopes = () => {
-  // Hide oscilloscopes
   showOscilloscopes.value = false;
   
-  // Clear all canvas elements
   Object.keys(canvasRefs).forEach(key => {
     const canvas = canvasRefs[key];
     if (canvas) {
       const ctx = canvas.getContext('2d');
       if (ctx) {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        // Fill with background color to ensure complete clearing
         ctx.fillStyle = '#1a1a1a';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
       }
     }
   });
   
-  // Clear all canvas references
   Object.keys(canvasRefs).forEach(key => {
     delete canvasRefs[key];
   });
   
-  // Clear function tables
   functionTables.value = [];
   
   if (debugMode.value) {
@@ -773,27 +750,25 @@ const clearOscilloscopes = () => {
   }
 };
 
-// Add a watcher for code changes to clear oscilloscopes
 watch(() => scoreEditorRef.value?.aceEditor()?.getValue(), () => {
-  // Hide oscilloscopes and clear them when code changes
   showOscilloscopes.value = false;
   clearOscilloscopes();
 }, { deep: true });
 
-// Enhance the exportCodes function to show a notification
+// Add a watch on isPlaying to log state changes
+watch(isPlaying, (newValue) => {
+  console.log('isPlaying changed to:', newValue);
+}, { immediate: true });
+
 const handleExportCodes = () => {
   exportCodes();
   notification.value = 'Codes exported successfully!';
   showNotification.value = true;
-  setTimeout(() => {
-    showNotification.value = false;
-  }, 3000);
+  setTimeout(() => { showNotification.value = false; }, 3000);
 };
 
-// Enhance the importCodes function to show a notification
 const handleImportCodes = () => {
   importCodes();
-  // The notification will be shown after import is complete in the useLocalStorage composable
 };
 </script>
 
@@ -871,7 +846,7 @@ const handleImportCodes = () => {
   flex-direction: column;
   overflow-y: auto;
   padding-top: 60px;
-  padding-bottom: 60px;
+  padding-bottom: 0; /* Remove bottom padding to allow console to fill space */
   background: #000; /* Ensure no white gaps */
 }
 
@@ -890,6 +865,7 @@ const handleImportCodes = () => {
 .console-editor {
   background: #000;
   border-top: 1px solid #333;
+  min-height: 150px; /* Add minimum height to ensure console has enough space */
 }
 
 .console-header {
@@ -1139,20 +1115,22 @@ const handleImportCodes = () => {
 .code-actions button:hover { background: #555; }
 
 .footer {
-  position: fixed;
-  bottom: 0;
-  right: 0;
-  left: 0;
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  padding: 1rem;
-  gap: 1rem;
-  background: #000 !important;
-  z-index: 1000;
+  display: none; /* Hide the footer */
 }
 
-.loading { margin-right: auto; }
+.loading { 
+  margin-right: auto;
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #4CAF50;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
 
 .mobile-evaluate-btn {
   background: #4caf50;
@@ -1169,7 +1147,7 @@ const handleImportCodes = () => {
 
 .error {
   position: fixed;
-  bottom: 60px;
+  bottom: 10px; /* Move error message up from the bottom */
   left: 50%;
   transform: translateX(-50%);
   background: #ff5252;
@@ -1195,33 +1173,6 @@ const handleImportCodes = () => {
 ::selection {
   background: #2d2d2d;
   color: #ffffff;
-}
-
-.import-export-buttons {
-  display: flex;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-.import-export-buttons .icon-button {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 5px 10px;
-  background-color: #333;
-  border: 1px solid #555;
-  border-radius: 4px;
-  color: white;
-  cursor: pointer;
-  font-size: 0.9rem;
-}
-
-.import-export-buttons .icon-button:hover {
-  background-color: #444;
-}
-
-.import-export-buttons .icon {
-  font-size: 1.1rem;
 }
 
 .notification {

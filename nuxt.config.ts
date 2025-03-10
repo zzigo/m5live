@@ -1,9 +1,6 @@
-import { defineNuxtConfig } from 'nuxt';
-
-// Determine if we're in production environment
-const isProduction = process.env.NODE_ENV === 'production';
-// Base URL will be / for Vercel
-const baseUrl = '/';
+// Define the configuration without imports
+// @ts-ignore
+const defineNuxtConfig = (config) => config;
 
 export default defineNuxtConfig({
   // Disable SSR for static site
@@ -19,7 +16,7 @@ export default defineNuxtConfig({
   // Runtime config
   runtimeConfig: {
     public: {
-      baseUrl: baseUrl.replace(/\/$/, '') // Remove trailing slash for consistency
+      baseUrl: '/' // Base URL for Vercel
     }
   },
 
@@ -30,7 +27,7 @@ export default defineNuxtConfig({
 
   // Development server
   devServer: {
-    port: 3000
+    port: 3001
   },
 
   // Compatibility date
@@ -38,7 +35,7 @@ export default defineNuxtConfig({
 
   // App configuration
   app: {
-    baseURL: baseUrl,
+    baseURL: '/',
     buildAssetsDir: '_nuxt',
     head: {
       title: 'Music V Live',
@@ -48,11 +45,11 @@ export default defineNuxtConfig({
         { name: 'description', content: 'Music V Live - A web-based implementation of the classic Music V sound synthesis system' }
       ],
       link: [
-        { rel: 'icon', type: 'image/x-icon', href: baseUrl + 'favicon.ico' },
-        { rel: 'icon', type: 'image/png', sizes: '32x32', href: baseUrl + 'favicon-32x32.png' },
-        { rel: 'icon', type: 'image/png', sizes: '16x16', href: baseUrl + 'favicon-16x16.png' },
-        { rel: 'apple-touch-icon', sizes: '180x180', href: baseUrl + 'apple-touch-icon.png' },
-        { rel: 'manifest', href: baseUrl + 'manifest.json' }
+        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+        { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32x32.png' },
+        { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicon-16x16.png' },
+        { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' },
+        { rel: 'manifest', href: '/site.webmanifest' }
       ]
     }
   },
@@ -82,6 +79,14 @@ export default defineNuxtConfig({
     },
     optimizeDeps: {
       exclude: ['fsevents']
+    },
+    // Add Vue compiler options to suppress the Suspense warning
+    vue: {
+      template: {
+        compilerOptions: {
+          isCustomElement: (tag: string) => tag === 'Suspense'
+        }
+      }
     }
   },
 
@@ -99,5 +104,5 @@ export default defineNuxtConfig({
   },
 
   // Dev tools
-  devtools: { enabled: process.env.NODE_ENV !== 'production' }
+  devtools: { enabled: false }
 });

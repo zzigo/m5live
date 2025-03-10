@@ -1,7 +1,7 @@
 {
-  "name": "SOOG",
-  "short_name": "SOOG",
-  "description": "Speculative Organology Organogram Generator",
+  "name": "Music V Live",
+  "short_name": "M5LIVE",
+  "description": "Music V Live - A web-based implementation of the classic Music V sound synthesis system",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#1a1a1a",
