@@ -41,21 +41,19 @@
           <h4>Operation Codes (Currently Active):</h4>
           <ul>
             <li><strong>INS</strong> - Define instrument (Syntax: INS time duration)</li>
-            <li><strong>OSC</strong> - Create oscillator (Syntax: OSC amplitude frequency buffer function phase)</li>
-            <li><strong>OUT</strong> - Define output routing (Syntax: OUT input output)</li>
+            <li><strong>OSC</strong> - Create oscillator (I1 I2 O F S Syntax: OSC amplitude frequency buffer function phase)</li>
+            <li><strong>OUT</strong> - Monophonic Output</li>
             <li><strong>END</strong> - End instrument definition</li>
             <li><strong>GEN</strong> - Generate function table (Syntax: GEN function_number size values...)</li>
             <li><strong>TER</strong> - Terminate score</li>
-            <li><strong>AD2</strong> - Two-stage envelope generator</li>
-            <li><strong>PLF</strong> - Piecewise linear function generator</li>
+            <li><strong>AD2</strong> - Two-inputs Adders with Data Statement: AD2 I1 I2 O </li>
+            <li><strong>PLF</strong> - Execute Subroutine in Pass I (P3 P)</li>
           </ul>
 
           <h4>Future Implementations:</h4>
           <ul>
-            <li><strong>Save Session</strong>: <kbd>Ctrl + S</kbd> - Save current session to local storage.</li>
-            <li><strong>Load Preset</strong>: <kbd>Ctrl + L</kbd> - Load predefined MUSIC V presets.</li>
+            <li><strong>Unit Generators</strong>:  RAN ENV STR AD3 AD4 MLT FLT RAH SET</li>
             <li><strong>Visualize Waveform</strong>: <kbd>Ctrl + W</kbd> - Display real-time waveform of generated audio.</li>
-            <li><strong>Additional Unit Generators</strong>: Implementation of more MUSIC V operators including ADD (signal addition), MUL (signal multiplication), and ENV (envelope generation).</li>
           </ul>
 
           <p class="tip">

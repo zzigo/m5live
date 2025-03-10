@@ -4,13 +4,10 @@
   "type": "module",
   "scripts": {
     "build": "nuxt build",
-    "dev": "NODE_OPTIONS=--no-warnings node ./node_modules/.bin/nuxt dev",
-    "dev-local": "nuxt dev",
+    "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "exit 0",
-    "start": "node .output/server/index.mjs",
-    "static": "cp -r static-site/* .output/public/",
     "clean": "rm -rf node_modules/.vite .nuxt .output",
     "clean-scripts": "mkdir -p backup-scripts && mv build-render*.sh deploy.sh static-only-build.sh simple-build.sh vercel-build-fixed.sh deploy-vercel.sh vercel-build.js render.yaml deploy-fix.sh backup-scripts/ 2>/dev/null || true"
   },

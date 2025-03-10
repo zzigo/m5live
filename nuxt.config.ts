@@ -22,15 +22,11 @@ export default defineNuxtConfig({
 
   // Nitro configuration
   nitro: {
-    preset: 'static',
+    preset: 'vercel-static',
     static: true,
     prerender: {
       crawlLinks: true,
-      routes: ['/'],
-      ignore: []
-    },
-    output: {
-      publicDir: '.output/public'
+      routes: ['/']
     }
   },
 
