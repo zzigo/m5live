@@ -611,17 +611,33 @@ export class MusicV {
           console.log('Audio context resumed successfully');
         }
 
-        const workletUrl = '/musicVWorklet.js';
-        console.log('Loading worklet from URL:', workletUrl);
-        try {
-          await this.audioContext.audioWorklet.addModule(workletUrl);
-          console.log('Worklet module loaded successfully!');
-        } catch (workletError: any) {
-          console.error('Failed to load worklet module:', workletError);
-          const fallbackUrl = './musicVWorklet.js';
-          console.log('Trying fallback URL:', fallbackUrl);
-          await this.audioContext.audioWorklet.addModule(fallbackUrl);
-          console.log('Worklet module loaded successfully from fallback URL!');
+        // Try multiple possible worklet paths
+        const workletPaths = [
+          '/musicVWorklet.js',
+          './musicVWorklet.js',
+          '../musicVWorklet.js',
+          'musicVWorklet.js'
+        ];
+        
+        let workletLoaded = false;
+        let lastError = null;
+        
+        for (const workletUrl of workletPaths) {
+          if (workletLoaded) break;
+          
+          try {
+            console.log(`Attempting to load worklet from: ${workletUrl}`);
+            await this.audioContext.audioWorklet.addModule(workletUrl);
+            console.log(`Worklet loaded successfully from: ${workletUrl}`);
+            workletLoaded = true;
+          } catch (error) {
+            console.warn(`Failed to load worklet from ${workletUrl}:`, error);
+            lastError = error;
+          }
+        }
+        
+        if (!workletLoaded) {
+          throw new Error(`Failed to load worklet from any path: ${lastError?.message || 'Unknown error'}`);
         }
 
         console.log('Creating AudioWorkletNode with processor name: music-v-processor');

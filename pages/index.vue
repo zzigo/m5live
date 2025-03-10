@@ -383,10 +383,15 @@ const handleEvaluateTS = async (text = null) => {
     error.value = "Please enter some text to evaluate.";
     return;
   }
+  
   loading.value = true;
   startProcessing();
   const stopProgress = startProgress();
+  
   try {
+    // Add debug output to console
+    consoleEditorRef.value?.addTerminalOutput("Starting TS evaluation...");
+    
     // Hide oscilloscopes first
     showOscilloscopes.value = false;
     
@@ -398,31 +403,50 @@ const handleEvaluateTS = async (text = null) => {
     await nextTick();
     
     // Parse the score
+    consoleEditorRef.value?.addTerminalOutput("Parsing score...");
     musicV.parseScore(evalText);
     consoleEditorRef.value?.addTerminalOutput(musicV.getConsoleOutput());
     
     // Initialize audio and play
-    await musicV.initAudio();
-    await musicV.play();
-    isPlaying.value = true;
-    
-    // Generate sound
-    const audioBuffer = await musicV.generateSound(10);
-    const wavBlob = createWavBlob(audioBuffer, 44100);
-    audioUrl.value = URL.createObjectURL(wavBlob);
-    
-    // Get function tables from MusicV
-    const newTables = musicV.getFunctionTables();
-    if (debugMode.value) {
-      logger.debug('App', `Found ${newTables.length} function tables`);
+    consoleEditorRef.value?.addTerminalOutput("Initializing audio...");
+    try {
+      await musicV.initAudio();
+      consoleEditorRef.value?.addTerminalOutput("Audio initialized successfully");
+      
+      consoleEditorRef.value?.addTerminalOutput("Starting playback...");
+      await musicV.play();
+      consoleEditorRef.value?.addTerminalOutput("Playback started");
+      isPlaying.value = true;
+      
+      // Generate sound
+      consoleEditorRef.value?.addTerminalOutput("Generating sound...");
+      const audioBuffer = await musicV.generateSound(10);
+      const wavBlob = createWavBlob(audioBuffer, 44100);
+      
+      // Clean up previous audio URL if it exists
+      if (audioUrl.value) {
+        URL.revokeObjectURL(audioUrl.value);
+      }
+      
+      audioUrl.value = URL.createObjectURL(wavBlob);
+      consoleEditorRef.value?.addTerminalOutput("Sound generation complete");
+      
+      // Get function tables from MusicV
+      const newTables = musicV.getFunctionTables();
+      if (debugMode.value) {
+        logger.debug('App', `Found ${newTables.length} function tables`);
+      }
+      
+      // Set new function tables
+      functionTables.value = [...newTables]; // Use spread to create a new array
+      
+      // Show oscilloscopes after tables are set
+      await nextTick();
+      showOscilloscopes.value = true;
+    } catch (audioError) {
+      consoleEditorRef.value?.addTerminalOutput(`Audio error: ${audioError.message}`);
+      throw audioError;
     }
-    
-    // Set new function tables
-    functionTables.value = [...newTables]; // Use spread to create a new array
-    
-    // Show oscilloscopes after tables are set
-    await nextTick();
-    showOscilloscopes.value = true;
   } catch (err) {
     consoleEditorRef.value?.addTerminalOutput(`Error: ${err.message}`);
     isPlaying.value = false;

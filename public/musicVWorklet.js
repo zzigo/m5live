@@ -1,6 +1,9 @@
+console.log('[MusicVWorklet] Script loaded');
+
 class MusicVProcessor extends AudioWorkletProcessor {
   constructor() {
     super();
+    console.log('[MusicVProcessor] Constructor called');
     this.sampleRate = 44100;
     this.currentTime = 0;
     this.events = [];
@@ -48,43 +51,20 @@ class MusicVProcessor extends AudioWorkletProcessor {
       }
       else if (event.data.type === 'play') {
         console.log('[Worklet] Received play command');
+        this.events = event.data.events || this.events;
+        this.currentTime = event.data.currentTime || 0;
+        
+        if (event.data.terminationTime) {
+          this.terminationTime = event.data.terminationTime;
+        }
+        
         this.isPlaying = true;
-        
-        // Update events if provided
-        if (event.data.events) {
-          this.events = event.data.events;
-          console.log(`[Worklet] Received ${this.events.length} events`);
-          
-          // Log the first few events for debugging
-          if (this.events.length > 0) {
-            console.log('[Worklet] First event:', JSON.stringify(this.events[0]));
-          }
-          
-          // Find termination time from events
-          const terEvent = this.events.find(e => e.type === 'termination');
-          if (terEvent) {
-            this.terminationTime = terEvent.time;
-            console.log(`[Worklet] Found termination time: ${this.terminationTime}s`);
-          }
-        }
-        
-        // Reset or set current time if provided
-        if (event.data.currentTime !== undefined) {
-          this.currentTime = event.data.currentTime;
-        } else {
-          this.currentTime = 0;
-        }
-        
-        // Clear active notes
-        this.activeNotes.clear();
-        
-        console.log('[Worklet] Playback started');
+        console.log(`[Worklet] Playback started. Events: ${this.events.length}, Current time: ${this.currentTime}s, Termination: ${this.terminationTime}s`);
       }
       else if (event.data.type === 'stop') {
         console.log('[Worklet] Received stop command');
         this.isPlaying = false;
         this.activeNotes.clear();
-        console.log('[Worklet] Playback stopped');
       }
     };
   }
@@ -216,4 +196,11 @@ class MusicVProcessor extends AudioWorkletProcessor {
   }
 }
 
-registerProcessor('music-v-processor', MusicVProcessor); 
+// Make sure to register the processor
+try {
+  console.log('[MusicVWorklet] Registering processor: music-v-processor');
+  registerProcessor('music-v-processor', MusicVProcessor);
+  console.log('[MusicVWorklet] Processor registered successfully');
+} catch (error) {
+  console.error('[MusicVWorklet] Failed to register processor:', error);
+} 
