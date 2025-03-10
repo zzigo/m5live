@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "buildCommand": "npm run generate",
+  "outputDirectory": ".output/public",
+  "framework": "nuxt",
+  "installCommand": "npm install --include=optional",
+  "env": {
+    "NITRO_PRESET": "vercel"
+  }
+} 

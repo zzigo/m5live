@@ -2,7 +2,7 @@ import { defineNuxtConfig } from 'nuxt/config';
 
 // Determine if we're in production environment
 const isProduction = process.env.NODE_ENV === 'production';
-// Base URL will be / for Render
+// Base URL will be / for Vercel
 const baseUrl = '/';
 
 export default defineNuxtConfig({
@@ -23,9 +23,9 @@ export default defineNuxtConfig({
     }
   },
 
-  // Nitro configuration - use static preset for Render
+  // Nitro configuration - use vercel preset for Vercel
   nitro: {
-    preset: isProduction ? 'static' : 'node-server'
+    preset: process.env.NITRO_PRESET || 'node-server'
   },
 
   // Development server
