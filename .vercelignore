@@ -15,4 +15,5 @@ dist
 !static-site
 !vercel-build.sh
 !vercel-build-fixed.sh
+!static-only-build.sh
 !simple-build.sh 
