@@ -45,6 +45,14 @@
           <path fill="currentColor" d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" />
         </svg>
       </button>
+      <div class="import-export-buttons">
+        <button @click="exportCodes" class="icon-button" title="Export Codes">
+          <span class="icon">↓</span> Export
+        </button>
+        <button @click="importCodes" class="icon-button" title="Import Codes">
+          <span class="icon">↑</span> Import
+        </button>
+      </div>
     </div>
     <div class="content-wrapper" v-if="showCode">
       <div class="editor-container">
@@ -129,6 +137,7 @@ import HelpModal from '~/components/HelpModal.vue';
 import { useRandomPrompt } from '~/composables/useRandomPrompt';
 import { useFavicon } from '~/composables/useFavicon';
 import { MusicV } from '~/lib/musicV';
+import { useLocalStorage } from '~/composables/useLocalStorage';
 
 // Simple logger implementation
 const logger = {
@@ -183,7 +192,14 @@ const debugMode = ref(false); // Debug mode flag
 const isPlaying = ref(false); // Track if audio is playing
 const showOscilloscopes = ref(true); // Control oscilloscope visibility
 
-const codes = ref([]);
+const { 
+  codes, 
+  loadCodes, 
+  saveCodes, 
+  exportCodes, 
+  importCodes 
+} = useLocalStorage();
+
 const newCode = ref({ title: '', year: new Date().getFullYear(), composer: '', comments: '', code: '' });
 const selectedCodeIndex = ref(-1);
 const selectedCode = ref(null);
@@ -198,14 +214,6 @@ const startConsoleEditorFlex = ref(0);
 
 const checkDevice = () => {
   isMobileOrTablet.value = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-};
-
-const loadCodes = async () => {
-  const response = await $fetch('/api/codes');
-  codes.value = response.map(entry => ({
-    ...entry,
-    title: entry.title || entry.code.split('\n')[0].substring(0, 20) + (entry.code.split('\n')[0].length > 20 ? '...' : '') || 'Untitled'
-  })) || [];
 };
 
 onMounted(async () => {
@@ -546,10 +554,6 @@ const deleteCode = async (index) => {
     if (codeEditorRef.value) codeEditorRef.value.addToEditor('');
     await saveCodes();
   }
-};
-
-const saveCodes = async () => {
-  await $fetch('/api/codes', { method: 'POST', body: codes.value });
 };
 
 const selectCode = (index) => {
@@ -1117,5 +1121,32 @@ watch(() => scoreEditorRef.value?.aceEditor()?.getValue(), () => {
 ::selection {
   background: #2d2d2d;
   color: #ffffff;
+}
+
+.import-export-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.import-export-buttons .icon-button {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  background-color: #333;
+  border: 1px solid #555;
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.import-export-buttons .icon-button:hover {
+  background-color: #444;
+}
+
+.import-export-buttons .icon {
+  font-size: 1.1rem;
 }
 </style>
