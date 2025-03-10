@@ -1,11 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "node vercel-build.js",
+  "buildCommand": "mkdir -p .output/public && cp -r static-site/* .output/public/",
   "outputDirectory": ".output/public",
-  "framework": "nuxtjs",
-  "installCommand": "npm install --omit=optional",
-  "env": {
-    "NITRO_PRESET": "vercel",
-    "ROLLUP_WASM_NODE": "1"
-  }
+  "framework": null
 } 
