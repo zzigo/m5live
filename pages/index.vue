@@ -128,7 +128,7 @@
     <div v-if="audioUrl" class="audio-download">
       <a :href="audioUrl" download="m5live-audio.wav" class="audio-download-link" title="Download generated audio">
         <svg class="icon" viewBox="0 0 24 24">
-          <path fill="currentColor" d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M15.2,16.8L14.2,17.8L12,15.6L9.8,17.8L8.8,16.8L11,14.6L8.8,12.4L9.8,11.4L12,13.6L14.2,11.4L15.2,12.4L13,14.6L15.2,16.8M13,9V3.5L18.5,9H13Z" />
+          <path fill="currentColor" d="M3,3v18h18V3H3z M7,17L7,7l2,0l0,4l2-2l2,2l0-4l2,0l0,10l-2,0l0-4l-2-2l-2,2l0,4L7,17z"/>
         </svg>
       </a>
     </div>
@@ -1207,20 +1207,19 @@ const handleImportCodes = () => {
   justify-content: center;
   width: 40px;
   height: 40px;
-  background: rgba(255, 255, 255, 0.9);
-  border-radius: 50%;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  background: transparent;
   transition: transform 0.2s ease;
+  color: #ffffff;
 }
 
 .audio-download-link:hover {
   transform: scale(1.1);
+  color: #00ff00;
 }
 
 .audio-download-link .icon {
   width: 24px;
   height: 24px;
-  color: #000;
 }
 
 :deep(.console-editor .ace_editor) {
