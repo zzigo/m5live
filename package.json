@@ -5,15 +5,18 @@
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
-    "generate": "nuxt generate",
+    "generate": "NITRO_PRESET=vercel nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "start": "node .output/server/index.mjs"
+    "start": "node .output/server/index.mjs",
+    "vercel-build": "npm run generate"
   },
   "dependencies": {
     "ace-builds": "^1.37.4",
     "nuxt": "^3.15.1",
-    "vue": "^3.5.12"
+    "vue": "^3.5.12",
+    "@esbuild/linux-x64": "^0.19.12",
+    "@rollup/wasm-node": "^4.9.5"
   },
   "devDependencies": {
     "@types/node": "^20.17.5",
@@ -28,7 +31,8 @@
   "overrides": {
     "vite": {
       "rollup": "npm:@rollup/wasm-node"
-    }
+    },
+    "esbuild": "^0.19.12"
   },
   "resolutions": {
     "rollup": "npm:@rollup/wasm-node"

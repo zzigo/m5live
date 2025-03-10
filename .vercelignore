@@ -1,0 +1,12 @@
+.git
+.github
+node_modules
+.nuxt
+.output
+*.log
+*.md
+.env
+.env.*
+!.env.example
+build-render-*.sh
+render.yaml 
