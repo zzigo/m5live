@@ -14,7 +14,20 @@
       ]
     },
     {
-      "source": "/(.*)\\.(js|css|svg|jpg|jpeg|png|gif|ico|json|woff|woff2|ttf|otf|mp3|wav)",
+      "source": "/(.*)\\.(js|mjs)",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "text/javascript"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/(.*)\\.(css|svg|jpg|jpeg|png|gif|ico|json|woff|woff2|ttf|otf|mp3|wav)",
       "headers": [
         {
           "key": "Cache-Control",
