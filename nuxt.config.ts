@@ -22,15 +22,7 @@ export default defineNuxtConfig({
 
   // Nitro configuration - use vercel preset for Vercel
   nitro: {
-    preset: process.env.VERCEL ? 'vercel' : (process.env.NITRO_PRESET || 'node-server'),
-    // Specify Node.js version for Vercel
-    vercel: {
-      config: {
-        functions: {
-          runtime: 'nodejs18.x'
-        }
-      }
-    }
+    preset: 'vercel-static'
   },
 
   // Development server

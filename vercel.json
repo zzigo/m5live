@@ -2,11 +2,6 @@
   "version": 2,
   "buildCommand": "npm run build",
   "outputDirectory": ".output/public",
-  "functions": {
-    "api/**/*": {
-      "runtime": "nodejs18.x"
-    }
-  },
   "headers": [
     {
       "source": "/_nuxt/([^/]+)\\.js",
@@ -19,24 +14,6 @@
     },
     {
       "source": "/_nuxt/([^/]+)\\.mjs",
-      "headers": [
-        {
-          "key": "Content-Type",
-          "value": "application/javascript; charset=utf-8"
-        }
-      ]
-    },
-    {
-      "source": "/([^/]+)\\.js",
-      "headers": [
-        {
-          "key": "Content-Type",
-          "value": "application/javascript; charset=utf-8"
-        }
-      ]
-    },
-    {
-      "source": "/([^/]+)\\.mjs",
       "headers": [
         {
           "key": "Content-Type",
