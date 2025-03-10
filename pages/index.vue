@@ -438,13 +438,13 @@ const handleEvaluateTS = async (text = null) => {
     const output = musicV.getConsoleOutput();
     consoleEditorRef.value?.addTerminalOutput(output);
     
-    // Initialize and start audio
-    await musicV.initAudio();
+    // Initialize and start audio with explicit sample rate
+    await musicV.initAudio(44100);
     await musicV.play();
     isPlaying.value = true;
     
-    // Generate sound
-    const audioBuffer = await musicV.generateSound(10);
+    // Generate sound with explicit sample rate
+    const audioBuffer = await musicV.generateSound(10, 44100);
     const wavBlob = createWavBlob(audioBuffer, 44100);
     if (audioUrl.value) {
       URL.revokeObjectURL(audioUrl.value);
