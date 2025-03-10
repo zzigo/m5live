@@ -5,7 +5,31 @@ set +e
 
 echo "Starting combined build process for Render..."
 
-# Try the WebAssembly Rollup approach first
+# Try the direct approach first
+echo "Attempting build with direct approach..."
+./build-render-direct.sh
+DIRECT_RESULT=$?
+
+if [ $DIRECT_RESULT -eq 0 ]; then
+  echo "Direct build succeeded!"
+  exit 0
+fi
+
+echo "Direct build failed with exit code $DIRECT_RESULT"
+
+# Try the esbuild-focused approach
+echo "Attempting build with esbuild-focused approach..."
+./build-render-esbuild.sh
+ESBUILD_RESULT=$?
+
+if [ $ESBUILD_RESULT -eq 0 ]; then
+  echo "Esbuild-focused build succeeded!"
+  exit 0
+fi
+
+echo "Esbuild-focused build failed with exit code $ESBUILD_RESULT"
+
+# Try the WebAssembly Rollup approach
 echo "Attempting build with WebAssembly Rollup..."
 ./build-render-wasm.sh
 WASM_RESULT=$?
