@@ -1,4 +1,4 @@
-import { defineNuxtConfig } from 'nuxt/config';
+import { defineNuxtConfig } from 'nuxt';
 
 // Determine if we're in production environment
 const isProduction = process.env.NODE_ENV === 'production';
@@ -25,7 +25,7 @@ export default defineNuxtConfig({
 
   // Nitro configuration - use vercel preset for Vercel
   nitro: {
-    preset: process.env.NITRO_PRESET || 'node-server'
+    preset: process.env.VERCEL ? 'vercel' : (process.env.NITRO_PRESET || 'node-server')
   },
 
   // Development server
@@ -72,6 +72,16 @@ export default defineNuxtConfig({
     build: {
       assetsInlineLimit: 0, // Don't inline assets as base64
       cssCodeSplit: false, // Generate a single CSS file
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            'ace-editor': ['ace-builds']
+          }
+        }
+      }
+    },
+    optimizeDeps: {
+      exclude: ['fsevents']
     }
   },
 
@@ -89,5 +99,5 @@ export default defineNuxtConfig({
   },
 
   // Dev tools
-  devtools: { enabled: true }
+  devtools: { enabled: process.env.NODE_ENV !== 'production' }
 });

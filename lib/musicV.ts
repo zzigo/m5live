@@ -21,6 +21,7 @@ interface Note {
   p30?: number;
   oscState?: { sum: number };
   envState?: { time: number };
+  [key: string]: any;
 }
 
 interface MusicVInstrument {
@@ -48,6 +49,8 @@ interface Event {
   p8?: number;
   p29?: number;
   p30?: number;
+  varNum?: number;
+  value?: number;
 }
 
 export class MusicV {
@@ -620,7 +623,7 @@ export class MusicV {
         ];
         
         let workletLoaded = false;
-        let lastError = null;
+        let lastError: Error | null = null;
         
         for (const workletUrl of workletPaths) {
           if (workletLoaded) break;
@@ -632,7 +635,7 @@ export class MusicV {
             workletLoaded = true;
           } catch (error) {
             console.warn(`Failed to load worklet from ${workletUrl}:`, error);
-            lastError = error;
+            lastError = error as Error;
           }
         }
         

@@ -1,7 +1,27 @@
 {
-  "version": 2,
-  "buildCommand": "./static-only-build.sh",
+  "buildCommand": "chmod +x ./vercel-build.sh && ./vercel-build.sh",
   "outputDirectory": ".output/public",
-  "framework": null,
-  "installCommand": "echo 'Skipping default install'"
+  "framework": "nuxt",
+  "regions": ["sfo1"],
+  "installCommand": "echo 'Using custom build script'",
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/(.*)\\.(js|css|svg|jpg|jpeg|png|gif|ico|json|woff|woff2|ttf|otf|mp3|wav)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    }
+  ]
 } 
