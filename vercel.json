@@ -19,11 +19,29 @@
       "headers": [
         {
           "key": "Content-Type",
-          "value": "text/javascript"
+          "value": "application/javascript; charset=utf-8"
         },
         {
           "key": "Cache-Control",
           "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/_nuxt/.*\\.js$",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/javascript; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/_nuxt/.*\\.mjs$",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/javascript; charset=utf-8"
         }
       ]
     },
