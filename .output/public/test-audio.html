@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Audio Worklet Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #1a1a1a;
+      color: #fff;
+    }
+    button {
+      background: #4a148c;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      margin: 10px 0;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    button:hover {
+      background: #7b1fa2;
+    }
+    pre {
+      background: #333;
+      padding: 10px;
+      border-radius: 4px;
+      overflow-x: auto;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <h1>Audio Worklet Test</h1>
+  <p>This page tests if the audio worklet is loading and functioning correctly.</p>
+  
+  <button id="testButton">Test Audio</button>
+  <button id="stopButton">Stop Audio</button>
+  
+  <h2>Console Output:</h2>
+  <pre id="console"></pre>
+  
+  <script>
+    const consoleOutput = document.getElementById('console');
+    const testButton = document.getElementById('testButton');
+    const stopButton = document.getElementById('stopButton');
+    
+    let audioContext = null;
+    let workletNode = null;
+    
+    function log(message) {
+      console.log(message);
+      consoleOutput.textContent += message + '\n';
+    }
+    
+    async function testAudio() {
+      try {
+        log('Creating AudioContext...');
+        audioContext = new AudioContext();
+        
+        if (audioContext.state === 'suspended') {
+          log('Resuming AudioContext...');
+          await audioContext.resume();
+        }
+        
+        log('Loading audio worklet...');
+        const workletPaths = [
+          '/musicVWorklet.js',
+          './musicVWorklet.js',
+          '../musicVWorklet.js',
+          'musicVWorklet.js'
+        ];
+        
+        let workletLoaded = false;
+        
+        for (const path of workletPaths) {
+          if (workletLoaded) break;
+          
+          try {
+            log(`Trying to load worklet from: ${path}`);
+            await audioContext.audioWorklet.addModule(path);
+            log(`Successfully loaded worklet from: ${path}`);
+            workletLoaded = true;
+          } catch (error) {
+            log(`Failed to load from ${path}: ${error.message}`);
+          }
+        }
+        
+        if (!workletLoaded) {
+          throw new Error('Could not load worklet from any path');
+        }
+        
+        log('Creating AudioWorkletNode...');
+        workletNode = new AudioWorkletNode(audioContext, 'music-v-processor', {
+          numberOfInputs: 0,
+          numberOfOutputs: 1,
+          outputChannelCount: [1]
+        });
+        
+        workletNode.onprocessorerror = (error) => {
+          log(`Processor error: ${error}`);
+        };
+        
+        log('Connecting node to destination...');
+        workletNode.connect(audioContext.destination);
+        
+        log('Sending test message to worklet...');
+        workletNode.port.postMessage({
+          type: 'init',
+          events: [
+            { type: 'note', time: 0, insNum: 1, frequency: 440, amplitude: 0.5, duration: 1 },
+            { type: 'note', time: 1, insNum: 1, frequency: 523.25, amplitude: 0.5, duration: 1 },
+            { type: 'termination', time: 3 }
+          ],
+          instruments: {
+            '1': {
+              id: 1,
+              units: [
+                { type: 'osc', params: { p5: 'p5', p6: 'p6', b2: 'b2', f2: 'f2', p30: 'p30' } },
+                { type: 'out', params: { b2: 'b2', b1: 'b1' } }
+              ]
+            }
+          },
+          functions: {
+            '2': new Array(512).fill(0).map((_, i) => Math.sin(i / 512 * Math.PI * 2))
+          },
+          sampleRate: audioContext.sampleRate,
+          terminationTime: 3,
+          masterGain: 0.5
+        });
+        
+        log('Sending play message...');
+        workletNode.port.postMessage({
+          type: 'play',
+          events: [
+            { type: 'note', time: 0, insNum: 1, frequency: 440, amplitude: 0.5, duration: 1 },
+            { type: 'note', time: 1, insNum: 1, frequency: 523.25, amplitude: 0.5, duration: 1 },
+            { type: 'termination', time: 3 }
+          ],
+          currentTime: 0,
+          terminationTime: 3
+        });
+        
+        log('Test completed successfully!');
+      } catch (error) {
+        log(`Error: ${error.message}`);
+      }
+    }
+    
+    function stopAudio() {
+      if (audioContext) {
+        log('Stopping audio...');
+        audioContext.close();
+        audioContext = null;
+        workletNode = null;
+        log('Audio stopped.');
+      }
+    }
+    
+    testButton.addEventListener('click', testAudio);
+    stopButton.addEventListener('click', stopAudio);
+  </script>
+</body>
+</html> 

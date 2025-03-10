@@ -1,0 +1,1 @@
+{"file":"server.mjs","mappings":"AAAA,MAAA,WAAe,MAAM;AACrB;","names":[],"sources":["../../../node_modules/nuxt/dist/app/entry-spa.js"],"sourcesContent":["export default () => {\n};\n"],"version":3}

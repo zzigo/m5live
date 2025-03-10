@@ -491,7 +491,14 @@ const handleEvaluateTSFromMenu = () => {
   console.log('handleEvaluateTSFromMenu called, selectedCode:', selectedCode.value);
   if (selectedCode.value && selectedCode.value.code) {
     console.log('Evaluating code from menu:', selectedCode.value.code);
-    handleEvaluateTS(selectedCode.value.code);
+    // First send to editor
+    scoreEditorRef.value?.addToEditor(selectedCode.value.code || '');
+    // Then close storage menu
+    toggleStorageMenu();
+    // Finally evaluate after a short delay to ensure editor is updated
+    setTimeout(() => {
+      handleEvaluateTS(selectedCode.value.code);
+    }, 100);
   } else {
     console.error('No code selected in menu');
     error.value = "No code selected to evaluate.";

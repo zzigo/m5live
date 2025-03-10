@@ -1,4 +1,4 @@
-export default {
+const client_manifest = {
   "_CM6vYEyh.js": {
     "resourceType": "script",
     "module": true,
@@ -118,4 +118,7 @@ export default {
     "file": "style.tK-2PD3H.css",
     "src": "style.css"
   }
-}
+};
+
+export { client_manifest as default };
+//# sourceMappingURL=client.manifest.mjs.map
