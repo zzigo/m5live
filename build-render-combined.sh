@@ -5,7 +5,31 @@ set +e
 
 echo "Starting combined build process for Render..."
 
-# Try the Bun-only approach first
+# Try the WebAssembly Rollup approach first
+echo "Attempting build with WebAssembly Rollup..."
+./build-render-wasm.sh
+WASM_RESULT=$?
+
+if [ $WASM_RESULT -eq 0 ]; then
+  echo "WebAssembly Rollup build succeeded!"
+  exit 0
+fi
+
+echo "WebAssembly Rollup build failed with exit code $WASM_RESULT"
+
+# Try the yarn approach
+echo "Attempting build with yarn..."
+./build-render-yarn.sh
+YARN_RESULT=$?
+
+if [ $YARN_RESULT -eq 0 ]; then
+  echo "Yarn build succeeded!"
+  exit 0
+fi
+
+echo "Yarn build failed with exit code $YARN_RESULT"
+
+# Try the Bun-only approach
 echo "Attempting build with Bun-only approach..."
 ./build-render-bun-only.sh
 BUN_ONLY_RESULT=$?
