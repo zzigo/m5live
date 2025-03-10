@@ -7,29 +7,29 @@
           <button class="close-button" @click="$emit('update:modelValue', false)">×</button>
         </div>
         <div class="modal-body">
-          <h3>A LiveCoding Revival of MUSIC V</h3>
+          <h3>A LiveCoding Implementation of MUSIC V</h3>
           <p>
-            M5LIVE is a modern reinterpretation of Max Mathews' pioneering MUSIC V system, enabling live coding of musical scores in the MUSIC V syntax. Built on Nuxt 3, it bridges vintage computer music with contemporary web technologies, offering a platform to explore sound synthesis and speculative instrument design.
+            M5LIVE is a modern implementation of the MUSIC V system, enabling live coding of musical scores in the MUSIC V syntax. Built on Nuxt 3, it provides a web-based platform for sound synthesis and instrument design through code.
           </p>
 
-          <h4>Historical Context: Max Mathews and MUSIC I-VI</h4>
+          <h4>Technical Overview</h4>
           <p>
-            Max Mathews, often called the "father of computer music," invented the MUSIC series (I-VI) starting in 1957 at Bell Labs. MUSIC I was the first program to synthesize sound on a computer (an IBM 704), famously rendering "Daisy Bell" in 1961—later immortalized in *2001: A Space Odyssey*. By MUSIC V (1968), Mathews introduced a modular, score-based system that abstracted sound generation into "instruments" (unit generators) and "notes," laying the groundwork for modern digital audio workstations. Through a media archaeology lens, MUSIC V reveals deep patterns in computational design—modularity, abstraction, and human-machine collaboration—that resonate with philosophical questions about creativity and interface incentives. M5LIVE recovers these patterns, extending them into a web-based, interactive environment.
+            MUSIC V represents a significant milestone in computer music synthesis, introducing a modular, score-based system that abstracts sound generation into unit generators and note events. This implementation translates the original MUSIC V architecture into a modern web context, preserving its core computational principles while enabling real-time interaction.
           </p>
 
           <h4>How It Works:</h4>
           <ol>
-            <li>Write MUSIC V scores in the editor (e.g., <code>INS 0 1; OSC P5 P6 B2 F2 P30;</code>).</li>
-            <li>Use shortcuts to evaluate code live or send it to the console.</li>
-            <li>Explore stored scores via the storage menu, updating or playing them as TypeScript audio.</li>
-            <li>Leverage media archaeology to rediscover design paradigms from Mathews' era, inspiring new interfaces.</li>
+            <li>Write MUSIC V scores in the editor using the available operation codes.</li>
+            <li>Use shortcuts to evaluate code and generate audio in real-time.</li>
+            <li>Access stored scores via the storage menu for reuse and modification.</li>
+            <li>Export generated audio as WAV files for external use.</li>
           </ol>
 
           <h4>Activated Commands:</h4>
           <ul>
             <li><strong>Evaluate/Stop TS</strong>: <kbd>Alt + Enter</kbd> - Runs the selected or full score as TypeScript audio. When playing, changes to a stop button. Syntax: <code>INS &lt;time&gt; &lt;duration&gt;; OSC &lt;params&gt;; OUT &lt;buffer&gt;; END;</code></li>
             <li><strong>Stop Playback</strong>: <kbd>Cmd + .</kbd> or <kbd>Ctrl + .</kbd> - Stops audio playback.</li>
-            <li><strong>Evaluate Binary</strong>: <kbd>Ctrl + Enter</kbd> - Will execute the score using original Fortran MUSIC V binary compilation (future implementation).</li>
+            <li><strong>Export WAV</strong>: <kbd>Ctrl + E</kbd> - Export audio as a WAV file.</li>
             <li><strong>Clear Editor</strong>: <kbd>Ctrl + H</kbd> - Wipes the editor content.</li>
             <li><strong>Clear Console</strong>: <kbd>Ctrl + P</kbd> - Clears the console output.</li>
             <li><strong>Storage Menu</strong>: <kbd>Ctrl + M</kbd> - Opens the storage menu for saved codes.</li>
@@ -38,46 +38,24 @@
             <li><strong>Mobile Evaluate</strong>: Tap "Evaluate" button - Triggers evaluation on mobile devices.</li>
           </ul>
 
+          <h4>Operation Codes (Currently Active):</h4>
+          <ul>
+            <li><strong>INS</strong> - Define instrument (Syntax: INS time duration)</li>
+            <li><strong>OSC</strong> - Create oscillator (Syntax: OSC amplitude frequency buffer function phase)</li>
+            <li><strong>OUT</strong> - Define output routing (Syntax: OUT input output)</li>
+            <li><strong>END</strong> - End instrument definition</li>
+            <li><strong>GEN</strong> - Generate function table (Syntax: GEN function_number size values...)</li>
+            <li><strong>TER</strong> - Terminate score</li>
+            <li><strong>AD2</strong> - Two-stage envelope generator</li>
+            <li><strong>PLF</strong> - Piecewise linear function generator</li>
+          </ul>
+
           <h4>Future Implementations:</h4>
           <ul>
             <li><strong>Save Session</strong>: <kbd>Ctrl + S</kbd> - Save current session to local storage.</li>
             <li><strong>Load Preset</strong>: <kbd>Ctrl + L</kbd> - Load predefined MUSIC V presets.</li>
             <li><strong>Visualize Waveform</strong>: <kbd>Ctrl + W</kbd> - Display real-time waveform of generated audio.</li>
-            <li><strong>Export WAV</strong>: <kbd>Ctrl + E</kbd> - Export audio as a WAV file.</li>
-            <li><strong>Speculative Synth</strong>: Combine MUSIC V with organogram-style instrument design for hybrid sound generation.</li>
-          </ul>
-
-          <h4>Operation Codes (Future Implementation):</h4>
-          <ul>
-            <li><strong>INS</strong> - Define an instrument</li>
-            <li><strong>OSC</strong> - Create an oscillator</li>
-            <li><strong>OUT</strong> - Define output routing</li>
-            <li><strong>END</strong> - End instrument definition</li>
-            <li><strong>GEN</strong> - Generate function table</li>
-            <li><strong>NOT</strong> - Define a note event</li>
-            <li><strong>TER</strong> - Terminate score</li>
-            <li><strong>ADD</strong> - Add signals</li>
-            <li><strong>MUL</strong> - Multiply signals</li>
-            <li><strong>ENV</strong> - Create envelope</li>
-            <li><strong>FLT</strong> - Apply filter</li>
-            <li><strong>DEL</strong> - Create delay</li>
-            <li><strong>REV</strong> - Apply reverb</li>
-            <li><strong>COM</strong> - Add comment</li>
-          </ul>
-
-          <h4>Shortcuts:</h4>
-          <ul>
-            <li><kbd>Alt + Enter</kbd>: Evaluate TypeScript audio / Start playback</li>
-            <li><kbd>Cmd + .</kbd> or <kbd>Ctrl + .</kbd>: Stop playback</li>
-            <li><kbd>Ctrl + Enter</kbd>: Evaluate binary audio</li>
-            <li><kbd>Ctrl + H</kbd>: Clear editor</li>
-            <li><kbd>Ctrl + P</kbd>: Clear console</li>
-            <li><kbd>Ctrl + M</kbd>: Open storage menu</li>
-            <li><kbd>Alt + Shift + ←/→</kbd>: Navigate between saved codes</li>
-            <li><kbd>Ctrl + S</kbd>: Save session (future)</li>
-            <li><kbd>Ctrl + L</kbd>: Load preset (future)</li>
-            <li><kbd>Ctrl + W</kbd>: Show waveform (future)</li>
-            <li><kbd>Ctrl + E</kbd>: Export WAV (future)</li>
+            <li><strong>Additional Unit Generators</strong>: Implementation of more MUSIC V operators including ADD (signal addition), MUL (signal multiplication), and ENV (envelope generation).</li>
           </ul>
 
           <p class="tip">
@@ -85,16 +63,16 @@
           </p>
 
           <div class="reference">
-            <h4>Media Archaeology & Design Insights</h4>
+            <h4>Technical Implementation</h4>
             <p>
-              Mathews' MUSIC V series, explored through media archaeology, uncovers a philosophical shift: music as code, not just sound. Its unit-generator model prefigures modular synths and DAWs, offering interface-design incentives—intuitive control over abstract processes. M5LIVE extends this legacy, merging historical patterns with modern web interactivity to inspire new sonic explorations.
+              M5LIVE implements the core MUSIC V architecture in a modern web context, translating the original unit generator model into a real-time, browser-based synthesis engine. The implementation preserves the modular approach to sound synthesis while adding contemporary features like live coding and immediate audio feedback.
             </p>
           </div>
 
           <div class="credits">
             <h4>Academic Attribution</h4>
             <p>
-              M5LIVE is a research project by Luciano Azzigotti, inspired by Max Mathews' MUSIC V and media archaeological principles, developed within a broader study of speculative sound design.
+              M5LIVE is a research project exploring the implementation of historical computer music systems in modern web environments, developed as part of ongoing research in computer music and digital instrument design.
             </p>
           </div>
         </div>

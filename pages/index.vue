@@ -90,7 +90,7 @@
               <input type="number" v-model.number="formFields.year" placeholder="Year" required />
               <input v-model="formFields.composer" placeholder="Composer" required />
               <textarea v-model="formFields.comments" placeholder="Comments" rows="3" required></textarea>
-              <button type="submit">[ Add ]</button>
+              <button type="submit">Add</button>
             </form>
           </div>
           <div class="code-list">
