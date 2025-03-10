@@ -28,7 +28,7 @@
       ]
     },
     {
-      "source": "/_nuxt/.*\\.js$",
+      "source": "/_nuxt/(.*)\\.js",
       "headers": [
         {
           "key": "Content-Type",
@@ -37,7 +37,7 @@
       ]
     },
     {
-      "source": "/_nuxt/.*\\.mjs$",
+      "source": "/_nuxt/(.*)\\.mjs",
       "headers": [
         {
           "key": "Content-Type",
