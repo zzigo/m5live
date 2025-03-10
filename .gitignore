@@ -1,4 +1,4 @@
 node_modules
 backup-scripts
-
+server/musicV/sources.c
 .vercel

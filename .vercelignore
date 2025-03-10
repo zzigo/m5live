@@ -10,6 +10,9 @@ node_modules
 build-render-*.sh
 render.yaml
 dist
+server/musicV/sources.c/emsdk/node/**
+server/musicV/sources.c/emsdk/upstream/bin/**
+server/musicV/sources.c/emsdk/upstream/emscripten/node_modules/**
 # Don't ignore these files
 !static-site
 !vercel-build.sh

@@ -115,17 +115,13 @@ export class MusicV {
           this.activeNotes.clear();
           this.events = [];
           this.currentTime = 0;
-          this.consoleOutput = '';
-          console.clear();
-          this.consoleOutput += 'MusicV stopped and reset\n';
+          this.consoleOutput += 'MusicV stopped\n';
         });
       } else {
         this.activeNotes.clear();
         this.events = [];
         this.currentTime = 0;
-        this.consoleOutput = '';
-        console.clear();
-        this.consoleOutput += 'MusicV reset\n';
+        this.consoleOutput += 'MusicV stopped\n';
       }
     } catch (error: any) {
       console.error('Error during stop and reset:', error);
@@ -458,7 +454,7 @@ export class MusicV {
     const functionData = this.functions.get(functionNum) || this.functions.get(2)!;
     let output = blocks.get(outputBlock);
     if (!output) {
-      output = new Float32Array(1);
+      output = new Float32Array(2);
       blocks.set(outputBlock, output);
     }
     if (!note.oscState) {
@@ -471,9 +467,6 @@ export class MusicV {
     const index = Math.floor(note.oscState.sum % (tableSize - 1));
     const value = functionData[index];
     output[0] = value * amplitude;
-    if (freqParam.startsWith('B') && parseInt(freqParam.substring(1)) === outputBlock) {
-      output[0] *= 0.9;
-    }
   }
 
   private processOutput(unit: any, blocks: Map<number, Float32Array>): void {
@@ -532,20 +525,18 @@ export class MusicV {
     const functionData = this.functions.get(functionNum) || this.functions.get(2)!;
     let output = blocks.get(outputBlock);
     if (!output) {
-      output = new Float32Array(1);
+      output = new Float32Array(2);
       blocks.set(outputBlock, output);
     }
-
     if (!note.envState) {
       const initialTime = phaseParam.startsWith('P') ? (note[phaseParam.toLowerCase()] || 0) : 0;
       note.envState = { time: initialTime };
     }
-
     const elapsedTime = currentTime - note.startTime;
     const t = Math.min(elapsedTime / duration, 1);
-    const index = Math.floor(t * (functionData.length - 1));
-    const value = functionData[index];
-    output[0] = value * amplitude;
+    const envIndex = Math.floor(t * (functionData.length - 1));
+    const envValue = functionData[envIndex];
+    output[0] = envValue * amplitude;
   }
 
   private processStr(unit: any, note: Note, blocks: Map<number, Float32Array>): void {
@@ -664,59 +655,59 @@ export class MusicV {
   }
 
   async initAudio(): Promise<void> {
-  if (!this.audioContext) {
-    try {
-      if (this.isServer) throw new Error('Cannot initialize audio in server environment');
-      this.audioContext = new AudioContext({ sampleRate: this.sampleRate, latencyHint: 'interactive' });
+    if (!this.audioContext) {
+      try {
+        if (this.isServer) throw new Error('Cannot initialize audio in server environment');
+        this.audioContext = new AudioContext({ sampleRate: this.sampleRate, latencyHint: 'interactive' });
 
-      if (this.audioContext.state === 'suspended') {
-        await this.audioContext.resume();
-      }
-
-      const workletPaths = [
-        '/musicVWorklet.js',
-        './musicVWorklet.js',
-        '../musicVWorklet.js',
-        'musicVWorklet.js'
-      ];
-      
-      let workletLoaded = false;
-      let lastError: Error | null = null;
-      
-      for (const workletUrl of workletPaths) {
-        if (workletLoaded) break;
-        try {
-          await this.audioContext.audioWorklet.addModule(workletUrl);
-          workletLoaded = true;
-        } catch (error) {
-          console.warn(`Failed to load worklet from ${workletUrl}:`, error);
-          lastError = error as Error;
+        if (this.audioContext.state === 'suspended') {
+          await this.audioContext.resume();
         }
+
+        const workletPaths = [
+          '/musicVWorklet.js',
+          './musicVWorklet.js',
+          '../musicVWorklet.js',
+          'musicVWorklet.js'
+        ];
+        
+        let workletLoaded = false;
+        let lastError: Error | null = null;
+        
+        for (const workletUrl of workletPaths) {
+          if (workletLoaded) break;
+          try {
+            await this.audioContext.audioWorklet.addModule(workletUrl);
+            workletLoaded = true;
+          } catch (error) {
+            console.warn(`Failed to load worklet from ${workletUrl}:`, error);
+            lastError = error as Error;
+          }
+        }
+        
+        if (!workletLoaded) {
+          throw new Error(`Failed to load worklet from any path: ${lastError?.message || 'Unknown error'}`);
+        }
+
+        this.workletNode = new AudioWorkletNode(this.audioContext, 'music-v-processor', {
+          numberOfInputs: 0,
+          numberOfOutputs: 1,
+          outputChannelCount: [2], // Stereo output
+          processorOptions: { sampleRate: this.sampleRate }
+        });
+
+        this.workletNode.connect(this.audioContext.destination);
+
+        // [Rest of the method unchanged]
+      } catch (error: any) {
+        console.error('Failed to initialize audio:', error);
+        this.consoleOutput += `Failed to initialize audio: ${error.message || 'Unknown error'}\n`;
+        throw new Error(`Failed to initialize audio: ${error.message || 'Unknown error'}`);
       }
-      
-      if (!workletLoaded) {
-        throw new Error(`Failed to load worklet from any path: ${lastError?.message || 'Unknown error'}`);
-      }
-
-      this.workletNode = new AudioWorkletNode(this.audioContext, 'music-v-processor', {
-        numberOfInputs: 0,
-        numberOfOutputs: 1,
-        outputChannelCount: [2], // Stereo output
-        processorOptions: { sampleRate: this.sampleRate }
-      });
-
-      this.workletNode.connect(this.audioContext.destination);
-
-      // [Rest of the method unchanged]
-    } catch (error: any) {
-      console.error('Failed to initialize audio:', error);
-      this.consoleOutput += `Failed to initialize audio: ${error.message || 'Unknown error'}\n`;
-      throw new Error(`Failed to initialize audio: ${error.message || 'Unknown error'}`);
+    } else if (this.audioContext.state === 'suspended') {
+      await this.audioContext.resume();
     }
-  } else if (this.audioContext.state === 'suspended') {
-    await this.audioContext.resume();
   }
-}
 
   async play(): Promise<void> {
     try {

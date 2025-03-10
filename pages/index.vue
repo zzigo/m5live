@@ -369,13 +369,17 @@ const handleStop = () => {
 };
 
 const handleEvaluateTS = async (text = null) => {
-  console.log('handleEvaluateTS called, current isPlaying state:', isPlaying.value);
+  // If currently playing, stop playback
   if (isPlaying.value) {
-    console.log('Audio is playing, stopping...');
-    handleStop();
+    console.log('Stopping playback...');
+    musicV.stop();
+    isPlaying.value = false;
+    loading.value = false;
+    completeProcessing();
     return;
   }
-  
+
+  // Get text from editor
   const editor = scoreEditorRef.value?.aceEditor();
   const editorValue = editor ? editor.getValue() : '';
   const evalText = text ?? editorValue;
@@ -388,60 +392,65 @@ const handleEvaluateTS = async (text = null) => {
     error.value = "Please enter some text to evaluate.";
     return;
   }
-  
-  console.log('Starting audio evaluation...');
+
+  // Clear oscilloscopes first
+  showOscilloscopes.value = false;
+  functionTables.value = [];
+  clearOscilloscopes();
+  Object.keys(canvasRefs).forEach(key => {
+    delete canvasRefs[key];
+  });
+
+  // Start playback
+  console.log('Starting playback...');
   loading.value = true;
   startProcessing();
-  const stopProgress = startProgress();
-  
+
   try {
-    consoleEditorRef.value?.addTerminalOutput("Starting TS evaluation...");
+    // Clear the console first
+    consoleEditorRef.value?.clearTerminal();
     
-    showOscilloscopes.value = false;
-    functionTables.value = [];
-    clearOscilloscopes();
-    await nextTick();
-    
-    consoleEditorRef.value?.addTerminalOutput("Parsing score...");
+    // Parse the score
+    console.log('Parsing score:', evalText);
     musicV.parseScore(evalText);
-    consoleEditorRef.value?.addTerminalOutput(musicV.getConsoleOutput());
     
-    consoleEditorRef.value?.addTerminalOutput("Initializing audio...");
-    await musicV.initAudio(); // Ensure initialization completes
-    consoleEditorRef.value?.addTerminalOutput("Audio initialized successfully");
+    // Get and display console output
+    const output = musicV.getConsoleOutput();
+    console.log('MusicV console output:', output);
+    consoleEditorRef.value?.addTerminalOutput(output);
     
-    consoleEditorRef.value?.addTerminalOutput("Starting playback...");
-    await musicV.play(); // Play only after init
-    consoleEditorRef.value?.addTerminalOutput("Playback started");
+    // Initialize audio
+    console.log('Initializing audio...');
+    await musicV.initAudio();
+    consoleEditorRef.value?.addTerminalOutput('\nAudio system initialized\n');
+    
+    // Start playback
+    console.log('Playing audio...');
+    await musicV.play();
+    consoleEditorRef.value?.addTerminalOutput('Audio playback started\n');
     isPlaying.value = true;
-    console.log('Playback started, isPlaying set to:', isPlaying.value);
     
-    consoleEditorRef.value?.addTerminalOutput("Generating sound...");
+    // Generate sound
+    console.log('Generating sound...');
     const audioBuffer = await musicV.generateSound(10);
     const wavBlob = createWavBlob(audioBuffer, 44100);
-    
     if (audioUrl.value) {
       URL.revokeObjectURL(audioUrl.value);
     }
-    
     audioUrl.value = URL.createObjectURL(wavBlob);
-    consoleEditorRef.value?.addTerminalOutput("Sound generation complete");
-    
-    const newTables = musicV.getFunctionTables();
-    if (debugMode.value) {
-      logger.debug('App', `Found ${newTables.length} function tables`);
-    }
-    
-    functionTables.value = [...newTables];
+    consoleEditorRef.value?.addTerminalOutput(`Audio generated: ${audioUrl.value}\n`);
+
+    // Update oscilloscopes with fresh data
     await nextTick();
+    functionTables.value = [...musicV.getFunctionTables()];
     showOscilloscopes.value = true;
+    consoleEditorRef.value?.addTerminalOutput('Function tables updated\n');
   } catch (err) {
-    console.error('Error during evaluation:', err);
-    consoleEditorRef.value?.addTerminalOutput(`Error: ${err.message}`);
+    console.error('Error during playback:', err);
     isPlaying.value = false;
-    error.value = `Evaluation failed: ${err.message}`;
+    error.value = err.message;
+    consoleEditorRef.value?.addTerminalOutput(`Error: ${err.message}\n`);
   } finally {
-    stopProgress();
     loading.value = false;
     completeProcessing();
   }

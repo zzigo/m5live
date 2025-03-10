@@ -3,6 +3,7 @@
   "outputDirectory": ".output/public",
   "regions": ["sfo1"],
   "installCommand": "echo 'Using custom build script'",
+  "devCommand": "npm run dev-local",
   "headers": [
     {
       "source": "/(.*)",
