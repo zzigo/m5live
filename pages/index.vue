@@ -407,10 +407,12 @@ const handleEvaluateTS = async (text = null) => {
 
   // Get text from editor
   const editor = scoreEditorRef.value?.aceEditor();
-  const editorValue = editor ? editor.getValue() : '';
-  const evalText = text ?? editorValue;
+  const editorValue = editor?.getValue()?.trim();
   
-  if (!evalText || typeof evalText !== 'string' || !evalText.trim()) {
+  // Use provided text or editor value
+  const evalText = text?.trim() || editorValue;
+  
+  if (!evalText) {
     console.error('No text to evaluate found in editor');
     error.value = "Please enter some text to evaluate.";
     return;
