@@ -1,7 +1,6 @@
 {
   "buildCommand": "chmod +x ./vercel-build.sh && ./vercel-build.sh",
   "outputDirectory": ".output/public",
-  "framework": "nuxt",
   "regions": ["sfo1"],
   "installCommand": "echo 'Using custom build script'",
   "headers": [
