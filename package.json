@@ -7,16 +7,14 @@
     "dev": "nuxt dev",
     "generate": "NITRO_PRESET=vercel nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare",
+    "postinstall": "exit 0",
     "start": "node .output/server/index.mjs",
-    "vercel-build": "npm run generate"
+    "vercel-build": "npm install @rollup/wasm-node @esbuild/linux-x64 --no-save && nuxt prepare && npm run generate"
   },
   "dependencies": {
     "ace-builds": "^1.37.4",
     "nuxt": "^3.15.1",
-    "vue": "^3.5.12",
-    "@esbuild/linux-x64": "^0.19.12",
-    "@rollup/wasm-node": "^4.9.5"
+    "vue": "^3.5.12"
   },
   "devDependencies": {
     "@types/node": "^20.17.5",
@@ -36,8 +34,5 @@
   },
   "resolutions": {
     "rollup": "npm:@rollup/wasm-node"
-  },
-  "optionalDependencies": {
-    "@esbuild/linux-x64": "^0.19.12"
   }
 }

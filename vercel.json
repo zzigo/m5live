@@ -1,10 +1,11 @@
 {
   "version": 2,
-  "buildCommand": "npm run generate",
+  "buildCommand": "node vercel-build.js",
   "outputDirectory": ".output/public",
   "framework": "nuxtjs",
-  "installCommand": "npm install --include=optional",
+  "installCommand": "npm install --omit=optional",
   "env": {
-    "NITRO_PRESET": "vercel"
+    "NITRO_PRESET": "vercel",
+    "ROLLUP_WASM_NODE": "1"
   }
 } 
