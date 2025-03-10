@@ -2,11 +2,16 @@
 .github
 node_modules
 .nuxt
-.output
 *.log
 *.md
+!README.md
 .env
 .env.*
 !.env.example
 build-render-*.sh
-render.yaml 
+render.yaml
+dist
+# Don't ignore these files
+!static-site
+!vercel-build.sh
+!simple-build.sh 

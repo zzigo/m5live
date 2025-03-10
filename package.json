@@ -8,7 +8,8 @@
     "generate": "NITRO_PRESET=vercel nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "exit 0",
-    "start": "node .output/server/index.mjs"
+    "start": "node .output/server/index.mjs",
+    "static": "cp -r static-site/* .output/public/"
   },
   "dependencies": {
     "ace-builds": "^1.37.4",
@@ -28,5 +29,8 @@
   "trustedDependencies": [
     "esbuild",
     "rollup"
-  ]
+  ],
+  "optionalDependencies": {
+    "@esbuild/linux-x64": "^0.20.1"
+  }
 }

@@ -1,56 +1,69 @@
 #!/bin/bash
 
+# Exit on error
 set -e
 
-echo "Starting custom Vercel build with Bun..."
+echo "Starting build process..."
 
-# Try to build with Bun
-function build_with_bun {
-  # Install Bun
-  echo "Installing Bun..."
-  curl -fsSL https://bun.sh/install | bash
-  export BUN_INSTALL=$HOME/.bun
-  export PATH=$BUN_INSTALL/bin:$PATH
-
-  # Verify Bun installation
-  echo "Bun version:"
-  bun --version
-
-  # Create .npmrc file to ensure optional dependencies are installed
-  echo "Creating .npmrc file..."
-  cat > .npmrc << EOF
-  optional=true
-  EOF
-
-  # Install dependencies with Bun
-  echo "Installing dependencies with Bun..."
-  bun install
-
-  # Prepare Nuxt
-  echo "Preparing Nuxt..."
-  bun run nuxt prepare
-
-  # Build the application
-  echo "Building the application..."
-  NITRO_PRESET=vercel bun run build
-
-  # Generate static files
-  echo "Generating static files..."
-  NITRO_PRESET=vercel bun run generate
+# Function to build with bun if available
+build_with_bun() {
+  if command -v bun &> /dev/null; then
+    echo "Bun found, using it for build..."
+    bun install
+    bun run generate
+    return 0
+  else
+    echo "Bun not available"
+    return 1
+  fi
 }
 
-# Fallback to static site if Bun build fails
-function fallback_to_static {
+# Function to fall back to static site if build fails
+fallback_to_static() {
   echo "Falling back to static site..."
+  
+  # Create output directory
   mkdir -p .output/public
+  
+  # Copy static site files
   cp -r static-site/* .output/public/
-  echo "Static site deployed as fallback."
+  
+  # Create a simple index.html if it doesn't exist
+  if [ ! -f .output/public/index.html ]; then
+    cat > .output/public/index.html << 'EOF'
+<!DOCTYPE html>
+<html>
+<head>
+  <title>M5LIVE - Music V Live</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background: #1a1a1a; color: #fff; }
+    h1 { color: #4CAF50; }
+    .container { background: #2a2a2a; padding: 20px; border-radius: 8px; }
+    .button { display: inline-block; background: #4a148c; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <h1>M5LIVE - Music V Live</h1>
+  <div class="container">
+    <p>The full interactive application is currently being deployed.</p>
+    <p>Please check back soon for the complete version of M5LIVE.</p>
+    <a href="https://github.com/zzigo/m5live" class="button">View on GitHub</a>
+  </div>
+</body>
+</html>
+EOF
+  fi
+  
+  echo "Static site deployed successfully!"
+  return 0
 }
 
-# Try to build with Bun, but fall back to static site if it fails
-if ! build_with_bun; then
-  echo "Bun build failed, falling back to static site."
-  fallback_to_static
-else
+# Try to build with bun first
+if build_with_bun; then
   echo "Build completed successfully!"
+else
+  echo "Build failed, falling back to static site..."
+  fallback_to_static
 fi 

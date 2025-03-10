@@ -1,0 +1,19 @@
+{
+  "name": "musicv-wasm",
+  "version": "0.1.0",
+  "description": "MusicV Fortran to WebAssembly test",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "compile": "./compile.sh"
+  },
+  "keywords": [
+    "musicv",
+    "fortran",
+    "webassembly",
+    "wasm",
+    "audio"
+  ],
+  "author": "",
+  "license": "MIT"
+} 

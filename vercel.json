@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "./vercel-build.sh",
+  "buildCommand": "bash -c './vercel-build.sh || ./simple-build.sh'",
   "outputDirectory": ".output/public",
   "framework": null,
   "installCommand": "echo 'Skipping default install'"
