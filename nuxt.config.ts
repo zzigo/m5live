@@ -26,7 +26,11 @@ export default defineNuxtConfig({
     static: true,
     prerender: {
       crawlLinks: true,
-      routes: ['/']
+      routes: ['/'],
+      ignore: []
+    },
+    output: {
+      publicDir: '.output/public'
     }
   },
 

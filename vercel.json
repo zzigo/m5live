@@ -2,6 +2,7 @@
   "version": 2,
   "buildCommand": "npm run generate",
   "outputDirectory": ".output/public",
+  "framework": "nuxt",
   "headers": [
     {
       "source": "/_nuxt/([^/]+)\\.js",
