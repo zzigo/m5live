@@ -10,7 +10,8 @@ export default defineNuxtConfig({
   experimental: {
     payloadExtraction: false,
     viewTransition: true,
-    renderJsonPayloads: false
+    renderJsonPayloads: false,
+    inlineSSRStyles: false
   },
 
   // Runtime config
@@ -22,7 +23,7 @@ export default defineNuxtConfig({
 
   // Nitro configuration
   nitro: {
-    preset: 'vercel-static',
+    preset: 'static',
     static: true,
     prerender: {
       crawlLinks: true,
@@ -42,6 +43,7 @@ export default defineNuxtConfig({
   app: {
     baseURL: '/',
     buildAssetsDir: '_nuxt',
+    cdnURL: '',
     head: {
       title: 'Music V Live',
       meta: [
@@ -63,36 +65,44 @@ export default defineNuxtConfig({
   routeRules: {
     '/**': { 
       prerender: true,
-      cache: {
-        maxAge: 60 * 60 * 24 // Cache for 24 hours
-      }
+      static: true
     }
   },
 
   // Vite configuration
   vite: {
     build: {
-      assetsInlineLimit: 0, // Don't inline assets as base64
-      cssCodeSplit: false, // Generate a single CSS file
+      assetsInlineLimit: 0,
+      cssCodeSplit: false,
       rollupOptions: {
         output: {
           manualChunks: {
-            'ace-editor': ['ace-builds']
+            'ace': ['ace-builds']
           }
         }
       }
     },
     optimizeDeps: {
+      include: [
+        'vue',
+        'ace-builds',
+        'ace-builds/src-noconflict/ace',
+        'ace-builds/src-noconflict/mode-python',
+        'ace-builds/src-noconflict/mode-text',
+        'ace-builds/src-noconflict/theme-monokai'
+      ],
       exclude: ['fsevents']
     },
-    // Add Vue compiler options to suppress the Suspense warning
-    vue: {
-      template: {
-        compilerOptions: {
-          isCustomElement: (tag: string) => tag === 'Suspense'
-        }
+    resolve: {
+      alias: {
+        'ace-builds': 'ace-builds'
       }
     }
+  },
+
+  // Build configuration
+  build: {
+    transpile: ['ace-builds']
   },
 
   // App config

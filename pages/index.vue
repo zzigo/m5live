@@ -269,30 +269,49 @@ onUnmounted(() => {
 });
 
 const handleKeyDownGlobal = (event) => {
-  if (event.altKey && event.shiftKey) {
-    if (event.key === 'ArrowLeft' && codes.value.length > 0) {
-      event.preventDefault();
-      navigateCodes(-1);
-    } else if (event.key === 'ArrowRight' && codes.value.length > 0) {
-      event.preventDefault();
-      navigateCodes(1);
+  // Handle global keyboard shortcuts
+  if (event.ctrlKey || event.metaKey) {
+    switch (event.key.toLowerCase()) {
+      case 'm':
+        event.preventDefault();
+        toggleStorageMenu();
+        break;
+      case 'e':
+        event.preventDefault();
+        if (audioUrl.value) {
+          const link = document.createElement('a');
+          link.href = audioUrl.value;
+          link.download = 'm5live-audio.wav';
+          link.click();
+        }
+        break;
+      case 'h':
+        event.preventDefault();
+        handleClear();
+        break;
+      case 'p':
+        event.preventDefault();
+        clearConsole();
+        break;
+      case '.':
+        event.preventDefault();
+        if (isPlaying.value) {
+          handleEvaluateTS();
+        }
+        break;
+    }
+  } else if (event.altKey && event.shiftKey) {
+    switch (event.key) {
+      case 'ArrowLeft':
+        event.preventDefault();
+        navigateCodes(-1);
+        break;
+      case 'ArrowRight':
+        event.preventDefault();
+        navigateCodes(1);
+        break;
     }
   }
-  
-  if (event.ctrlKey && event.key === 'p') {
-    event.preventDefault();
-    clearConsole();
-  }
-  
-  const stopKey = /Mac|iPod|iPhone|iPad/.test(navigator.platform) 
-    ? (event.metaKey && event.key === '.') 
-    : (event.ctrlKey && event.key === '.');
-    
-  if (stopKey && isPlaying.value) {
-    event.preventDefault();
-    handleStop();
-  }
-  
   handleKeyDown(event);
 };
 
@@ -480,15 +499,21 @@ const handleEvaluateTSFromMenu = () => {
 };
 
 const handleKeyDown = (event) => {
-  if (event.altKey && event.key === 'Enter') {
-    event.preventDefault();
-    handleEvaluateTS();
-  } else if (event.ctrlKey && event.key === 'Enter') {
-    event.preventDefault();
-    handleEvaluateBinary();
-  } else if (event.ctrlKey && event.key === 'h') {
-    event.preventDefault();
-    handleClear();
+  // Handle editor-specific keyboard shortcuts
+  if (event.ctrlKey || event.metaKey) {
+    switch (event.key.toLowerCase()) {
+      case 'enter':
+        event.preventDefault();
+        handleEvaluateBinary();
+        break;
+    }
+  } else if (event.altKey) {
+    switch (event.key.toLowerCase()) {
+      case 'enter':
+        event.preventDefault();
+        handleEvaluateTS();
+        break;
+    }
   }
 };
 

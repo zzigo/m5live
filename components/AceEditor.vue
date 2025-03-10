@@ -6,10 +6,12 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
-import ace from 'ace-builds/src-noconflict/ace';
+import * as aceModule from 'ace-builds/src-noconflict/ace';
 import 'ace-builds/src-noconflict/mode-python';
 import 'ace-builds/src-noconflict/mode-text';
 import 'ace-builds/src-noconflict/theme-monokai';
+
+const ace = aceModule;
 
 const props = defineProps({
   mode: { type: String, default: 'editor' },

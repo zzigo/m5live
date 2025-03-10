@@ -328,8 +328,6 @@ const _lazy_GYU48a = () => Promise.resolve().then(function () { return renderer$
 const handlers = [
   { route: '/api/codes', handler: _lazy_3uoPla, lazy: true, middleware: false, method: undefined },
   { route: '/__nuxt_error', handler: _lazy_GYU48a, lazy: true, middleware: false, method: undefined },
-  { route: '/_nuxt/builds/meta/**', handler: _lazy_GYU48a, lazy: true, middleware: false, method: undefined },
-  { route: '/_nuxt/builds/**', handler: _lazy_GYU48a, lazy: true, middleware: false, method: undefined },
   { route: '/**', handler: _lazy_GYU48a, lazy: true, middleware: false, method: undefined }
 ];
 
@@ -939,9 +937,7 @@ const _inlineRuntimeConfig = {
       },
       "/**": {
         "prerender": true,
-        "cache": {
-          "maxAge": 86400
-        }
+        "static": true
       },
       "/_nuxt/builds/meta/**": {
         "headers": {

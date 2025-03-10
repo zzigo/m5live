@@ -9,12 +9,12 @@
         <div class="modal-body">
           <h3>A LiveCoding Implementation of MUSIC V</h3>
           <p>
-            M5LIVE is a modern implementation of the MUSIC V system, enabling live coding of musical scores in the MUSIC V syntax. Built on Nuxt 3, it provides a web-based platform for sound synthesis and instrument design through code.
+            M5LIVE is a web-based environment that reimagines Max Mathews' influential MUSIC V software for modern use. This project, developed by Luciano Azzigotti and Nemanja Radivojević, bridges historical computer music practices with live-coding paradigms, providing a platform for real-time sound synthesis and performance. At its core, M5LIVE is a tribute to one of the foundational tools in electronic music history, while simultaneously being an open framework for creative experimentation. 
           </p>
 
           <h4>Technical Overview</h4>
           <p>
-            MUSIC V represents a significant milestone in computer music synthesis, introducing a modular, score-based system that abstracts sound generation into unit generators and note events. This implementation translates the original MUSIC V architecture into a modern web context, preserving its core computational principles while enabling real-time interaction.
+             M5LIVE is a modern implementation of the MUSIC V system, enabling live coding of musical scores in the MUSIC V syntax. Built on Nuxt 3, it provides a web-based platform for sound synthesis and instrument design through code.This implementation translates the original MUSIC V architecture into a modern web context, preserving its core computational principles while enabling real-time interaction. A translation from fortran sources to WebAssembly is being  done by Luciano Azzigotti during 2025. Future versions of this site will include this functionality in the second PLAY-F button.
           </p>
 
           <h4>How It Works:</h4>
