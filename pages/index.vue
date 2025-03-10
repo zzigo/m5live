@@ -405,12 +405,12 @@ const handleEvaluateTS = async (text = null) => {
     return;
   }
 
-  // Get text from editor
+  // Get text from editor if not provided
   const editor = scoreEditorRef.value?.aceEditor();
   const editorValue = editor?.getValue()?.trim();
   
   // Use provided text or editor value
-  const evalText = text?.trim() || editorValue;
+  const evalText = text || editorValue;
   
   if (!evalText) {
     console.error('No text to evaluate found in editor');
@@ -492,18 +492,27 @@ watch(functionTables, (newTables) => {
 const handleEvaluateTSFromMenu = () => {
   console.log('handleEvaluateTSFromMenu called, selectedCode:', selectedCode.value);
   if (selectedCode.value && selectedCode.value.code) {
-    console.log('Evaluating code from menu:', selectedCode.value.code);
-    // First send to editor
-    scoreEditorRef.value?.addToEditor(selectedCode.value.code || '');
-    // Then close storage menu
-    toggleStorageMenu();
-    // Finally evaluate after a short delay to ensure editor is updated
-    setTimeout(() => {
-      handleEvaluateTS(selectedCode.value.code);
-    }, 100);
+    console.log('Previewing code from menu:', selectedCode.value.code);
+    // Create a new MusicV instance for preview
+    const previewMusicV = new MusicV();
+    
+    try {
+      // Parse and play the preview without affecting main editor
+      previewMusicV.parseScore(selectedCode.value.code);
+      previewMusicV.initAudio(44100).then(() => {
+        previewMusicV.play();
+      });
+      
+      // Show preview output in console
+      const output = previewMusicV.getConsoleOutput();
+      consoleEditorRef.value?.addTerminalOutput("Preview: " + output);
+    } catch (err) {
+      console.error('Error previewing code:', err);
+      error.value = err.message;
+    }
   } else {
     console.error('No code selected in menu');
-    error.value = "No code selected to evaluate.";
+    error.value = "No code selected to preview.";
   }
 };
 
