@@ -1,6 +1,7 @@
 {
   "version": 2,
-  "buildCommand": "mkdir -p .output/public && cp -r static-site/* .output/public/",
+  "buildCommand": "./vercel-build.sh",
   "outputDirectory": ".output/public",
-  "framework": null
+  "framework": null,
+  "installCommand": "echo 'Skipping default install'"
 } 

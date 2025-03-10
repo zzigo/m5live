@@ -3,13 +3,12 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "nuxt build",
+    "build": "NITRO_PRESET=vercel nuxt build",
     "dev": "nuxt dev",
     "generate": "NITRO_PRESET=vercel nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "exit 0",
-    "start": "node .output/server/index.mjs",
-    "vercel-build": "npm install @rollup/wasm-node @esbuild/linux-x64 --no-save && nuxt prepare && npm run generate"
+    "start": "node .output/server/index.mjs"
   },
   "dependencies": {
     "ace-builds": "^1.37.4",
@@ -26,13 +25,8 @@
   "engines": {
     "node": ">=20.10.0"
   },
-  "overrides": {
-    "vite": {
-      "rollup": "npm:@rollup/wasm-node"
-    },
-    "esbuild": "^0.19.12"
-  },
-  "resolutions": {
-    "rollup": "npm:@rollup/wasm-node"
-  }
+  "trustedDependencies": [
+    "esbuild",
+    "rollup"
+  ]
 }
