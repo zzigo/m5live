@@ -28,7 +28,7 @@
       ]
     },
     {
-      "source": "/_nuxt/.*",
+      "source": "/_nuxt/(.*)",
       "headers": [
         {
           "key": "Content-Type",
