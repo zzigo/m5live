@@ -125,6 +125,13 @@
         {{ notification }}
       </div>
     </Transition>
+    <div v-if="audioUrl" class="audio-download">
+      <a :href="audioUrl" download="m5live-audio.wav" class="audio-download-link" title="Download generated audio">
+        <svg class="icon" viewBox="0 0 24 24">
+          <path fill="currentColor" d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M15.2,16.8L14.2,17.8L12,15.6L9.8,17.8L8.8,16.8L11,14.6L8.8,12.4L9.8,11.4L12,13.6L14.2,11.4L15.2,12.4L13,14.6L15.2,16.8M13,9V3.5L18.5,9H13Z" />
+        </svg>
+      </a>
+    </div>
   </div>
 </template>
 
@@ -384,9 +391,6 @@ const handleEvaluateTS = async (text = null) => {
   const editorValue = editor ? editor.getValue() : '';
   const evalText = text ?? editorValue;
   
-  console.log('Editor instance:', editor);
-  console.log('Editor text:', evalText);
-  
   if (!evalText || typeof evalText !== 'string' || !evalText.trim()) {
     console.error('No text to evaluate found in editor');
     error.value = "Please enter some text to evaluate.";
@@ -401,8 +405,6 @@ const handleEvaluateTS = async (text = null) => {
     delete canvasRefs[key];
   });
 
-  // Start playback
-  console.log('Starting playback...');
   loading.value = true;
   startProcessing();
 
@@ -410,41 +412,28 @@ const handleEvaluateTS = async (text = null) => {
     // Clear the console first
     consoleEditorRef.value?.clearTerminal();
     
-    // Parse the score
-    console.log('Parsing score:', evalText);
+    // Parse the score and get original M5 output
     musicV.parseScore(evalText);
-    
-    // Get and display console output
     const output = musicV.getConsoleOutput();
-    console.log('MusicV console output:', output);
     consoleEditorRef.value?.addTerminalOutput(output);
     
-    // Initialize audio
-    console.log('Initializing audio...');
+    // Initialize and start audio
     await musicV.initAudio();
-    consoleEditorRef.value?.addTerminalOutput('\nAudio system initialized\n');
-    
-    // Start playback
-    console.log('Playing audio...');
     await musicV.play();
-    consoleEditorRef.value?.addTerminalOutput('Audio playback started\n');
     isPlaying.value = true;
     
     // Generate sound
-    console.log('Generating sound...');
     const audioBuffer = await musicV.generateSound(10);
     const wavBlob = createWavBlob(audioBuffer, 44100);
     if (audioUrl.value) {
       URL.revokeObjectURL(audioUrl.value);
     }
     audioUrl.value = URL.createObjectURL(wavBlob);
-    consoleEditorRef.value?.addTerminalOutput(`Audio generated: ${audioUrl.value}\n`);
 
     // Update oscilloscopes with fresh data
     await nextTick();
     functionTables.value = [...musicV.getFunctionTables()];
     showOscilloscopes.value = true;
-    consoleEditorRef.value?.addTerminalOutput('Function tables updated\n');
   } catch (err) {
     console.error('Error during playback:', err);
     isPlaying.value = false;
@@ -1203,5 +1192,38 @@ const handleImportCodes = () => {
 
 .fade-enter-from, .fade-leave-to {
   opacity: 0;
+}
+
+.audio-download {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+}
+
+.audio-download-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease;
+}
+
+.audio-download-link:hover {
+  transform: scale(1.1);
+}
+
+.audio-download-link .icon {
+  width: 24px;
+  height: 24px;
+  color: #000;
+}
+
+:deep(.console-editor .ace_editor) {
+  font-size: 115% !important;
 }
 </style>
