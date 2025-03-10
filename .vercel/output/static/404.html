@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Music V Live</title>
+  <script>
+    // GitHub Pages SPA redirect
+    // ========================================
+    // This script handles redirects for client-side routing on GitHub Pages
+    // It takes the current URL path and redirects to the root with a query parameter
+    // that the main app can use to navigate to the correct route
+    
+    // Get the current path
+    const path = window.location.pathname;
+    const repo = '/m5live';
+    
+    // Check if the path starts with the repo name
+    const pathWithoutRepo = path.startsWith(repo) 
+      ? path.substring(repo.length) 
+      : path;
+    
+    // Redirect to the root with the path as a query parameter
+    if (pathWithoutRepo !== '/' && pathWithoutRepo !== '/index.html') {
+      window.location.href = `${repo}/?path=${encodeURIComponent(pathWithoutRepo)}`;
+    } else {
+      window.location.href = `${repo}/`;
+    }
+  </script>
+</head>
+<body>
+  <h1>Redirecting...</h1>
+  <p>If you are not redirected automatically, <a href="/m5live/">click here</a>.</p>
+</body>
+</html> 

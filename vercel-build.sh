@@ -17,7 +17,7 @@ build_with_bun() {
     bun install
     
     echo "Building with Bun..."
-    NITRO_PRESET=vercel bun run build
+    NITRO_PRESET=vercel NODE_OPTIONS="--max-old-space-size=4096" bun run build
     
     # Check if build was successful
     if [ -d ".output" ]; then

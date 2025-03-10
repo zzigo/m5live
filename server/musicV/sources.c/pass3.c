@@ -13,7 +13,7 @@
 #define IP_SIZE 21
 #define T_SIZE 50
 #define SAMPLE_RATE 44100
-#define BUFFER_SIZE 1536
+#define BUFFER_SIZE 352800 // 8s * 44100
 
 int I[I_SIZE] = {0};
 float P[P_SIZE] = {0};
@@ -80,29 +80,52 @@ label_102:
     goto label_102;
 }
 
+void write_wav_header(FILE *output, int total_samples) {
+    int sample_rate = SAMPLE_RATE;
+    int byte_rate = sample_rate * 4;
+    int block_align = 4;
+    int data_size = total_samples * 4;
+    fwrite("RIFF", 1, 4, output);
+    int chunk_size = 36 + data_size;
+    fwrite(&chunk_size, 4, 1, output);
+    fwrite("WAVE", 1, 4, output);
+    fwrite("fmt ", 1, 4, output);
+    int subchunk1_size = 16;
+    fwrite(&subchunk1_size, 4, 1, output);
+    short audio_format = 3; // IEEE float
+    fwrite(&audio_format, 2, 1, output);
+    short num_channels = 1;
+    fwrite(&num_channels, 2, 1, output);
+    fwrite(&sample_rate, 4, 1, output);
+    fwrite(&byte_rate, 4, 1, output);
+    fwrite(&block_align, 2, 1, output);
+    short bits_per_sample = 32;
+    fwrite(&bits_per_sample, 2, 1, output);
+    fwrite("data", 1, 4, output);
+    fwrite(&data_size, 4, 1, output);
+}
+
 void samout(int idsk, int n, FILE *output) {
-    static int idbuf[BUFFER_SIZE];
+    static float idbuf[BUFFER_SIZE];
     int m1 = IP[9];
     int isc = IP[11];
-    if (idsk + n > BUFFER_SIZE) n = BUFFER_SIZE - idsk; // Prevent overflow
+    if (n <= 0) return;
+    if (idsk + n > BUFFER_SIZE) n = BUFFER_SIZE - idsk;
+    if (n <= 0) return;
     printf("Samout: idsk=%d, n=%d, m1=%d\n", idsk, n, m1);
     for (int k = 0; k < n; k++) {
-        int n1 = I[m1 + k] / isc;
+        float n1 = (float)I[m1 + k] / isc;
         if (n1 > PEAK) PEAK = n1;
-        idbuf[idsk + k] = n1;
-        if (k < 5) printf("idbuf[%d]=%d ", idsk + k, idbuf[idsk + k]);
+        idbuf[idsk + k] = n1 * 0.000488f;
+        if (k < 5) printf("idbuf[%d]=%.6f ", idsk + k, idbuf[idsk + k]);
     }
     printf("\nWriting %d samples\n", n);
-    for (int k = 0; k < n; k++) {
-        float sample = idbuf[idsk + k] * 0.000488f;
-        size_t written = fwrite(&sample, sizeof(float), 1, output);
-        if (written != 1) printf("Write failed at k=%d\n", k);
-    }
+    size_t written = fwrite(&idbuf[idsk], sizeof(float), n, output);
+    if (written != n) printf("Write failed: wrote %zu of %d\n", written, n);
     fflush(output);
 }
 
 void forsam(int ins_start, int mout) {
-    float sfi = 1.0f / IP[11];
     int n1 = I[5] + 2;
     int n2 = I[n1 - 1];
     int l[8] = {0}, m[8] = {0};
@@ -127,8 +150,8 @@ void forsam(int ins_start, int mout) {
     printf("NGEN=%d, NSAM=%d\n", ngen, nsam);
     if (ngen == 1) { // OSC
         float sum = 0.0f;
-        float amp = P[3] * 1000000.0f; // Scale amplitude
-        float freq = P[5] / SAMPLE_RATE; // Hz to sample rate
+        float amp = P[3] * 1000.0f; // Boost for audible WAV
+        float freq = P[5] / SAMPLE_RATE;
         printf("OSC: sum=%f, amp=%f, freq=%f\n", sum, amp, freq);
         for (int j3 = 0; j3 < nsam && j3 < I_SIZE - mout; j3++) {
             int j5 = mout + j3;
@@ -156,7 +179,7 @@ char *pass3(char *input_buffer, int input_size) {
         return NULL;
     }
 
-    FILE *output = fopen("snd.raw", "wb");
+    FILE *output = fopen("snd.wav", "wb");
     if (!output) {
         printf("File error\n");
         free(output_buffer);
@@ -173,6 +196,9 @@ char *pass3(char *input_buffer, int input_size) {
     I[3] = IP[2];
     int mout = IP[9];
     int idsk = 0;
+    int total_samples = 0;
+
+    fseek(output, 44, SEEK_SET);
 
 label_5:
     T[0] = 0.0;
@@ -239,9 +265,11 @@ label_218:
             }
             I[m1] = (int)P[3];
             int m3 = I[0];
-            I[m1 + 1] = m1 + m3 - 2; // Adjusted for correct block size
+            I[m1 + 1] = m1 + m3 - 1;
             m1 += 2;
-            for (int n1 = 4; n1 <= m3; n1++) {
+            if (m1 == IP[3]) I[m1] = 101; // Force OSC at 14500
+            m1++;
+            for (int n1 = 5; n1 <= m3; n1++) {
                 int m5 = (int)P[n1];
                 if (m5 < 0) {
                     if (m5 + 100 >= 0) I[m1] = -IP[12] + (m5 + 1) * IP[13];
@@ -265,7 +293,10 @@ label_6:
             int l = k + IP[13] - 1;
             for (int j = k; j <= l; j++) I[j] = 0;
             samout(idsk, IP[13], output);
+            total_samples += IP[13];
             printf(" END OF PASS III\n");
+            rewind(output);
+            write_wav_header(output, total_samples);
             fclose(output);
             FILE *params = fopen("snd_params.txt", "w");
             fprintf(params, "%d %d\n", I[7] + 1, I[3]);
@@ -296,6 +327,7 @@ label_250:
     }
 label_260:
     int isam = (int)((T[2] - T[0]) * I[3] + 0.5);
+    if (isam < 0) isam = 0;
     T[0] = T[2];
     printf("ISAM=%d, T[0]=%f\n", isam, T[0]);
     if (isam > 0) {
@@ -318,9 +350,11 @@ label_260:
                 }
             }
             samout(idsk, msamp, output);
+            total_samples += msamp;
             idsk += msamp;
             isam -= msamp;
         }
+        idsk = 0;
     }
     if (mnote >= 0 && tmin < 1000000.0) {
         TI[mnote] = 1000000.0;
@@ -328,6 +362,7 @@ label_260:
         printf("Note %d ended, TI[%d]=%f\n", mnote, mnote, TI[mnote]);
         goto label_250;
     }
+    if (pos >= input_size) goto label_6;
     goto label_204;
 }
 

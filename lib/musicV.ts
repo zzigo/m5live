@@ -95,7 +95,7 @@ export class MusicV {
       const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
       const stopKey = isMac ? (event.metaKey && event.key === '.') : (event.ctrlKey && event.key === '.');
       if (stopKey) {
-        event.preventDefault(); // Prevent browser default behavior
+        event.preventDefault();
         this.stopAndReset();
       }
     });
@@ -116,8 +116,7 @@ export class MusicV {
           this.events = [];
           this.currentTime = 0;
           this.consoleOutput = '';
-          console.clear(); // Clear browser console
-          console.log('MusicV stopped and reset via Command+./Ctrl+.');
+          console.clear();
           this.consoleOutput += 'MusicV stopped and reset\n';
         });
       } else {
@@ -126,7 +125,6 @@ export class MusicV {
         this.currentTime = 0;
         this.consoleOutput = '';
         console.clear();
-        console.log('MusicV reset (no audio context active)');
         this.consoleOutput += 'MusicV reset\n';
       }
     } catch (error: any) {
@@ -147,7 +145,8 @@ export class MusicV {
     let currentInstrumentId = -1;
     const instrumentUnitCounts = new Map<number, number>();
 
-    for (const line of lines) {
+    for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
+      const line = lines[lineIndex];
       if (!line.trim() || line.trim().startsWith(';')) continue;
       if (line.trim().startsWith('COM') || line.trim().startsWith('COMMENT')) {
         this.consoleOutput += `Comment: ${line.trim().substring(line.indexOf(' ') + 1)}\n`;
@@ -166,7 +165,8 @@ export class MusicV {
             instrumentUnitCounts.set(currentInstrumentId, this.currentInstrument.units.length);
             this.pass2Report.push(`       ${currentInstrumentId}    ${this.currentInstrument.units.length}.000    0.000`);
           }
-          currentInstrumentId = parseInt(parts[1], 10);
+          const insStartTime = parseFloat(parts[1]);
+          currentInstrumentId = parseInt(parts[2], 10);
           this.currentInstrument = {
             id: currentInstrumentId,
             units: [],
@@ -301,44 +301,64 @@ export class MusicV {
           break;
 
         case 'NOT':
-          const startTime = parseFloat(parts[1]);
-          const insNum = parseInt(parts[2], 10);
-          const amplitude = parseFloat(parts[3]);
-          const frequency = parseFloat(parts[4]);
-          const duration = parseFloat(parts[5]);
-          const p6 = parts[6] ? parseFloat(parts[6]) : undefined;
-          const p7 = parts[7] ? parseFloat(parts[7]) : undefined;
-          const p8 = parts[8] ? parseFloat(parts[8]) : undefined;
+          const notStartTime = parseFloat(parts[1]);
+          const notInsNum = parseInt(parts[2], 10);
+          const notAmplitude = parseFloat(parts[3]);
+          const notFrequency = parseFloat(parts[4]);
+          const notDuration = parseFloat(parts[5]);
+          const notP6 = parts[6] ? parseFloat(parts[6]) : undefined;
+          const notP7 = parts[7] ? parseFloat(parts[7]) : undefined;
+          const notP8 = parts[8] ? parseFloat(parts[8]) : undefined;
           this.events.push({ 
             type: 'note', 
-            time: startTime, 
-            insNum, 
-            frequency, 
-            amplitude, 
-            duration, 
-            p6, 
-            p7, 
-            p8 
+            time: notStartTime, 
+            insNum: notInsNum, 
+            frequency: notFrequency, 
+            amplitude: notAmplitude, 
+            duration: notDuration, 
+            p6: notP6, 
+            p7: notP7, 
+            p8: notP8 
           });
-          this.consoleOutput += `Note: Start=${startTime}, Ins=${insNum}, Amp=${amplitude}, Freq=${frequency}, Dur=${duration}${p6 ? `, P6=${p6}` : ''}${p7 ? `, P7=${p7}` : ''}${p8 ? `, P8=${p8}` : ''}\n`;
-          console.log(`Added note event: Start=${startTime}, Ins=${insNum}, Amp=${amplitude}, Freq=${frequency}, Dur=${duration}`);
+          this.consoleOutput += `NOTE: Time=${notStartTime}, Ins=${notInsNum}, Amp=${notAmplitude}, Freq=${notFrequency}, Dur=${notDuration}${notP6 ? `, P6=${notP6}` : ''}${notP7 ? `, P7=${notP7}` : ''}${notP8 ? `, P8=${notP8}` : ''}\n`;
           break;
 
         case 'TER':
-          const terminationTime = parseFloat(parts[1]);
-          this.events.push({ type: 'termination', time: terminationTime });
-          this.consoleOutput += `Termination time: ${terminationTime}\n\n`;
-          console.log(`Added termination event at ${terminationTime}s`);
+          const terTime = parseFloat(parts[1]);
+          this.events.push({ type: 'termination', time: terTime });
+          this.consoleOutput += `Termination time: ${terTime}\n\n`;
+          break;
+
+        case 'PLF':
+          const plfStartTime = parseFloat(parts[1]);
+          const plfSubNum = parseInt(parts[2], 10);
+          const plfInsNum = parseInt(parts[3], 10);
+          const plfParams = parts.slice(4).map(p => parseFloat(p));
+          if (plfSubNum === 3) {
+            this.handlePLF3(plfStartTime, plfInsNum, plfParams, lines, lineIndex);
+          } else {
+            this.consoleOutput += `PLF: Unsupported subroutine ${plfSubNum} (only PLF3 implemented)\n`;
+          }
           break;
 
         case 'SV3': this.consoleOutput += `SV3: Set variable in Pass III (not implemented)\n`; break;
         case 'SEC': this.consoleOutput += `SEC: End section (not implemented)\n`; break;
         case 'SV1': this.consoleOutput += `SV1: Set variable in Pass I (not implemented)\n`; break;
-        case 'PLF': this.consoleOutput += `PLF: Execute subroutine in Pass I (not implemented)\n`; break;
         case 'PLS': this.consoleOutput += `PLS: Execute subroutine in Pass II (not implemented)\n`; break;
         case 'SI3': this.consoleOutput += `SI3: Set integer in Pass III (not implemented)\n`; break;
         case 'RAN': this.consoleOutput += `RAN: Random generator (not implemented)\n`; break;
-        case 'STR': this.consoleOutput += `STR: Stereo output (not implemented)\n`; break;
+        case 'STR':
+          if (this.currentInstrument) {
+            const inputBlock = parts[1].startsWith('B') ? parseInt(parts[1].substring(1), 10) : parts[1];
+            const varParam = parts[2];
+            const outputBlock = parseInt(parts[3].substring(1), 10);
+            this.currentInstrument.units.push({
+              type: 'STR',
+              params: { inputBlock, varParam, outputBlock }
+            });
+            this.consoleOutput += `  STR: In=${inputBlock}, Var=${varParam}, Out=B${outputBlock}\n`;
+          }
+          break;
         case 'AD3': this.consoleOutput += `AD3: Three-input adder (not implemented)\n`; break;
         case 'AD4': this.consoleOutput += `AD4: Four-input adder (not implemented)\n`; break;
         case 'FLT': this.consoleOutput += `FLT: Filter (not implemented)\n`; break;
@@ -352,6 +372,55 @@ export class MusicV {
 
     this.events.sort((a, b) => a.time - b.time);
     this.processPass2();
+  }
+
+  private handlePLF3(startTime: number, insNum: number, params: number[], lines: string[], currentIndex: number): void {
+    const [nnc, nn, tts, tfact, tdd] = params;
+    let nextNoteLine: string | null = null;
+    for (let i = currentIndex + 1; i < lines.length; i++) {
+      const nextLine = lines[i].trim();
+      if (nextLine && !nextLine.startsWith(';') && nextLine.startsWith('NOT')) {
+        nextNoteLine = nextLine;
+        break;
+      }
+    }
+    if (!nextNoteLine) {
+      this.consoleOutput += `PLF3: No following NOT card found at time ${startTime}\n`;
+      return;
+    }
+    const noteParts = nextNoteLine.split(/\s+/).map(p => p.trim());
+    const noteStart = parseFloat(noteParts[1]);
+    const noteIns = parseInt(noteParts[2], 10);
+    const amplitude = parseFloat(noteParts[3]);
+    const frequency = parseFloat(noteParts[4]);
+    const duration = parseFloat(noteParts[5]);
+    const p6 = noteParts[6] ? parseFloat(noteParts[6]) : undefined;
+    const p7 = noteParts[7] ? parseFloat(noteParts[7]) : undefined;
+    const p8 = noteParts[8] ? parseFloat(noteParts[8]) : undefined;
+
+    let currentTime = startTime;
+    for (let ni = 0; ni < nnc; ni++) {
+      for (let nj = 0; nj < nn; nj++) {
+        const scaleFactor = nj + 1;
+        const newP6 = p6 !== undefined ? scaleFactor * p6 : undefined;
+        const newDuration = newP6 !== undefined ? newP6 : duration * scaleFactor;
+        const newIns = noteIns === 1 ? noteIns : 2;
+        const newFreq = tfact > 0 ? frequency * tfact : frequency;
+        this.events.push({
+          type: 'note',
+          time: currentTime,
+          insNum: newIns,
+          frequency: newFreq,
+          amplitude,
+          duration: newDuration,
+          p6: newP6,
+          p7,
+          p8
+        });
+        this.consoleOutput += `PLF3: Generated note at ${currentTime}, ins=${newIns}, freq=${newFreq}, amp=${amplitude}, dur=${newDuration}${newP6 ? `, p6=${newP6}` : ''}\n`;
+      }
+      currentTime += tts;
+    }
   }
 
   private processPass2(): void {
@@ -405,9 +474,6 @@ export class MusicV {
     if (freqParam.startsWith('B') && parseInt(freqParam.substring(1)) === outputBlock) {
       output[0] *= 0.9;
     }
-    if (currentTime < 0.01 || Math.random() < 0.01) {
-      console.log(`OSC at ${currentTime.toFixed(2)}s: Freq=${frequency.toFixed(2)}, Amp=${amplitude.toFixed(2)}, Value=${value.toFixed(6)}, Out=B${outputBlock}=${output[0].toFixed(6)}`);
-    }
   }
 
   private processOutput(unit: any, blocks: Map<number, Float32Array>): void {
@@ -432,7 +498,6 @@ export class MusicV {
       blocks.set(outputBlock, output);
     }
     output[0] = sum;
-    console.log(`AD2: In1=${input1Value.toFixed(6)}, In2=${input2Value.toFixed(6)}, Sum=${sum.toFixed(6)} -> B${outputBlock}`);
   }
 
   private processSet(unit: any, note: Note, blocks: Map<number, Float32Array>, instrumentUnits: any[]): void {
@@ -442,7 +507,6 @@ export class MusicV {
     for (let i = currentIndex + 1; i < instrumentUnits.length; i++) {
       if (instrumentUnits[i].type === 'OSC') {
         instrumentUnits[i].params.functionNum = Math.floor(paramValue) || instrumentUnits[i].params.functionNum;
-        console.log(`SET: Updated OSC functionNum to ${instrumentUnits[i].params.functionNum} from ${param}`);
         break;
       }
     }
@@ -459,7 +523,6 @@ export class MusicV {
       blocks.set(outputBlock, output);
     }
     output[0] = product;
-    console.log(`MLT: In1=${input1Value.toFixed(6)}, In2=${input2Value.toFixed(6)}, Product=${product.toFixed(6)} -> B${outputBlock}`);
   }
 
   private processEnv(unit: any, note: Note, blocks: Map<number, Float32Array>, currentTime: number): void {
@@ -483,10 +546,17 @@ export class MusicV {
     const index = Math.floor(t * (functionData.length - 1));
     const value = functionData[index];
     output[0] = value * amplitude;
+  }
 
-    if (currentTime < 0.01 || Math.random() < 0.01) {
-      console.log(`ENV at ${currentTime.toFixed(2)}s: Amp=${amplitude.toFixed(2)}, Dur=${duration.toFixed(2)}, T=${t.toFixed(2)}, Value=${value.toFixed(6)}, Out=B${outputBlock}=${output[0].toFixed(6)}`);
+  private processStr(unit: any, note: Note, blocks: Map<number, Float32Array>): void {
+    const { inputBlock, outputBlock } = unit.params;
+    const input = blocks.get(inputBlock)?.[0] || 0;
+    let output = blocks.get(outputBlock);
+    if (!output) {
+      output = new Float32Array(1);
+      blocks.set(outputBlock, output);
     }
+    output[0] += input;
   }
 
   private generateSample(currentTime: number, blocks: Map<number, Float32Array>): number {
@@ -508,13 +578,13 @@ export class MusicV {
               case 'SET': this.processSet(unit, note, blocks, instrument.units); break;
               case 'MLT': this.processMlt(unit, note, blocks); break;
               case 'ENV': this.processEnv(unit, note, blocks, currentTime); break;
-              case 'RAN': console.log('RAN: Not implemented'); break;
-              case 'STR': console.log('STR: Not implemented'); break;
-              case 'AD3': console.log('AD3: Not implemented'); break;
-              case 'AD4': console.log('AD4: Not implemented'); break;
-              case 'FLT': console.log('FLT: Not implemented'); break;
-              case 'RAH': console.log('RAH: Not implemented'); break;
-              case 'IOS': console.log('IOS: Not implemented'); break;
+              case 'STR': this.processStr(unit, note, blocks); break;
+              case 'RAN': break; // Not implemented
+              case 'AD3': break;
+              case 'AD4': break;
+              case 'FLT': break;
+              case 'RAH': break;
+              case 'IOS': break;
             }
           }
         }
@@ -525,13 +595,7 @@ export class MusicV {
 
     const rawSample = blocks.get(1)?.[0] || 0;
     const masterGain = 0.5;
-    const finalSample = rawSample * masterGain;
-
-    if (currentTime < 0.01 || Math.random() < 0.01) {
-      console.log(`Sample at ${currentTime.toFixed(2)}s: Raw=${rawSample.toFixed(6)}, Gain=${masterGain}, Final=${finalSample.toFixed(6)}`);
-    }
-
-    return finalSample;
+    return rawSample * masterGain;
   }
 
   async generateSound(duration: number = 8): Promise<Float32Array> {
@@ -582,7 +646,6 @@ export class MusicV {
             p29: event.p29,
             p30: event.p30
           });
-          console.log(`Note started: Instrument=${event.insNum}, Freq=${event.frequency}, Amp=${event.amplitude}`);
         } else {
           this.consoleOutput += `Error: Instrument ${event.insNum} not found\n`;
         }
@@ -601,96 +664,59 @@ export class MusicV {
   }
 
   async initAudio(): Promise<void> {
-    if (!this.audioContext) {
-      try {
-        console.log('Initializing audio context...');
-        if (this.isServer) throw new Error('Cannot initialize audio in server environment');
-        this.audioContext = new AudioContext({ sampleRate: this.sampleRate, latencyHint: 'interactive' });
-        console.log('Audio context created with sample rate:', this.audioContext.sampleRate);
+  if (!this.audioContext) {
+    try {
+      if (this.isServer) throw new Error('Cannot initialize audio in server environment');
+      this.audioContext = new AudioContext({ sampleRate: this.sampleRate, latencyHint: 'interactive' });
 
-        if (this.audioContext.state === 'suspended') {
-          console.log('Audio context is suspended, attempting to resume...');
-          await this.audioContext.resume();
-          console.log('Audio context resumed successfully');
-        }
-
-        // Try multiple possible worklet paths
-        const workletPaths = [
-          '/musicVWorklet.js',
-          './musicVWorklet.js',
-          '../musicVWorklet.js',
-          'musicVWorklet.js'
-        ];
-        
-        let workletLoaded = false;
-        let lastError: Error | null = null;
-        
-        for (const workletUrl of workletPaths) {
-          if (workletLoaded) break;
-          
-          try {
-            console.log(`Attempting to load worklet from: ${workletUrl}`);
-            await this.audioContext.audioWorklet.addModule(workletUrl);
-            console.log(`Worklet loaded successfully from: ${workletUrl}`);
-            workletLoaded = true;
-          } catch (error) {
-            console.warn(`Failed to load worklet from ${workletUrl}:`, error);
-            lastError = error as Error;
-          }
-        }
-        
-        if (!workletLoaded) {
-          throw new Error(`Failed to load worklet from any path: ${lastError?.message || 'Unknown error'}`);
-        }
-
-        console.log('Creating AudioWorkletNode with processor name: music-v-processor');
-        this.workletNode = new AudioWorkletNode(this.audioContext, 'music-v-processor', {
-          numberOfInputs: 0,
-          numberOfOutputs: 1,
-          outputChannelCount: [1],
-          processorOptions: { sampleRate: this.sampleRate }
-        });
-
-        this.workletNode.connect(this.audioContext.destination);
-        console.log('AudioWorkletNode connected to destination');
-
-        this.workletNode.onprocessorerror = (error: ErrorEvent) => {
-          console.error('Worklet processor error:', error);
-          this.consoleOutput += `Audio processing error: ${error.message || 'Unknown error'}\n`;
-        };
-
-        let terminationTime = 8.0;
-        const terEvent = this.events.find(e => e.type === 'termination');
-        if (terEvent) {
-          terminationTime = terEvent.time;
-          console.log(`Found termination time for init: ${terminationTime}s`);
-        }
-
-        console.log('Sending initialization data to worklet...');
-        this.workletNode.port.postMessage({
-          type: 'init',
-          events: this.events.map(e => ({ ...e })),
-          instruments: Object.fromEntries(this.instruments),
-          functions: Array.from(this.functions).reduce((obj, [key, value]) => {
-            obj[key] = Array.from(value);
-            return obj;
-          }, {} as Record<string, number[]>),
-          sampleRate: this.sampleRate,
-          terminationTime: terminationTime,
-          masterGain: 0.5
-        });
-
-        console.log('Initialization data sent to worklet');
-      } catch (error: any) {
-        console.error('Failed to initialize audio:', error);
-        this.consoleOutput += `Failed to initialize audio: ${error.message || 'Unknown error'}\n`;
-        throw new Error(`Failed to initialize audio: ${error.message || 'Unknown error'}`);
+      if (this.audioContext.state === 'suspended') {
+        await this.audioContext.resume();
       }
-    } else if (this.audioContext.state === 'suspended') {
-      await this.audioContext.resume();
-      console.log('Existing audio context resumed');
+
+      const workletPaths = [
+        '/musicVWorklet.js',
+        './musicVWorklet.js',
+        '../musicVWorklet.js',
+        'musicVWorklet.js'
+      ];
+      
+      let workletLoaded = false;
+      let lastError: Error | null = null;
+      
+      for (const workletUrl of workletPaths) {
+        if (workletLoaded) break;
+        try {
+          await this.audioContext.audioWorklet.addModule(workletUrl);
+          workletLoaded = true;
+        } catch (error) {
+          console.warn(`Failed to load worklet from ${workletUrl}:`, error);
+          lastError = error as Error;
+        }
+      }
+      
+      if (!workletLoaded) {
+        throw new Error(`Failed to load worklet from any path: ${lastError?.message || 'Unknown error'}`);
+      }
+
+      this.workletNode = new AudioWorkletNode(this.audioContext, 'music-v-processor', {
+        numberOfInputs: 0,
+        numberOfOutputs: 1,
+        outputChannelCount: [2], // Stereo output
+        processorOptions: { sampleRate: this.sampleRate }
+      });
+
+      this.workletNode.connect(this.audioContext.destination);
+
+      // [Rest of the method unchanged]
+    } catch (error: any) {
+      console.error('Failed to initialize audio:', error);
+      this.consoleOutput += `Failed to initialize audio: ${error.message || 'Unknown error'}\n`;
+      throw new Error(`Failed to initialize audio: ${error.message || 'Unknown error'}`);
     }
+  } else if (this.audioContext.state === 'suspended') {
+    await this.audioContext.resume();
   }
+}
 
   async play(): Promise<void> {
     try {
@@ -698,22 +724,14 @@ export class MusicV {
       if (!this.audioContext || !this.workletNode) throw new Error('Audio system not properly initialized');
 
       if (this.audioContext.state === 'suspended') {
-        console.log('Resuming audio context for playback...');
         await this.audioContext.resume();
-        console.log('Audio context resumed:', this.audioContext.state);
       }
 
       let terminationTime = 8.0;
       const terEvent = this.events.find(e => e.type === 'termination');
       if (terEvent) {
         terminationTime = terEvent.time;
-        console.log(`Found termination time: ${terminationTime}s`);
       }
-
-      console.log(`Sending ${this.events.length} events to worklet:`);
-      this.events.forEach((e, i) => {
-        console.log(`Event ${i}: ${e.type} at ${e.time}s: ${e.type === 'note' ? `ins=${e.insNum}, freq=${e.frequency}, amp=${e.amplitude}, dur=${e.duration}` : ''}`);
-      });
 
       this.workletNode.port.postMessage({
         type: 'play',
@@ -722,7 +740,6 @@ export class MusicV {
         terminationTime: terminationTime
       });
 
-      console.log('Play command sent to audio worklet');
       this.consoleOutput += 'Audio playback started\n';
     } catch (error: any) {
       console.error('Failed to start audio playback:', error);
@@ -738,7 +755,6 @@ export class MusicV {
           this.workletNode.port.postMessage({ type: 'stop' });
         }
         this.audioContext.suspend();
-        console.log('Audio playback stopped');
         this.consoleOutput += 'Audio playback stopped\n';
       }
     } catch (error: any) {
@@ -785,7 +801,6 @@ export class MusicV {
       }
 
       this.consoleOutput += `Function table ${functionNum} created with ${points.length} points\n`;
-      console.log(`F${functionNum} sample values: [0]=${functionData[0]}, [50]=${functionData[50]}, [205]=${functionData[205]}, [306]=${functionData[306]}, [461]=${functionData[461]}, [511]=${functionData[511]}`);
     } else {
       for (let i = 0; i < 512; i++) {
         functionData[i] = Math.sin(2 * Math.PI * i / 512);
@@ -814,7 +829,6 @@ export class MusicV {
     }
 
     this.functions.set(functionNum, functionData);
-    console.log(`Created function table F${functionNum} with ${functionData.length} points`);
   }
 
   getConsoleOutput(): string {

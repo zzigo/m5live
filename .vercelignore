@@ -4,7 +4,6 @@ node_modules
 .nuxt
 *.log
 *.md
-!README.md
 .env
 .env.*
 !.env.example
