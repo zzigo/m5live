@@ -3,10 +3,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "NITRO_PRESET=vercel nuxt build",
+    "build": "nuxt build",
     "dev": "NODE_OPTIONS=--no-warnings node ./node_modules/.bin/nuxt dev",
     "dev-local": "NITRO_PRESET=node NODE_OPTIONS=--no-warnings nuxt dev",
-    "generate": "NITRO_PRESET=vercel nuxt generate",
+    "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "exit 0",
     "start": "node .output/server/index.mjs",

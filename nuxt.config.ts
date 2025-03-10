@@ -20,9 +20,14 @@ export default defineNuxtConfig({
     }
   },
 
-  // Nitro configuration - use vercel preset for Vercel
+  // Nitro configuration
   nitro: {
-    preset: 'vercel-static'
+    preset: 'static',
+    static: true,
+    prerender: {
+      crawlLinks: true,
+      routes: ['/']
+    }
   },
 
   // Development server
