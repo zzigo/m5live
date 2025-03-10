@@ -5,7 +5,36 @@ set +e
 
 echo "Starting combined build process for Render..."
 
-# Try the direct approach first
+# Try the static-only approach first
+echo "Attempting build with static-only approach..."
+./build-render-static.sh
+STATIC_RESULT=$?
+
+if [ $STATIC_RESULT -eq 0 ]; then
+  echo "Static-only build succeeded!"
+  exit 0
+fi
+
+echo "Static-only build failed with exit code $STATIC_RESULT"
+
+# Check if Docker is available
+if command -v docker &> /dev/null; then
+  # Try the Docker-based approach
+  echo "Attempting build with Docker-based approach..."
+  ./build-render-docker.sh
+  DOCKER_RESULT=$?
+
+  if [ $DOCKER_RESULT -eq 0 ]; then
+    echo "Docker-based build succeeded!"
+    exit 0
+  fi
+
+  echo "Docker-based build failed with exit code $DOCKER_RESULT"
+else
+  echo "Docker is not available, skipping Docker-based approach."
+fi
+
+# Try the direct approach
 echo "Attempting build with direct approach..."
 ./build-render-direct.sh
 DIRECT_RESULT=$?
