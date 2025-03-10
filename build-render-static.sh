@@ -3,11 +3,10 @@
 # Exit on error
 set -e
 
-echo "Starting static-only build process for Render..."
+echo "Starting pure static build process for Render..."
 
 # Create output directory
 echo "Creating output directory..."
-rm -rf .output
 mkdir -p .output/public
 
 # Create a simple index.html
@@ -102,10 +101,9 @@ TER 8 ;</pre>
 </html>
 EOF
 
-# Copy any static assets if they exist
-if [ -d "public" ]; then
-    echo "Copying static assets..."
-    cp -r public/* .output/public/
-fi
+# Create a simple favicon
+echo "Creating favicon..."
+cat > .output/public/favicon.ico << 'EOF'
+EOF
 
 echo "Static build completed successfully! Output is in .output/public" 

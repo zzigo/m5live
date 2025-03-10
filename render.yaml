@@ -3,15 +3,11 @@ services:
   - type: web
     name: m5live
     env: static
-    buildCommand: ./build-render-static.sh
+    buildCommand: mkdir -p .output/public && echo '<!DOCTYPE html><html><head><title>M5LIVE</title><style>body{font-family:Arial;background:#1a1a1a;color:#fff;max-width:800px;margin:0 auto;padding:20px}h1{color:#4CAF50}</style></head><body><h1>M5LIVE - Music V Live</h1><p>This is a temporary static page. The full interactive application is coming soon.</p><p><a href="https://github.com/zzigo/m5live" style="color:#4a148c">View on GitHub</a></p></body></html>' > .output/public/index.html
     staticPublishPath: ./.output/public
     # Add any environment variables your app needs
     envVars:
       - key: NODE_VERSION
         value: 20.10.0
-      - key: RENDER
-        value: "true"
-      - key: BUN_VERSION
-        value: "1.1.0"
     # Configure the service to auto-deploy on push to master
     autoDeploy: true 
