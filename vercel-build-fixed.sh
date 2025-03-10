@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Exit on error
-set -e
+# Don't exit on error - we want to handle errors gracefully
+set +e
 
 echo "Starting build process..."
 
@@ -11,10 +11,23 @@ mkdir -p .output/public
 # Try to build with bun if available
 if command -v bun &> /dev/null; then
   echo "Bun found, using it for build..."
+  
+  # Create .npmrc to skip optional dependencies
+  echo "Creating .npmrc to handle dependencies..."
+  cat > .npmrc << 'NPMRC'
+optional=false
+NPMRC
+
+  # Install dependencies
+  echo "Installing dependencies..."
   bun install
+  
+  # Try to run the generate command
+  echo "Attempting to generate static site..."
   bun run generate
   
-  if [ $? -eq 0 ]; then
+  # Check if the build succeeded
+  if [ $? -eq 0 ] && [ -d ".output/public" ] && [ "$(ls -A .output/public)" ]; then
     echo "Build completed successfully!"
     exit 0
   else
@@ -27,8 +40,17 @@ fi
 # Fall back to static site
 echo "Deploying static site..."
 
-# Copy static site files
-cp -r static-site/* .output/public/
+# Ensure output directory exists
+mkdir -p .output/public
+
+# Copy static site files if the directory exists
+if [ -d "static-site" ] && [ "$(ls -A static-site)" ]; then
+  echo "Copying static site files..."
+  cp -r static-site/* .output/public/
+  echo "Static files copied successfully."
+else
+  echo "No static-site directory found or it's empty."
+fi
 
 # Create a simple index.html if it doesn't exist
 if [ ! -f .output/public/index.html ]; then
@@ -59,5 +81,11 @@ if [ ! -f .output/public/index.html ]; then
 EOFMARKER
 fi
 
-echo "Static site deployed successfully!"
-exit 0 
+# Verify the output directory has content
+if [ -d ".output/public" ] && [ "$(ls -A .output/public)" ]; then
+  echo "Static site deployed successfully!"
+  exit 0
+else
+  echo "Error: Failed to create static site."
+  exit 1
+fi 

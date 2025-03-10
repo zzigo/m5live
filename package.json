@@ -14,7 +14,8 @@
   "dependencies": {
     "ace-builds": "^1.37.4",
     "nuxt": "^3.15.1",
-    "vue": "^3.5.12"
+    "vue": "^3.5.12",
+    "esbuild": "0.19.12"
   },
   "devDependencies": {
     "@types/node": "^20.17.5",
@@ -30,7 +31,7 @@
     "esbuild",
     "rollup"
   ],
-  "optionalDependencies": {
-    "@esbuild/linux-x64": "^0.20.1"
+  "overrides": {
+    "esbuild": "0.19.12"
   }
 }
