@@ -8,6 +8,11 @@ export interface CodeEntry {
   title: string;
 }
 
+// Add a simple event bus for notifications
+const emitEvent = (name: string, data?: any) => {
+  window.dispatchEvent(new CustomEvent(name, { detail: data }));
+};
+
 export function useLocalStorage() {
   const codes = ref<CodeEntry[]>([]);
   const isLoaded = ref(false);
@@ -33,12 +38,35 @@ export function useLocalStorage() {
   // Load default codes from the static JSON file
   const loadDefaultCodes = async () => {
     try {
+      // Try to load the full collection first
       const response = await fetch('/data/codes.json');
       if (response.ok) {
         const data = await response.json();
         codes.value = data;
         saveCodes(); // Save to localStorage
+        return;
       }
+      
+      // If that fails, try the simpler version
+      const fallbackResponse = await fetch('/data/code.json');
+      if (fallbackResponse.ok) {
+        const fallbackData = await fallbackResponse.json();
+        codes.value = fallbackData;
+        saveCodes(); // Save to localStorage
+        return;
+      }
+      
+      // If both fail, create some basic examples
+      codes.value = [
+        {
+          title: "Simple Example",
+          code: "INS 0 1;\nOSC P5 P6 B2 F2 P30;\nOUT B2 B1;\nEND;\nGEN 0 1 2 0 0 .999 50 .999 205 -.999 306 -.999 461 0 511;\nNOT 0 1 .50 125 8.45;\nNOT .75 1 .17 250 8.45;\nNOT 4.00 2 .50 500 8.46;\nTER 8.00 ;",
+          year: 2025,
+          composer: "M5LIVE",
+          comments: "A basic example to get started"
+        }
+      ];
+      saveCodes();
     } catch (error) {
       console.error('Error loading default codes:', error);
     }
@@ -89,12 +117,16 @@ export function useLocalStorage() {
         if (Array.isArray(importedCodes)) {
           codes.value = importedCodes;
           saveCodes();
+          // Emit success event
+          emitEvent('m5live:import-success', { count: importedCodes.length });
         } else {
           throw new Error('Imported data is not an array');
         }
       } catch (error) {
         console.error('Error importing codes:', error);
         alert('Invalid JSON file. Please select a valid M5LIVE codes file.');
+        // Emit error event
+        emitEvent('m5live:import-error', { error: 'Invalid JSON file' });
       }
     };
     

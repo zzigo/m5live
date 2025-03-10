@@ -46,10 +46,10 @@
         </svg>
       </button>
       <div class="import-export-buttons">
-        <button @click="exportCodes" class="icon-button" title="Export Codes">
+        <button @click="handleExportCodes" class="icon-button" title="Export Codes">
           <span class="icon">↓</span> Export
         </button>
-        <button @click="importCodes" class="icon-button" title="Import Codes">
+        <button @click="handleImportCodes" class="icon-button" title="Import Codes">
           <span class="icon">↑</span> Import
         </button>
       </div>
@@ -126,6 +126,11 @@
     </div>
     <div v-if="error" class="error">{{ error }}</div>
     <HelpModal v-model="showHelp" />
+    <Transition name="fade">
+      <div v-if="showNotification" class="notification">
+        {{ notification }}
+      </div>
+    </Transition>
   </div>
 </template>
 
@@ -212,6 +217,10 @@ const startY = ref(0);
 const startScoreEditorFlex = ref(0);
 const startConsoleEditorFlex = ref(0);
 
+// Add a notification ref
+const notification = ref('');
+const showNotification = ref(false);
+
 const checkDevice = () => {
   isMobileOrTablet.value = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 };
@@ -220,6 +229,29 @@ onMounted(async () => {
   checkDevice();
   window.addEventListener('resize', checkDevice);
   window.addEventListener('keydown', handleKeyDownGlobal);
+  
+  // Add event listeners for import notifications
+  const handleImportSuccess = (e) => {
+    const detail = e.detail || { count: 0 };
+    notification.value = `Imported ${detail.count} codes successfully!`;
+    showNotification.value = true;
+    setTimeout(() => {
+      showNotification.value = false;
+    }, 3000);
+  };
+  
+  const handleImportError = (e) => {
+    const detail = e.detail || { error: 'Unknown error' };
+    notification.value = `Import failed: ${detail.error}`;
+    showNotification.value = true;
+    setTimeout(() => {
+      showNotification.value = false;
+    }, 3000);
+  };
+  
+  window.addEventListener('m5live:import-success', handleImportSuccess);
+  window.addEventListener('m5live:import-error', handleImportError);
+  
   await nextTick();
   clearConsole();
   await loadCodes();
@@ -228,6 +260,8 @@ onMounted(async () => {
 onUnmounted(() => {
   window.removeEventListener('resize', checkDevice);
   window.removeEventListener('keydown', handleKeyDownGlobal);
+  window.removeEventListener('m5live:import-success', handleImportSuccess);
+  window.removeEventListener('m5live:import-error', handleImportError);
   if (audioUrl.value) URL.revokeObjectURL(audioUrl.value);
 });
 
@@ -721,6 +755,22 @@ watch(() => scoreEditorRef.value?.aceEditor()?.getValue(), () => {
   showOscilloscopes.value = false;
   clearOscilloscopes();
 }, { deep: true });
+
+// Enhance the exportCodes function to show a notification
+const handleExportCodes = () => {
+  exportCodes();
+  notification.value = 'Codes exported successfully!';
+  showNotification.value = true;
+  setTimeout(() => {
+    showNotification.value = false;
+  }, 3000);
+};
+
+// Enhance the importCodes function to show a notification
+const handleImportCodes = () => {
+  importCodes();
+  // The notification will be shown after import is complete in the useLocalStorage composable
+};
 </script>
 
 <style scoped>
@@ -1148,5 +1198,26 @@ watch(() => scoreEditorRef.value?.aceEditor()?.getValue(), () => {
 
 .import-export-buttons .icon {
   font-size: 1.1rem;
+}
+
+.notification {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 4px;
+  z-index: 2000;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s;
+}
+
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
 }
 </style>
